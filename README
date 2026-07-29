@@ -1,0 +1,22 @@
+xteetotaller is a Wine prefix and installations manager.
+
+The only required dependencies are Motif and standard X11 libraries.
+It requires a C99-compliant compiler with some parts of the Single Unix
+Specification, Version 3 (also known as POSIX.1-2001), implemented.
+Please note that Motif callbacks may break the strict aliasing rule and it is
+thus disabled with the "-fno-strict-aliasing" on GCC and compatible compilers.
+
+xteetotaller is meant to be used on an x86 CPU.
+Using this program on a big-endian CPU may cause issues.
+
+This program is linked with the following libraries:
+- libX11 (also known as Xlib)
+- libXt
+- Motif
+Licensing information for these libraries is available in the licenses
+directory.
+
+This is source-available software.
+It is not yet licensed under a Free Software license.
+
+Copyright 2026 Adrien Saad. All Rights Reserved.
