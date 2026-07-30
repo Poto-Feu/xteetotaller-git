@@ -39,12 +39,22 @@ typedef struct XteeGuiDropDownListForm {
         Widget list;
 } XteeGuiDropDownListForm;
 
+typedef struct XteeGuiListButtonsForm {
+        Widget form;
+        Widget label;
+        Widget list;
+        Widget row_column;
+        Widget *buttons;
+        size_t buttons_n;
+} XteeGuiListButtonsForm;
+
 enum XteeGuiFormFieldType {
         XTEE_GUI_FORM_FIELD_LABELTEXT = 0,
         XTEE_GUI_FORM_FIELD_LTPF,
         XTEE_GUI_FORM_FIELD_TOGGLE,
         XTEE_GUI_FORM_FIELD_RADIOBOX,
         XTEE_GUI_FORM_FIELD_DROPDOWNLIST,
+        XTEE_GUI_FORM_FIELD_LIST_BUTTONS,
         /* Not used, only set to compare it with previous */
         XTEE_GUI_FORM_FIELD_LAST,
 };
@@ -56,6 +66,7 @@ typedef struct XteeGuiFormField {
                 Widget toggle_g;
                 XteeGuiRadioBoxForm radiobox_form;
                 XteeGuiDropDownListForm dropdownlist_form;
+                XteeGuiListButtonsForm listbuttons_form;
         } data;
         enum XteeGuiFormFieldType type;
 } XteeGuiFormField;
@@ -95,6 +106,10 @@ void add_dropdownlist_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 char *w_name, char *label_str,
                 XteeStringList choices_strs);
+void add_list_buttons_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
+                XteeStringList buttons_names,
+                XteeStringList buttons_strs, bool are_btns_enabled);
 
 /* Add a XmNvalueChangedCallback to each RadioBox children.
  * The client_data will contain the id number of the toggle that triggered it

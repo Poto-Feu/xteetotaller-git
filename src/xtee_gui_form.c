@@ -7,7 +7,9 @@
 #include <Xm/Form.h>
 #include <Xm/Label.h>
 #include <Xm/LabelG.h>
+#include <Xm/List.h>
 #include <Xm/PushB.h>
+#include <Xm/RowColumn.h>
 #include <Xm/TextF.h>
 #include <Xm/ToggleBG.h>
 
@@ -193,6 +195,12 @@ manage_gui_dropdownlist_form(XteeGuiDropDownListForm *field)
         XtManageChild(field->form);
 }
 
+void
+manage_gui_listbuttons_form(XteeGuiListButtonsForm *field)
+{
+        XtManageChild(field->form);
+}
+
 static bool
 is_form_field_type_correct(enum XteeGuiFormFieldType type)
 {
@@ -226,6 +234,10 @@ manage_XteeGuiFormField(XteeGuiFormField *field)
                 case XTEE_GUI_FORM_FIELD_DROPDOWNLIST:
                         manage_gui_dropdownlist_form(
                                         &field->data.dropdownlist_form);
+                        break;
+                case XTEE_GUI_FORM_FIELD_LIST_BUTTONS:
+                        manage_gui_listbuttons_form(
+                                        &field->data.listbuttons_form);
                         break;
                 default:
                         break;
@@ -569,6 +581,117 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
         }
         free(items_table);
 
+        set_form_attach_resources(form_data->form, prev_w);
+}
+
+void
+add_list_buttons_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
+                XteeStringList buttons_names,
+                XteeStringList buttons_strs,
+                bool are_btns_enabled)
+{
+        Arg args[5];
+        Cardinal n = 0;
+        const int list_w_margin = 10;
+        XteeGuiFormField *tmp_ptr;
+        XteeGuiListButtonsForm *form_data;
+        Widget prev_w = NULL;
+        Widget list_parent;
+        XmString tmp_str;
+        size_t field_i;
+        bool is_first_field;
+
+        if (buttons_names.n != buttons_strs.n) {
+                fatal_error("buttons_names and buttons_strs must have the "
+                                "same number of elements.");
+        }
+        is_first_field = dialog->fields_n ? false : true;
+        if (!is_first_field) {
+                prev_w = get_last_XteeGuiFormField_widget(dialog);
+        }
+        tmp_ptr = realloc_or_exit(dialog->fields,
+                        ++dialog->fields_n * sizeof(XteeGuiFormField));
+        dialog->fields = tmp_ptr;
+        field_i = dialog->fields_n - 1;
+        form_data = &dialog->fields[field_i].data.listbuttons_form;
+        form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
+                        dialog->dialog_form, NULL, 0);
+        dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LIST_BUTTONS;
+        XtVaSetValues(form_data->form,
+                        XmNfractionBase, 8,
+                        NULL);
+        if (is_first_field) {
+                XtVaSetValues(form_data->form,
+                                XmNtopAttachment, XmATTACH_FORM,
+                                XmNtopOffset, 20,
+                                NULL);
+        } else {
+                XtVaSetValues(form_data->form,
+                                XmNtopAttachment, XmATTACH_WIDGET,
+                                XmNtopWidget, prev_w,
+                                XmNtopOffset, 5,
+                                NULL);
+        }
+
+        tmp_str = XmStringCreateLocalized(label_str);
+        form_data->label = XtVaCreateManagedWidget(
+                        "form_label",
+                        xmLabelGadgetClass,
+                        form_data->form,
+                        XmNlabelString, tmp_str,
+                        XmNtopAttachment, XmATTACH_FORM,
+                        XmNtopOffset, 5,
+                        XmNleftAttachment, XmATTACH_FORM,
+                        NULL);
+        XmStringFree(tmp_str);
+        XtSetArg(args[n], XmNselectionPolicy, XmSINGLE_SELECT); ++n;
+        XtSetArg(args[n], XmNlistSizePolicy, XmRESIZE_IF_POSSIBLE); ++n;
+        form_data->list = XmCreateScrolledList(form_data->form,
+                        "form_field_list", args, n);
+        list_parent = XtParent(form_data->list);
+        XtVaSetValues(list_parent,
+                        XmNheight, 150,
+                        XmNleftAttachment, XmATTACH_WIDGET,
+                        XmNleftWidget, form_data->label,
+                        XmNleftOffset, list_w_margin,
+                        XmNrightAttachment, XmATTACH_POSITION,
+                        XmNrightPosition, 6,
+                        XmNtopAttachment, XmATTACH_FORM,
+                        NULL);
+        XtManageChild(form_data->list);
+        form_data->row_column = XmVaCreateRowColumn(
+                        form_data->form, "form_buttons_row_column",
+                        XmNorientation, XmVERTICAL,
+                        XmNisAligned, False,
+                        XmNentryAlignment, XmALIGNMENT_CENTER,
+                        XmNleftAttachment, XmATTACH_WIDGET,
+                        XmNleftWidget, list_parent,
+                        XmNleftOffset, list_w_margin,
+                        XmNrightAttachment, XmATTACH_FORM,
+                        XmNtopAttachment, XmATTACH_FORM,
+                        XmNbottomAttachment, XmATTACH_OPPOSITE_WIDGET,
+                        XmNbottomWidget, list_parent,
+                        NULL);
+        form_data->buttons_n = buttons_names.n;
+        form_data->buttons = malloc_or_exit(
+                        form_data->buttons_n * sizeof(Widget));
+        for (size_t i = 0; i < form_data->buttons_n; ++i) {
+                XmString tmp_btn_str = XmStringCreateLocalized(
+                                buttons_strs.data[i].s);
+
+                form_data->buttons[i] = XmVaCreatePushButton(
+                                form_data->row_column,
+                                buttons_names.data[i].s,
+                                XmNlabelString, tmp_btn_str,
+                                NULL);
+                XmStringFree(tmp_btn_str);
+                if (!are_btns_enabled) {
+                        XtSetSensitive(form_data->buttons[i], False);
+                }
+                XtManageChild(form_data->buttons[i]);
+        }
+        XtManageChild(form_data->row_column);
         set_form_attach_resources(form_data->form, prev_w);
 }
 

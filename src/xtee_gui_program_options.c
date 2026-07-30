@@ -27,6 +27,20 @@ xtee_gui_show_program_options_dialog(Widget main_win)
         dialog = &xtee_gui_program_options_data.dialog;
 
         if (!is_dialog_ready) {
+                XteeString strs_array[] = {
+                        XTEE_CONSTSTRING_STATIC_INIT("Add argument"),
+                        XTEE_CONSTSTRING_STATIC_INIT("Remove argument"),
+                };
+                XteeString btns_names_array[] = {
+                        XTEE_CONSTSTRING_STATIC_INIT("add_argument_button"),
+                        XTEE_CONSTSTRING_STATIC_INIT("remove_argument_button"),
+                };
+                XteeStringList cmd_line_btns_names = {
+                        btns_names_array, XTEE_ARRAY_LEN(btns_names_array)
+                };
+                XteeStringList cmd_line_btns_strs = {
+                        strs_array, XTEE_ARRAY_LEN(strs_array)
+                };
                 /* Auto-unmanage for now */
                 create_XteeGuiBasicFormDialog(dialog,
                                 main_win,
@@ -35,6 +49,14 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 true);
                 XtAddCallback(dialog->dialog_form, XmNunmapCallback,
                                 program_options_unmap_cb, NULL);
+                add_list_buttons_field_to_XteeGuiBasicFormDialog(dialog,
+                                "cmd_line_args_form",
+                                "Command line arguments: ",
+                                cmd_line_btns_names,
+                                cmd_line_btns_strs,
+                                false);
+                manage_XteeGuiBasicFormDialog_fields(
+                                dialog);
                 is_dialog_ready = true;
         }
         if (xtee_gui_get_selected_program_string(&program_str) != 0) {
