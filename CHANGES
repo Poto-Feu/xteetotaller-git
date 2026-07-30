@@ -1,3 +1,4 @@
 2026-07-30
 * Add dummy command line arguments field in Program Options
 * Track changes in CHANGES file
+* Refactor add_list_buttons_field_to_XteeGuiBasicFormDialog

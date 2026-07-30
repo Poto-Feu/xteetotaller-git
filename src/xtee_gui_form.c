@@ -588,7 +588,7 @@ void
 add_list_buttons_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
                 XteeStringList buttons_names,
-                XteeStringList buttons_strs,
+                char **buttons_strs,
                 bool are_btns_enabled)
 {
         Arg args[5];
@@ -602,10 +602,6 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         size_t field_i;
         bool is_first_field;
 
-        if (buttons_names.n != buttons_strs.n) {
-                fatal_error("buttons_names and buttons_strs must have the "
-                                "same number of elements.");
-        }
         is_first_field = dialog->fields_n ? false : true;
         if (!is_first_field) {
                 prev_w = get_last_XteeGuiFormField_widget(dialog);
@@ -677,9 +673,9 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         form_data->buttons = malloc_or_exit(
                         form_data->buttons_n * sizeof(Widget));
         for (size_t i = 0; i < form_data->buttons_n; ++i) {
-                XmString tmp_btn_str = XmStringCreateLocalized(
-                                buttons_strs.data[i].s);
+                XmString tmp_btn_str;
 
+                tmp_btn_str = XmStringCreateLocalized(buttons_strs[i]);
                 form_data->buttons[i] = XmVaCreatePushButton(
                                 form_data->row_column,
                                 buttons_names.data[i].s,

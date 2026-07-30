@@ -109,7 +109,7 @@ void add_dropdownlist_field_to_XteeGuiBasicFormDialog(
 void add_list_buttons_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
                 XteeStringList buttons_names,
-                XteeStringList buttons_strs, bool are_btns_enabled);
+                char **buttons_strs, bool are_btns_enabled);
 
 /* Add a XmNvalueChangedCallback to each RadioBox children.
  * The client_data will contain the id number of the toggle that triggered it
