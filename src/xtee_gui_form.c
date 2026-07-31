@@ -15,8 +15,6 @@
 
 #include <stdbool.h>
 
-extern inline void manage_XteeGuiBasicFormDialog_fields(
-                XteeGuiBasicFormDialog *dialog);
 extern inline void reset_XteeGuiBasicFormDialog_fields(
                 XteeGuiBasicFormDialog *dialog);
 
@@ -310,7 +308,11 @@ get_XteeGuiFormField_widget(XteeGuiFormField *field)
         type = field->type;
 
         if (type != XTEE_GUI_FORM_FIELD_LABELTEXT
-                        && type != XTEE_GUI_FORM_FIELD_LTPF) {
+                        && type != XTEE_GUI_FORM_FIELD_LTPF
+                        && type != XTEE_GUI_FORM_FIELD_TOGGLE
+                        && type != XTEE_GUI_FORM_FIELD_RADIOBOX
+                        && type != XTEE_GUI_FORM_FIELD_DROPDOWNLIST
+                        && type != XTEE_GUI_FORM_FIELD_LIST_BUTTONS) {
                 type = XTEE_GUI_FORM_FIELD_LABELTEXT;
         }
 
@@ -323,6 +325,10 @@ get_XteeGuiFormField_widget(XteeGuiFormField *field)
                         return field->data.toggle_g;
                 case XTEE_GUI_FORM_FIELD_RADIOBOX:
                         return field->data.radiobox_form.form;
+                case XTEE_GUI_FORM_FIELD_DROPDOWNLIST:
+                        return field->data.dropdownlist_form.form;
+                case XTEE_GUI_FORM_FIELD_LIST_BUTTONS:
+                        return field->data.listbuttons_form.form;
                 default:
                         return NULL;
         }
@@ -429,6 +435,7 @@ set_form_attach_resources(Widget new_w, Widget prev_w)
                         XmNleftOffset, XTEE_FORM_LR_MARGIN,
                         XmNrightAttachment, XmATTACH_FORM,
                         XmNrightOffset, XTEE_FORM_LR_MARGIN,
+                        XmNresizable, False,
                         NULL);
 
         if (!prev_w) {
@@ -675,21 +682,6 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
                         dialog->dialog_form, NULL, 0);
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LIST_BUTTONS;
-        XtVaSetValues(form_data->form,
-                        XmNfractionBase, 8,
-                        NULL);
-        if (is_first_field) {
-                XtVaSetValues(form_data->form,
-                                XmNtopAttachment, XmATTACH_FORM,
-                                XmNtopOffset, 20,
-                                NULL);
-        } else {
-                XtVaSetValues(form_data->form,
-                                XmNtopAttachment, XmATTACH_WIDGET,
-                                XmNtopWidget, prev_w,
-                                XmNtopOffset, 5,
-                                NULL);
-        }
 
         tmp_str = XmStringCreateLocalized(label_str);
         form_data->label = XtVaCreateManagedWidget(
@@ -702,23 +694,35 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                         XmNleftAttachment, XmATTACH_FORM,
                         NULL);
         XmStringFree(tmp_str);
+        form_data->child_form = XtCreateWidget("child_form", xmFormWidgetClass,
+                        form_data->form, NULL, 0);
+        XtVaSetValues(form_data->child_form,
+                        XmNheight, 150,
+                        XmNfractionBase, 6,
+                        XmNresizable, False,
+                        XmNleftAttachment, XmATTACH_WIDGET,
+                        XmNleftWidget, form_data->label,
+                        XmNleftOffset, list_w_margin,
+                        XmNtopAttachment, XmATTACH_FORM,
+                        XmNrightAttachment, XmATTACH_FORM,
+                        NULL);
         XtSetArg(args[n], XmNselectionPolicy, XmSINGLE_SELECT); ++n;
-        XtSetArg(args[n], XmNlistSizePolicy, XmRESIZE_IF_POSSIBLE); ++n;
-        form_data->list = XmCreateScrolledList(form_data->form,
+        XtSetArg(args[n], XmNlistSizePolicy, XmCONSTANT); ++n;
+        form_data->list = XmCreateScrolledList(form_data->child_form,
                         "form_field_list", args, n);
         list_parent = XtParent(form_data->list);
         XtVaSetValues(list_parent,
-                        XmNheight, 150,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, form_data->label,
                         XmNleftOffset, list_w_margin,
                         XmNrightAttachment, XmATTACH_POSITION,
-                        XmNrightPosition, 6,
+                        XmNrightPosition, 3,
                         XmNtopAttachment, XmATTACH_FORM,
+                        XmNbottomAttachment, XmATTACH_FORM,
                         NULL);
         XtManageChild(form_data->list);
         form_data->row_column = XmVaCreateRowColumn(
-                        form_data->form, "form_buttons_row_column",
+                        form_data->child_form, "form_buttons_row_column",
                         XmNorientation, XmVERTICAL,
                         XmNisAligned, False,
                         XmNentryAlignment, XmALIGNMENT_CENTER,
@@ -749,6 +753,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                 XtManageChild(form_data->buttons[i]);
         }
         XtManageChild(form_data->row_column);
+        XtManageChild(form_data->child_form);
         set_form_attach_resources(form_data->form, prev_w);
 }
 

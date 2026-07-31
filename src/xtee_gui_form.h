@@ -42,6 +42,7 @@ typedef struct XteeGuiDropDownListForm {
 typedef struct XteeGuiListButtonsForm {
         Widget form;
         Widget label;
+        Widget child_form;
         Widget list;
         Widget row_column;
         Widget *buttons;
@@ -121,8 +122,6 @@ void add_list_buttons_field_to_XteeGuiBasicFormDialog(
 void
 XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
                 void (*cb_func)(Widget, XtPointer, XtPointer));
-
-
 
 inline void
 reset_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)
