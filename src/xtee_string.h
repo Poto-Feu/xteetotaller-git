@@ -59,6 +59,8 @@ char *xtee_string_merge_char_strings(const char *s1, const char *s2);
 char *xtee_string_merge_char_strings_block(const char **strs);
 
 void free_XteeStringList(XteeStringList list);
+void xtee_add_charstring_to_XteeStringList(XteeStringList *list,
+                const char *s);
 
 inline void
 free_XteeString(XteeString xteestr)
@@ -111,6 +113,13 @@ xtee_strdup_or_exit(const char *s)
                 fatal_error("strdup failed");
         }
         return r;
+}
+
+inline void
+init_XteeStringList(XteeStringList *list)
+{
+        list->data = NULL;
+        list->n = 0;
 }
 
 

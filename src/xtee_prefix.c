@@ -647,7 +647,36 @@ write_program_config_file(XteeProgram *program,
                 }
         }
 
+        for (size_t i = 0; i < program->args_list.n; ++i) {
+                XteeConfigurationEntry conf_entry = {
+                        "cmd_line_arg", program->args_list.data[i].s
+                };
+                if (xtee_write_config_entry(f, conf_entry) != 0) {
+                        return -1;
+                }
+        }
+
         return 0;
+}
+
+XteeString
+xtee_prefix_get_program_config_path(XteePrefix *prefix,
+                XteeProgram *program)
+{
+        XteeString prefix_data_dir_path;
+        XteeString programs_dir_path;
+        XteeString program_config_path;
+
+        prefix_data_dir_path = get_prefix_data_dir(prefix->id.s);
+        programs_dir_path = get_prefix_data_programs_dir(
+                        XteeString_to_XteeConstString(prefix_data_dir_path));
+        free_XteeString(prefix_data_dir_path);
+        program_config_path.n = programs_dir_path.n + program->id.n;
+        program_config_path.s = malloc(program_config_path.n + 1);
+        strcpy(program_config_path.s, programs_dir_path.s);
+        strcat(program_config_path.s, program->id.s);
+        free_XteeString(programs_dir_path);
+        return program_config_path;
 }
 
 enum
@@ -655,22 +684,14 @@ XteeAddProgramStatus add_program_to_prefix(XteePrefix *prefix,
                 XteeProgram *program)
 {
         const char *error_str = "Cannot write to program config file.";
-        XteeString prefix_data_dir_path;
-        XteeString programs_dir_path, new_program_config_path;
+        XteeString new_program_config_path;
         XteeString *tmp_ptr;
         FILE *f;
         int fd;
         int r;
 
-        prefix_data_dir_path = get_prefix_data_dir(prefix->id.s);
-        programs_dir_path = get_prefix_data_programs_dir(
-                        XteeString_to_XteeConstString(prefix_data_dir_path));
-        free_XteeString(prefix_data_dir_path);
-        new_program_config_path.n = programs_dir_path.n + program->id.n;
-        new_program_config_path.s = malloc(new_program_config_path.n + 1);
-        strcpy(new_program_config_path.s, programs_dir_path.s);
-        strcat(new_program_config_path.s, program->id.s);
-        free_XteeString(programs_dir_path);
+        new_program_config_path = xtee_prefix_get_program_config_path(prefix,
+                        program);
 
         /* We use open() at first to write to the file only if it does not
          * exist with the flag O_EXCL.
@@ -851,6 +872,8 @@ read_program_config_file(XteeProgram *restrict program,
                                                         var_value);
                                 is_exe_path_set = true;
                         }
+                } else if (xtee_strcmp_bool(var_name, "cmd_line_arg")) {
+                        xtee_program_add_argument(program, var_value);
                 } else {
                         print_warning("Unknown var name in program "
                                         "configuration file.");
@@ -905,4 +928,22 @@ xtee_prefix_get_program_data(XteePrefix *prefix, const char *program_id,
         free(program_config_path);
         program_data->id = XteeString_create_from_charstring(program_id);
         return program_data;
+}
+
+int
+xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program)
+{
+        XteeString program_config_path;
+        FILE *f;
+        int r;
+
+        program_config_path = xtee_prefix_get_program_config_path(prefix,
+                        program);
+        if(!(f = fopen(program_config_path.s, "wb"))) {
+                return -1;
+        }
+        free_XteeString(program_config_path);
+        r = write_program_config_file(program, f);
+        fclose(f);
+        return r;
 }

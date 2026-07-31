@@ -14,5 +14,6 @@ enum XteeGetProgramDataStatus xtee_state_set_loaded_program(
                 const char *program_id);
 XteeProgram *xtee_state_get_loaded_program(void);
 void xtee_state_unload_program(void);
+int xtee_state_save_loaded_program(void);
 
 #endif

@@ -27,4 +27,12 @@ xtee_gui_disable_dialog_help_button(Widget w)
         XtSetSensitive(XtNameToWidget(w, "Help"), False);
 }
 
+inline void
+xtee_gui_free_XmStringTable_items(XmString *table, size_t n)
+{
+        for (size_t i = 0; i < n; ++i) {
+                XmStringFree(table[i]);
+        }
+}
+
 #endif

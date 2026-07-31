@@ -10,6 +10,7 @@ extern inline bool xtee_strcmp_bool(const char *s1, const char *s2);
 extern inline bool xtee_is_charstring_number(const char *s);
 extern inline char *xtee_strdup_or_exit(const char *s);
 extern inline XteeString XteeString_duplicate(const XteeString str);
+extern inline void init_XteeStringList(XteeStringList *list);
 
 XteeString
 move_string_to_XteeString(char *s)
@@ -160,4 +161,17 @@ free_XteeStringList(XteeStringList list)
                 free_XteeString(list.data[i]);
         }
         free(list.data);
+}
+
+void
+xtee_add_charstring_to_XteeStringList(XteeStringList *list,
+                const char *s)
+{
+        XteeString *tmp_ptr;
+
+        tmp_ptr = realloc_or_exit(
+                        list->data, (list->n + 1) * sizeof(*tmp_ptr));
+        list->data = tmp_ptr;
+        list->data[list->n] = XteeString_create_from_charstring(s);
+        ++list->n;
 }

@@ -75,11 +75,12 @@ typedef struct XteeGuiBasicFormDialog {
         Widget dialog_form;
         Widget ok_btn;
         Widget cancel_btn;
+        Widget ok_cancel_column;
         XteeGuiFormField *fields;
         size_t fields_n;
 } XteeGuiBasicFormDialog;
 
-void manage_XteeGuiFormField(XteeGuiFormField *field);
+void manage_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog);
 void free_XteeGuiFormField(XteeGuiFormField *field);
 /* Only use on LabelTextForm, LTPF and ComboBox fields. */
 char *get_XteeGuiFormField_string_value(XteeGuiFormField *field);
@@ -121,17 +122,7 @@ void
 XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
                 void (*cb_func)(Widget, XtPointer, XtPointer));
 
-/* Both PushButtons widgets are managed at creation. */
-void add_ok_cancel_buttons_to_form_dialog(Widget form, Widget *ok_btn,
-                Widget *cancel_btn);
 
-inline void
-manage_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)
-{
-        for (size_t i = 0; i < dialog->fields_n; ++i) {
-                manage_XteeGuiFormField(&dialog->fields[i]);
-        }
-}
 
 inline void
 reset_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)

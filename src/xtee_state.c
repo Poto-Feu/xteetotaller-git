@@ -71,3 +71,9 @@ xtee_state_unload_program(void)
                 is_program_loaded = false;
         }
 }
+
+int
+xtee_state_save_loaded_program(void)
+{
+        return xtee_prefix_save_program(&loaded_prefix, loaded_program);
+}

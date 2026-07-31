@@ -207,7 +207,7 @@ is_form_field_type_correct(enum XteeGuiFormFieldType type)
         return !!(type < XTEE_GUI_FORM_FIELD_LAST && type >= 0);
 }
 
-void
+static void
 manage_XteeGuiFormField(XteeGuiFormField *field)
 {
         enum XteeGuiFormFieldType type;
@@ -244,6 +244,25 @@ manage_XteeGuiFormField(XteeGuiFormField *field)
         }
 }
 
+void
+manage_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)
+{
+        Widget last_field_form;
+
+        for (size_t i = 0; i < dialog->fields_n; ++i) {
+                manage_XteeGuiFormField(&dialog->fields[i]);
+        }
+
+        if (!(last_field_form = get_last_XteeGuiFormField_widget(dialog))) {
+                return;
+        }
+        XtVaSetValues(last_field_form,
+                        XmNbottomAttachment, XmATTACH_WIDGET,
+                        XmNbottomWidget, dialog->ok_cancel_column,
+                        XmNbottomOffset, 5,
+                        NULL);
+}
+
 char *
 get_XteeGuiFormField_string_value(XteeGuiFormField *field)
 {
@@ -273,6 +292,10 @@ reset_XteeGuiFormField(XteeGuiFormField *field)
                 case XTEE_GUI_FORM_FIELD_TOGGLE:
                         XmToggleButtonGadgetSetState(field->data.toggle_g,
                                         False, False);
+                        break;
+                case XTEE_GUI_FORM_FIELD_LIST_BUTTONS:
+                        XmListDeleteAllItems(
+                                        field->data.listbuttons_form.list);
                         break;
                 default:
                         break;
@@ -306,6 +329,43 @@ get_XteeGuiFormField_widget(XteeGuiFormField *field)
         return field->data.ltpf.form;
 }
 
+/* PushButtons and RowColumn widgets are managed at creation. */
+static void
+add_ok_cancel_buttons_to_form_dialog(Widget form, Widget *ok_cancel_column,
+                Widget *ok_btn,
+                Widget *cancel_btn)
+{
+        *ok_cancel_column = XtVaCreateWidget("ok_cancel_column",
+                        xmRowColumnWidgetClass, form,
+                        XmNorientation, XmHORIZONTAL,
+                        XmNmarginWidth, 0,
+                        XmNmarginHeight, 0,
+                        XmNspacing, 8,
+                        XmNbottomAttachment, XmATTACH_FORM,
+                        XmNbottomOffset, 12,
+                        XmNleftAttachment, XmATTACH_FORM,
+                        XmNleftOffset, XTEE_FORM_LR_MARGIN,
+                        XmNrightAttachment, XmATTACH_FORM,
+                        XmNrightOffset, XTEE_FORM_LR_MARGIN,
+                        NULL);
+        *ok_btn = XtVaCreateManagedWidget("OK", xmPushButtonWidgetClass,
+                        *ok_cancel_column,
+                        XmNbottomAttachment, XmATTACH_FORM,
+                        XmNbottomOffset, 12,
+                        XmNleftAttachment, XmATTACH_FORM,
+                        XmNleftOffset, XTEE_FORM_LR_MARGIN,
+                        NULL);
+        *cancel_btn = XtVaCreateManagedWidget("Cancel",
+                        xmPushButtonWidgetClass, *ok_cancel_column,
+                        XmNbottomAttachment, XmATTACH_OPPOSITE_WIDGET,
+                        XmNbottomWidget, *ok_btn,
+                        XmNleftAttachment, XmATTACH_WIDGET,
+                        XmNleftWidget, *ok_btn,
+                        XmNleftOffset, 8,
+                        NULL);
+        XtManageChild(*ok_cancel_column);
+}
+
 void
 create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
                 char *name, char *title, bool auto_unmanage)
@@ -328,6 +388,7 @@ create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
 
         dialog->dialog_form = XmCreateFormDialog(parent, name, args, n);
         add_ok_cancel_buttons_to_form_dialog(dialog->dialog_form,
+                        &dialog->ok_cancel_column,
                         &dialog->ok_btn,
                         &dialog->cancel_btn);
         dialog->fields = NULL;
@@ -703,24 +764,4 @@ XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
                                 (XtPointer)(i + 1));
 #pragma GCC diagnostic pop
         }
-}
-
-void
-add_ok_cancel_buttons_to_form_dialog(Widget form, Widget *ok_btn,
-                Widget *cancel_btn)
-{
-        *ok_btn = XtVaCreateManagedWidget("OK", xmPushButtonWidgetClass, form,
-                        XmNbottomAttachment, XmATTACH_FORM,
-                        XmNbottomOffset, 12,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        XmNleftOffset, XTEE_FORM_LR_MARGIN,
-                        NULL);
-        *cancel_btn = XtVaCreateManagedWidget("Cancel",
-                        xmPushButtonWidgetClass, form,
-                        XmNbottomAttachment, XmATTACH_OPPOSITE_WIDGET,
-                        XmNbottomWidget, *ok_btn,
-                        XmNleftAttachment, XmATTACH_WIDGET,
-                        XmNleftWidget, *ok_btn,
-                        XmNleftOffset, 8,
-                        NULL);
 }

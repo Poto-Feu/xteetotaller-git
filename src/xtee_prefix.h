@@ -98,6 +98,9 @@ int get_prefixes_ids(XteePrefixIdBlock *block);
 int get_prefix_programs_ids(XteeConstString prefix_id,
                 XteePrefixIdBlock *block);
 
+XteeString xtee_prefix_get_program_config_path(XteePrefix *prefix,
+                XteeProgram *program);
+
 /* We cannot use const for program as its values are used in an
  * XteeConfigurationEntry struct, which discards the const qualifier. */
 enum XteeAddProgramStatus add_program_to_prefix(XteePrefix *prefix,
@@ -108,6 +111,8 @@ int xtee_prefix_reload_programs_list(XteePrefix *prefix);
 enum XteePrefixArch get_prefix_arch_from_str(const char *s);
 
 void xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix);
+
+int xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program);
 
 /* The returned pointer is dynamically allocated.
  * Don't forget to call free when you don't need it anymore! */
