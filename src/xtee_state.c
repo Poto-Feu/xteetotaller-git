@@ -75,5 +75,6 @@ xtee_state_unload_program(void)
 int
 xtee_state_save_loaded_program(void)
 {
+        print_info("Saving loaded program");
         return xtee_prefix_save_program(&loaded_prefix, loaded_program);
 }

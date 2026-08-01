@@ -1,3 +1,7 @@
+2026-08-01
+* Implement Add argument button in Programs Options
+* Improve diagnostic when saving loaded program data
+
 2026-07-31
 * Read and write program arguments
 * Move XteeGuiBasicFormDialog OK and Cancel buttons to a RowColumn
