@@ -1,6 +1,11 @@
+2026-08-02
+* Handle arguments when starting programs
+* Declare calloc_or_exit in xtee_error.h
+
 2026-08-01
 * Implement Add argument button in Programs Options
 * Improve diagnostic when saving loaded program data
+* Hide Remove Argument button
 
 2026-07-31
 * Read and write program arguments

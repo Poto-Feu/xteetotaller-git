@@ -492,18 +492,20 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
 {
         XteeEnvData env_data[1];
         XteeString program_str;
-        char *args[1];
+        char *args_regular[1];
+        char **args_multiple = NULL;
+        char **args_ptr;
         XteePrefix *loaded_prefix;
         XteeProgram *program_data;
         XteeWineVersionData *version_data;
         const char *info_strs[3];
         unsigned int *list_positions;
+        size_t args_n;
         enum XteeGetProgramDataStatus status;
         int list_positions_n;
         int r;
         Widget programs_list;
 
-        /* TODO: handle program args */
         (void)w;
         (void)call_data;
         (void)client_data;
@@ -527,9 +529,21 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         }
         set_and_show_main_working_dialog("Running program",
                         "Running program");
-        args[0] = xtee_strdup_or_exit(program_data->exe_path.s);
+        if (program_data->args_list.n != 0) {
+                args_n = program_data->args_list.n + 1;
+                args_multiple = malloc_or_exit(args_n * sizeof(char *));
+                args_ptr = args_multiple;
+                for (size_t i = 0; i < args_n - 1; ++i) {
+                        args_multiple[i + 1] = xtee_strdup_or_exit(
+                                        program_data->args_list.data[i].s);
+                }
+        } else {
+                args_ptr = args_regular;
+                args_n = 1;
+        }
+        args_ptr[0] = xtee_strdup_or_exit(program_data->exe_path.s);
         info_strs[0] = "Running ";
-        info_strs[1] = args[0];
+        info_strs[1] = args_ptr[0];
         info_strs[2] = NULL;
         print_info_strs(info_strs);
         xtee_free_program(program_data);
@@ -538,9 +552,15 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         env_data[0].value = loaded_prefix->wineprefix_dir.s;
         xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
         r = xtee_gui_fork_exec(version_data->wine_path.s,
-                        args, XTEE_ARRAY_LEN(args),
+                        args_ptr, args_n,
                         env_data, XTEE_ARRAY_LEN(env_data));
-        free(args[0]);
+        free(args_ptr[0]);
+        if (args_multiple) {
+                for (size_t i = 0; i < args_n - 1; ++i) {
+                        free(args_multiple[i + 1]);
+                }
+                free(args_multiple);
+        }
         if (r != 0) {
                 gui_print_error_log_and_dialog( "Error while running "
                                 "program in Wine prefix.\n"

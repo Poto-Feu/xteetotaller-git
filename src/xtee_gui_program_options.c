@@ -164,10 +164,12 @@ set_program_args_widgets(void)
         listbuttons_form = &last_field->data.listbuttons_form;
         remove_arg_btn = listbuttons_form->buttons[remove_arg_btn_i];
         add_arg_btn = listbuttons_form->buttons[add_arg_btn_i];
-        XtSetSensitive(remove_arg_btn, False);
         XtAddCallback(add_arg_btn, XmNactivateCallback,
                         program_options_dialog_add_arg_cb,
                         NULL);
+        /* For now, remove Remove Argument button as it has no effect. */
+        XtSetSensitive(remove_arg_btn, False);
+        XtUnmanageChild(remove_arg_btn);
 }
 void
 xtee_gui_show_program_options_dialog(Widget main_win)

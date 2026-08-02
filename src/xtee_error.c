@@ -8,6 +8,7 @@ static enum XteeLogLevel xtee_log_level = XTEE_LOG_ERROR;
 extern inline void fatal_error(const char *s);
 extern inline void *malloc_or_exit(size_t size);
 extern inline void *realloc_or_exit(void *ptr, size_t size);
+extern inline void *calloc_or_exit(size_t nmemb, size_t size);
 
 void
 set_log_level(void)
