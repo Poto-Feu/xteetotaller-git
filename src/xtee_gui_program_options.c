@@ -197,7 +197,7 @@ XTEE_XT_CALLBACK_FUNC(remove_arg_btn_cb)
                         XmNselectedPositions, &list_positions,
                         NULL);
         if (list_positions_n > 1) {
-                fatal_error("Multiple selections in programs list.");
+                fatal_error("Multiple selections in args list.");
         }
         program = xtee_state_get_loaded_program();
         xtee_program_remove_argument(program, list_positions[0] - 1);
