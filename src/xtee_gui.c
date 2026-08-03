@@ -108,7 +108,6 @@ static XteePushButtonData prefix_btns_data[] = {
 };
 
 static Widget run_exec_browse_dialog = NULL;
-static Widget program_running_working_dialog = NULL;
 static Widget main_working_dialog = NULL;
 
 char *
@@ -881,52 +880,6 @@ XTEE_XT_CALLBACK_FUNC(new_program_btn_cb)
         show_new_program_dialog();
 }
 
-static void
-show_program_running_working_dialog(void)
-{
-        Widget parent;
-
-        parent = main_gui_data.main_win;
-
-        if (!program_running_working_dialog) {
-                Arg args[10];
-                Cardinal n = 0;
-                XmString dialog_title;
-                XmString message_string;
-
-                dialog_title = XmStringCreateLocalized(
-                                "Running program");
-                message_string = XmStringCreateLocalized(
-                                "Program is running...");
-
-                XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
-                XtSetArg(args[n], XmNmessageString, message_string); n++;
-                XtSetArg(args[n], XmNdialogStyle,
-                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
-                program_running_working_dialog = XmCreateWorkingDialog(
-                                parent,
-                                "program_running_working_dialog",
-                                args, n);
-                XmStringFree(dialog_title);
-                XmStringFree(message_string);
-                XtUnmanageChild(XtNameToWidget(program_running_working_dialog,
-                                        "OK"));
-                xtee_gui_disable_dialog_help_button(
-                                program_running_working_dialog);
-                xtee_gui_hide_dialog_cancel_button(
-                                program_running_working_dialog);
-                xtee_gui_hide_dialog_help_button(
-                                program_running_working_dialog);
-        }
-        XtManageChild(program_running_working_dialog);
-}
-
-static void
-hide_program_running_working_dialog(void)
-{
-        XtUnmanageChild(program_running_working_dialog);
-}
-
 static int
 fork_exec_run_executable(XteePrefix *prefix, XteeString path_str,
                 bool is_file_msi)
@@ -1024,10 +977,11 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
                 return;
         }
 
-        show_program_running_working_dialog();
+        set_and_show_main_working_dialog("Running program",
+                        "Program is running...");
         r = fork_exec_run_executable(loaded_prefix, val_xteestr, is_file_msi);
         free(val_str);
-        hide_program_running_working_dialog();
+        hide_main_working_dialog();
         if (r != 0) {
                 gui_print_error_log_and_dialog(
                                 "Error while running executable in Wine "
