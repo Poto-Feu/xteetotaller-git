@@ -175,3 +175,12 @@ xtee_add_charstring_to_XteeStringList(XteeStringList *list,
         list->data[list->n] = XteeString_create_from_charstring(s);
         ++list->n;
 }
+
+void
+xtee_remove_string_in_XteeStringList(XteeStringList *list, size_t i)
+{
+        free_XteeString(list->data[i]);
+        memmove(list->data + i, list->data + i + 1,
+                        (list->n - i - 1) * sizeof(XteeString));
+        --list->n;
+}

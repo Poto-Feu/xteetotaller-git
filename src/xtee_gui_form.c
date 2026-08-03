@@ -770,3 +770,16 @@ XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
 #pragma GCC diagnostic pop
         }
 }
+
+void
+XteeGuiListButtonsForm_button_set_sensitive(XteeGuiListButtonsForm *form,
+                size_t button_i, Boolean sensitive)
+{
+        if (button_i >= form->buttons_n) {
+                print_error("button_i in"
+                                "XteeGuiListButtonsForm_button_set_sensitive "
+                                "is outside button range");
+                return;
+        }
+        XtSetSensitive(form->buttons[button_i], sensitive);
+}

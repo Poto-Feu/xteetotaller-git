@@ -21,5 +21,6 @@ void xtee_init_program(XteeProgram *program,
 void xtee_free_program(XteeProgram *program);
 void xtee_program_add_argument(XteeProgram *restrict program,
                 const char *restrict arg_str);
+void xtee_program_remove_argument(XteeProgram *program, size_t i);
 
 #endif

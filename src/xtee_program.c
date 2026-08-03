@@ -25,5 +25,13 @@ void
 xtee_program_add_argument(XteeProgram *restrict program,
                 const char *restrict arg_str)
 {
+        print_info("Adding program command line argument.");
         xtee_add_charstring_to_XteeStringList(&program->args_list, arg_str);
+}
+
+void
+xtee_program_remove_argument(XteeProgram *program, size_t i)
+{
+        print_info("Removing program command line argument.");
+        xtee_remove_string_in_XteeStringList(&program->args_list, i);
 }

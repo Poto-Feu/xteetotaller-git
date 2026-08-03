@@ -119,9 +119,11 @@ void add_list_buttons_field_to_XteeGuiBasicFormDialog(
  * Id number of each button starts from 1, and not 0 - the latter can be used
  * as a value for a global state variable as no RadioBox toggles are set in
  * their initial state. */
-void
-XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
+void XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
                 void (*cb_func)(Widget, XtPointer, XtPointer));
+
+void XteeGuiListButtonsForm_button_set_sensitive(XteeGuiListButtonsForm *form,
+                size_t button_i, Boolean sensitive);
 
 inline void
 reset_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)
