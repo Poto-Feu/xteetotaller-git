@@ -253,8 +253,7 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 create_XteeGuiBasicFormDialog(dialog,
                                 main_win,
                                 "program_options_dialog",
-                                "Program options",
-                                true);
+                                "Program options");
                 XtAddCallback(dialog->dialog_form, XmNunmapCallback,
                                 program_options_unmap_cb, NULL);
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,

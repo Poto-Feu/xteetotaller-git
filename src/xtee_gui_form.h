@@ -87,10 +87,8 @@ void free_XteeGuiFormField(XteeGuiFormField *field);
 char *get_XteeGuiFormField_string_value(XteeGuiFormField *field);
 void reset_XteeGuiFormField(XteeGuiFormField *field);
 
-/* Ok and cancel buttons callback must be set manually if auto_unmanage is set
- * to false. */
 void create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
-                Widget parent, char *name, char *title, bool auto_unmanage);
+                Widget parent, char *name, char *title);
 void free_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog);
 XteeGuiFormField *get_last_XteeGuiFormField_data(
                 XteeGuiBasicFormDialog *dialog);

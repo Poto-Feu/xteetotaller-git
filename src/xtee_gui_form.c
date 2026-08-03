@@ -105,6 +105,7 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
         Arg args[5];
         Cardinal n = 0;
         XmString tmp_str;
+        char *gui_show_hidden_files_val;
 
         form_data->form = XmCreateForm(parent, form_name, NULL, 0);
         tmp_str = XmStringCreateLocalized(label_str);
@@ -126,7 +127,14 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                         XmNtraversalOn, False,
                         NULL);
         XmStringFree(tmp_str);
+        gui_show_hidden_files_val = xtee_config_get_entry_value(
+                        "gui.show_hidden_files");
         XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
+        if (!gui_show_hidden_files_val
+                        || !xtee_string_to_bool(gui_show_hidden_files_val)) {
+                XtSetArg(args[n], XmNfileFilterStyle,
+                                XmFILTER_HIDDEN_FILES); n++;
+        }
         form_data->browse_dialog = XmCreateFileSelectionDialog(parent,
                         "browse_dialog", args, n);
         xtee_gui_disable_dialog_help_button(form_data->browse_dialog);
@@ -374,7 +382,7 @@ add_ok_cancel_buttons_to_form_dialog(Widget form, Widget *ok_cancel_column,
 
 void
 create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
-                char *name, char *title, bool auto_unmanage)
+                char *name, char *title)
 {
         Arg args[10];
         XmString dialog_title;
@@ -386,17 +394,16 @@ create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
                         XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
         XtSetArg(args[n], XmNwidth, 600); n++;
         XtSetArg(args[n], XmNheight, 450); n++;
-        if (auto_unmanage) {
-                XtSetArg(args[n], XmNautoUnmanage, True); n++;
-        } else {
-                XtSetArg(args[n], XmNautoUnmanage, False); n++;
-        }
+        XtSetArg(args[n], XmNautoUnmanage, False); n++;
 
         dialog->dialog_form = XmCreateFormDialog(parent, name, args, n);
         add_ok_cancel_buttons_to_form_dialog(dialog->dialog_form,
                         &dialog->ok_cancel_column,
                         &dialog->ok_btn,
                         &dialog->cancel_btn);
+        XtVaSetValues(dialog->dialog_form,
+                        XmNcancelButton, dialog->cancel_btn,
+                        NULL);
         dialog->fields = NULL;
         dialog->fields_n = 0;
 }

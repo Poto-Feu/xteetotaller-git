@@ -68,8 +68,7 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                 create_XteeGuiBasicFormDialog(dialog,
                                 main_win,
                                 "prefix_options_dialog",
-                                "Prefix options",
-                                false);
+                                "Prefix options");
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
                                 dialog,
                                 XTEE_GUI_FORM_FIELD_TOGGLE,

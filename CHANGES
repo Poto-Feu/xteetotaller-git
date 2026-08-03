@@ -2,6 +2,8 @@
 * Implement Remove argument button in Program Options dialog
 * Fix fatal error message when selecting multiple program args
 * Replace Running Program dialog with main working dialog
+* Implement gui.show_hidden_files configuration option
+* Remove auto_unmanage parameter in create_XteeGuiBasicFormDialog
 
 2026-08-02
 * Handle arguments when starting programs

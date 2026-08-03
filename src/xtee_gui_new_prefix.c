@@ -458,8 +458,7 @@ show_new_prefix_dialog(Widget main_win)
                 create_XteeGuiBasicFormDialog(dialog,
                                 xtee_gui_main_win,
                                 "new_prefix_dialog",
-                                "New Prefix",
-                                false);
+                                "New Prefix");
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
                                 &new_prefix_data->dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,

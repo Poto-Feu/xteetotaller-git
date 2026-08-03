@@ -835,8 +835,7 @@ show_new_program_dialog(void)
                 create_XteeGuiBasicFormDialog(&new_program_data->dialog,
                                 main_gui_data.main_win,
                                 "new_program_dialog",
-                                "New Program",
-                                false);
+                                "New Program");
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
                                 &new_program_data->dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,
@@ -1004,8 +1003,17 @@ XTEE_XT_CALLBACK_FUNC(run_exec_in_prefix_btn_cb)
         if (!run_exec_browse_dialog) {
                 Arg args[5];
                 Cardinal n = 0;
+                char *gui_show_hidden_files_val;
 
+                gui_show_hidden_files_val = xtee_config_get_entry_value(
+                                "gui.show_hidden_files");
                 XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
+                if (!gui_show_hidden_files_val
+                                || !xtee_string_to_bool(
+                                        gui_show_hidden_files_val)) {
+                        XtSetArg(args[n], XmNfileFilterStyle,
+                                        XmFILTER_HIDDEN_FILES); n++;
+                }
                 run_exec_browse_dialog = XmCreateFileSelectionDialog(
                                 main_gui_data.main_win,
                                 "run_exec_browse_dialog", args, n);
@@ -1375,11 +1383,9 @@ gui_show_preferences(Widget parent)
         prefs_dialog = &main_gui_data.prefs_dialog;
 
         if (!is_dialog_ready) {
-                /* Auto-unmanage for now */
                 create_XteeGuiBasicFormDialog(prefs_dialog, parent,
                                 "preferences_dialog",
-                                "XTeetotaller preferences",
-                                true);
+                                "XTeetotaller preferences");
                 is_dialog_ready = true;
         }
         XtManageChild(prefs_dialog->dialog_form);

@@ -8,7 +8,9 @@ static struct XteeConfigurationVariable config_vars[] = {
         { XTEE_CONSTSTRING_STATIC_INIT("wine.default_version"),
                 XTEE_CONSTSTRING_STATIC_INIT("System") },
         { XTEE_CONSTSTRING_STATIC_INIT("gui.show_unfinished_app_dialog"),
-                XTEE_CONSTSTRING_STATIC_INIT("true") }
+                XTEE_CONSTSTRING_STATIC_INIT("true") },
+        { XTEE_CONSTSTRING_STATIC_INIT("gui.show_hidden_files"),
+                XTEE_CONSTSTRING_STATIC_INIT("true") },
 };
 
 size_t config_vars_len = XTEE_ARRAY_LEN(config_vars);
