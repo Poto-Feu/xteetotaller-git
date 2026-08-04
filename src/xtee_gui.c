@@ -493,7 +493,7 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
 {
         XteeEnvData env_data[1];
         XteeString program_str;
-        char *args_regular[1];
+        char *args_regular[3];
         char **args_multiple = NULL;
         char **args_ptr;
         XteePrefix *loaded_prefix;
@@ -531,20 +531,22 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         set_and_show_main_working_dialog("Running program",
                         "Running program");
         if (program_data->args_list.n != 0) {
-                args_n = program_data->args_list.n + 1;
+                args_n = program_data->args_list.n + 3;
                 args_multiple = malloc_or_exit(args_n * sizeof(char *));
                 args_ptr = args_multiple;
-                for (size_t i = 0; i < args_n - 1; ++i) {
-                        args_multiple[i + 1] = xtee_strdup_or_exit(
+                for (size_t i = 0; i < args_n - 3; ++i) {
+                        args_multiple[i + 3] = xtee_strdup_or_exit(
                                         program_data->args_list.data[i].s);
                 }
         } else {
                 args_ptr = args_regular;
-                args_n = 1;
+                args_n = XTEE_ARRAY_LEN(args_regular);
         }
-        args_ptr[0] = xtee_strdup_or_exit(program_data->exe_path.s);
+        args_ptr[0] = "start";
+        args_ptr[1] = "/unix";
+        args_ptr[2] = xtee_strdup_or_exit(program_data->exe_path.s);
         info_strs[0] = "Running ";
-        info_strs[1] = args_ptr[0];
+        info_strs[1] = args_ptr[2];
         info_strs[2] = NULL;
         print_info_strs(info_strs);
         xtee_free_program(program_data);
@@ -555,10 +557,10 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         r = xtee_gui_fork_exec(version_data->wine_path.s,
                         args_ptr, args_n,
                         env_data, XTEE_ARRAY_LEN(env_data));
-        free(args_ptr[0]);
+        free(args_ptr[2]);
         if (args_multiple) {
-                for (size_t i = 0; i < args_n - 1; ++i) {
-                        free(args_multiple[i + 1]);
+                for (size_t i = 0; i < args_n - 3; ++i) {
+                        free(args_multiple[i + 3]);
                 }
                 free(args_multiple);
         }
@@ -882,25 +884,18 @@ XTEE_XT_CALLBACK_FUNC(new_program_btn_cb)
 }
 
 static int
-fork_exec_run_executable(XteePrefix *prefix, XteeString path_str,
-                bool is_file_msi)
+fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
 {
         XteeEnvData env_data[1];
         char *args[3];
         XteeWineVersionData *version_data;
-        size_t args_n;
+        const size_t args_n = XTEE_ARRAY_LEN(args);
         int r;
 
         version_data = xtee_wine_get_version_data(prefix->wine_version.s);
-        if (is_file_msi) {
-                args[0] = "start";
-                args[1] = "/unix";
-                args[2] = path_str.s;
-                args_n = 3;
-        } else {
-                args[0] = path_str.s;
-                args_n = 1;
-        }
+        args[0] = "start";
+        args[1] = "/unix";
+        args[2] = path_str.s;
         env_data->name = "WINEPREFIX";
         env_data->value = prefix->wineprefix_dir.s;
         xtee_prefix_set_WINEDLLOVERRIDES_env(prefix);
@@ -980,7 +975,7 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
 
         set_and_show_main_working_dialog("Running program",
                         "Program is running...");
-        r = fork_exec_run_executable(loaded_prefix, val_xteestr, is_file_msi);
+        r = fork_exec_run_executable(loaded_prefix, val_xteestr);
         free(val_str);
         hide_main_working_dialog();
         if (r != 0) {

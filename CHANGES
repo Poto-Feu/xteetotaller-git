@@ -1,6 +1,7 @@
 2026-08-04
 * Allow user to change gui.show_hidden_files through Preferences
 * Improve busy events handling
+* Use wine start when launching programs
 
 2026-08-03
 * Implement Remove argument button in Program Options dialog
