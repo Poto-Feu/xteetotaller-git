@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 typedef struct XteePushButtonData {
-        char *id;
+        const char *id;
         char *label;
         Widget *w;
 } XteePushButtonData;
@@ -590,6 +590,7 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
         Arg args[5];
         Cardinal n = 0;
         Widget programs_list_parent;
+        XmString tmp_str;
 
         wa_struct->programs_frame = XmVaCreateFrame(
                         parent, "programs_frame",
@@ -600,13 +601,15 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNrightAttachment, XmATTACH_FORM,
                         XmNrightOffset, 20,
                         NULL);
+        tmp_str = XmStringCreateLocalized("Programs");
         wa_struct->programs_frame_title = XtVaCreateManagedWidget(
                         "programs_frame_title",
                         xmLabelGadgetClass,
                         wa_struct->programs_frame,
                         XmNframeChildType, XmFRAME_TITLE_CHILD,
+                        XmNlabelString, tmp_str,
                         NULL);
-        set_motif_label_string(wa_struct->programs_frame_title, "Programs");
+        XmStringFree(tmp_str);
         wa_struct->programs_form = XmVaCreateForm(
                         wa_struct->programs_frame, "programs_form",
                         XmNfractionBase, 6,
@@ -656,13 +659,15 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNbottomWidget, programs_list_parent,
                         NULL);
         for (size_t i = 0; i < XTEE_ARRAY_LEN(programs_btns_data); ++i) {
-                *(programs_btns_data[i].w) = XmVaCreatePushButton(
-                                wa_struct->programs_buttons,
+                /* Reuse tmp_str as its contents has already been freed */
+                tmp_str = XmStringCreateLocalized(programs_btns_data[i].label);
+                *(programs_btns_data[i].w) = XtVaCreateManagedWidget(
                                 programs_btns_data[i].id,
+                                xmPushButtonWidgetClass,
+                                wa_struct->programs_buttons,
+                                XmNlabelString, tmp_str,
                                 NULL);
-                set_motif_label_string(*(programs_btns_data[i].w),
-                                programs_btns_data[i].label);
-                XtManageChild(*(programs_btns_data[i].w));
+                XmStringFree(tmp_str);
         }
         XtAddCallback(*programs_btns_data[start_program_btn_i].w,
                         XmNactivateCallback, start_program_btn_cb,
@@ -1074,6 +1079,7 @@ static void
 create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
 {
         unsigned int button_lr_margin = 5;
+        XmString tmp_str;
 
         wa_struct->prefix_frame = XmVaCreateFrame(parent,
                         "prefix_frame",
@@ -1085,13 +1091,14 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNrightAttachment, XmATTACH_OPPOSITE_WIDGET,
                         XmNrightWidget, wa_struct->programs_frame,
                         NULL);
+        tmp_str = XmStringCreateLocalized("Prefix");
         wa_struct->prefix_frame_title = XmVaCreateManagedLabelGadget(
                         wa_struct->prefix_frame,
                         "prefix_frame_title",
                         XmNframeChildType, XmFRAME_TITLE_CHILD,
+                        XmNlabelString, tmp_str,
                         NULL);
-        set_motif_label_string(wa_struct->prefix_frame_title,
-                        "Prefix");
+        XmStringFree(tmp_str);
 
         wa_struct->prefix_form = XtCreateWidget("prefix_frame_form",
                         xmFormWidgetClass,
@@ -1109,7 +1116,6 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                 XmString btn_str;
 
                 btn_str = XmStringCreateLocalized(prefix_btns_data[i].label);
-
                 *(prefix_btns_data[i].w) = XtVaCreateManagedWidget(
                                 prefix_btns_data[i].id,
                                 xmPushButtonWidgetClass,
@@ -1130,8 +1136,9 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNactivateCallback, run_exec_in_prefix_btn_cb, NULL);
         XtAddCallback(main_gui_data.work_area_struct.winetricks_btn,
                         XmNactivateCallback, winetricks_btn_cb, NULL);
-        wa_struct->prefix_info_label = XmVaCreateManagedLabel(
-                        wa_struct->prefix_form, "prefix_info_label",
+        wa_struct->prefix_info_label = XtVaCreateManagedWidget(
+                        "prefix_info_label", xmLabelGadgetClass,
+                        wa_struct->prefix_form,
                         XmNalignment, XmALIGNMENT_BEGINNING,
                         XmNtopAttachment, XmATTACH_WIDGET,
                         XmNtopWidget, wa_struct->prefix_btns_row,

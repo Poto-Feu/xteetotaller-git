@@ -9,6 +9,7 @@ AC_C_INLINE
 AC_C_RESTRICT
 
 AC_DEFINE(_XOPEN_SOURCE, 600, "Enable SUS v3 features")
+AC_DEFINE(_CONST_X_STRING, 1, "Use const for X11 String type")
 
 dnl DO NOT CHANGE THE ORDER OF LIBRARIES or expect a "BadWindow" error
 AC_SEARCH_LIBS(XCreateWindow, X11)
