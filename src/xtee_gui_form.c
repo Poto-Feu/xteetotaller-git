@@ -59,6 +59,26 @@ reset_gui_label_text_form(XteeGuiLabelTextForm *f)
         XtVaSetValues(f->text, XmNvalue, "", NULL);
 }
 
+/* Needed to read "gui.show_hidden_files" parameter and set the value
+ * accordingly. */
+static
+XTEE_XT_CALLBACK_FUNC(ltpf_browse_dialog_map_cb)
+{
+        char *gui_show_hidden_files_val;
+
+        (void)call_data;
+        (void)client_data;
+        gui_show_hidden_files_val = xtee_config_get_entry_value(
+                        "gui.show_hidden_files");
+        if (!gui_show_hidden_files_val
+                        || !xtee_string_to_bool(gui_show_hidden_files_val)) {
+                XtVaSetValues(w, XmNfileFilterStyle, XmFILTER_HIDDEN_FILES,
+                                NULL);
+        } else {
+                XtVaSetValues(w, XmNfileFilterStyle, XmFILTER_NONE, NULL);
+        }
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(ltpf_browse_btn_cb)
 {
@@ -141,6 +161,8 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
         XtAddCallback(form_data->browse_btn, XmNactivateCallback,
                         ltpf_browse_btn_cb,
                         (XtPointer)form_data->browse_dialog);
+        XtAddCallback(form_data->browse_dialog,
+                        XmNmapCallback, ltpf_browse_dialog_map_cb, NULL);
         form_data->text = XmVaCreateTextField(form_data->form, text_name,
                         XmNrenderTable, xtee_gui_render_table,
                         XmNtopAttachment, XmATTACH_FORM,
@@ -253,20 +275,9 @@ manage_XteeGuiFormField(XteeGuiFormField *field)
 void
 manage_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)
 {
-        Widget last_field_form;
-
         for (size_t i = 0; i < dialog->fields_n; ++i) {
                 manage_XteeGuiFormField(&dialog->fields[i]);
         }
-
-        if (!(last_field_form = get_last_XteeGuiFormField_widget(dialog))) {
-                return;
-        }
-        XtVaSetValues(last_field_form,
-                        XmNbottomAttachment, XmATTACH_WIDGET,
-                        XmNbottomWidget, dialog->ok_cancel_column,
-                        XmNbottomOffset, 5,
-                        NULL);
 }
 
 char *

@@ -110,6 +110,8 @@ static XteePushButtonData prefix_btns_data[] = {
 static Widget run_exec_browse_dialog = NULL;
 static Widget main_working_dialog = NULL;
 
+static const size_t show_hidden_files_i = 0;
+
 char *
 XmString_to_char_str(XmString *xmstr)
 {
@@ -996,6 +998,8 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
 static
 XTEE_XT_CALLBACK_FUNC(run_exec_in_prefix_btn_cb)
 {
+        char *gui_show_hidden_files_val;
+
         (void)w;
         (void)client_data;
         (void)call_data;
@@ -1003,17 +1007,7 @@ XTEE_XT_CALLBACK_FUNC(run_exec_in_prefix_btn_cb)
         if (!run_exec_browse_dialog) {
                 Arg args[5];
                 Cardinal n = 0;
-                char *gui_show_hidden_files_val;
-
-                gui_show_hidden_files_val = xtee_config_get_entry_value(
-                                "gui.show_hidden_files");
                 XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
-                if (!gui_show_hidden_files_val
-                                || !xtee_string_to_bool(
-                                        gui_show_hidden_files_val)) {
-                        XtSetArg(args[n], XmNfileFilterStyle,
-                                        XmFILTER_HIDDEN_FILES); n++;
-                }
                 run_exec_browse_dialog = XmCreateFileSelectionDialog(
                                 main_gui_data.main_win,
                                 "run_exec_browse_dialog", args, n);
@@ -1022,6 +1016,19 @@ XTEE_XT_CALLBACK_FUNC(run_exec_in_prefix_btn_cb)
                                 NULL);
                 XtAddCallback(run_exec_browse_dialog, XmNcancelCallback,
                                 run_exec_browse_dialog_btns_cb,
+                                NULL);
+        }
+        gui_show_hidden_files_val = xtee_config_get_entry_value(
+                        "gui.show_hidden_files");
+        if (!gui_show_hidden_files_val
+                        || !xtee_string_to_bool(
+                                gui_show_hidden_files_val)) {
+                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
+                                XmFILTER_HIDDEN_FILES,
+                                NULL);
+        } else {
+                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
+                                XmFILTER_NONE,
                                 NULL);
         }
         XtManageChild(run_exec_browse_dialog);
@@ -1373,12 +1380,45 @@ XTEE_XT_CALLBACK_FUNC(file_menu_cb)
         }
 }
 
+static
+XTEE_XT_CALLBACK_FUNC(prefs_dialog_ok_cb)
+{
+        XteeGuiBasicFormDialog *prefs_dialog;
+        XteeGuiFormField *show_hidden_files_field;
+        Boolean show_hidden_files_bool;
+        const char *show_hidden_files_str;
+
+        prefs_dialog = (XteeGuiBasicFormDialog *)client_data;
+        (void)w;
+        (void)call_data;
+        show_hidden_files_field = prefs_dialog->fields + show_hidden_files_i;
+        show_hidden_files_bool = !!(XmToggleButtonGadgetGetState(
+                        show_hidden_files_field->data.toggle_g));
+        show_hidden_files_str = xtee_bool_to_string(show_hidden_files_bool);
+        xtee_config_set_entry_value_and_write("gui.show_hidden_files",
+                        show_hidden_files_str);
+        gui_set_message_area_string("Configuration modified and saved.");
+        XtUnmanageChild(prefs_dialog->dialog_form);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(prefs_dialog_cancel_cb)
+{
+        XteeGuiBasicFormDialog *prefs_dialog;
+
+        prefs_dialog = (XteeGuiBasicFormDialog *)client_data;
+        (void)w;
+        (void)call_data;
+        XtUnmanageChild(prefs_dialog->dialog_form);
+}
 
 static void
 gui_show_preferences(Widget parent)
 {
         static bool is_dialog_ready = false;
         XteeGuiBasicFormDialog *prefs_dialog;
+        XteeGuiFormField *show_hidden_files_field;
+        const char *gui_show_hidden_files_val;
 
         prefs_dialog = &main_gui_data.prefs_dialog;
 
@@ -1386,7 +1426,33 @@ gui_show_preferences(Widget parent)
                 create_XteeGuiBasicFormDialog(prefs_dialog, parent,
                                 "preferences_dialog",
                                 "XTeetotaller preferences");
+                add_simple_form_field_to_XteeGuiBasicFormDialog(
+                                prefs_dialog,
+                                XTEE_GUI_FORM_FIELD_TOGGLE,
+                                "show_hidden_files_toggle",
+                                "Show hidden files on File Selection "
+                                "dialogs.");
+                XtAddCallback(prefs_dialog->ok_btn, XmNactivateCallback,
+                                prefs_dialog_ok_cb,
+                                prefs_dialog);
+                XtAddCallback(prefs_dialog->cancel_btn, XmNactivateCallback,
+                                prefs_dialog_cancel_cb,
+                                prefs_dialog);
+                manage_XteeGuiBasicFormDialog_fields(prefs_dialog);
                 is_dialog_ready = true;
+        }
+        gui_show_hidden_files_val = xtee_config_get_entry_value(
+                        "gui.show_hidden_files");
+        show_hidden_files_field = prefs_dialog->fields + show_hidden_files_i;
+        if (!gui_show_hidden_files_val
+                        || !xtee_string_to_bool(gui_show_hidden_files_val)) {
+                XmToggleButtonGadgetSetState(
+                                show_hidden_files_field->data.toggle_g,
+                                False, False);
+        } else {
+                XmToggleButtonGadgetSetState(
+                                show_hidden_files_field->data.toggle_g,
+                                True, False);
         }
         XtManageChild(prefs_dialog->dialog_form);
 }
@@ -1473,7 +1539,6 @@ gui_create_menubar(void)
         XmString new_prefix_str;
         XmString open_prefix_str, exit_str;
         XmString preferences_str;
-        XmString show_hidden_str;
         XmString about_str;
         const char *help_button_id = "button_2";
         const int file_button_i = 0;
@@ -1503,7 +1568,6 @@ gui_create_menubar(void)
         open_prefix_str = XmStringCreateLocalized("Open prefix");
         exit_str = XmStringCreateLocalized("Exit");
         preferences_str = XmStringCreateLocalized("Preferences");
-        show_hidden_str = XmStringCreateLocalized("Show hidden programs");
         about_str = XmStringCreateLocalized("About XTeetotaller");
         main_gui_data.file_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "file_menu", file_button_i,
@@ -1527,7 +1591,6 @@ gui_create_menubar(void)
         XmStringFree(open_prefix_str);
         XmStringFree(exit_str);
         XmStringFree(preferences_str);
-        XmStringFree(show_hidden_str);
         XmStringFree(about_str);
 
         XtManageChild(main_gui_data.menubar);

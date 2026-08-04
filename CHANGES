@@ -1,3 +1,6 @@
+2026-08-04
+* Allow user to change gui.show_hidden_files through Preferences
+
 2026-08-03
 * Implement Remove argument button in Program Options dialog
 * Fix fatal error message when selecting multiple program args
