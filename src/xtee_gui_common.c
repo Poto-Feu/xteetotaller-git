@@ -10,9 +10,16 @@ extern inline void xtee_gui_disable_dialog_help_button(Widget w);
 extern inline void xtee_gui_free_XmStringTable_items(XmString *table,
                 size_t n);
 
-void xtee_gui_update_display(void)
+void
+xtee_gui_update_display(void)
 {
         XmUpdateDisplay(xtee_gui_get_main_win());
+}
+
+Display *
+xtee_gui_get_display(void)
+{
+        return XtDisplay(xtee_gui_get_main_win());
 }
 
 Widget

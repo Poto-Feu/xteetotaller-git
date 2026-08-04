@@ -1741,6 +1741,23 @@ xtee_gui_exec(char *pathname, char **args, size_t args_n,
         return r;
 }
 
+static void
+xtee_gui_handle_busy_events(void)
+{
+        Display *dpy;
+        long event_mask;
+        XEvent event;
+
+        event_mask = ButtonPressMask | ButtonReleaseMask | ButtonMotionMask
+                | PointerMotionMask | KeyPressMask;
+        dpy = xtee_gui_get_display();
+        XFlush(dpy);
+        xtee_gui_update_display();
+        while (XCheckMaskEvent(dpy, event_mask, &event)) {
+                /* Ignore events. */
+        }
+}
+
 int
 xtee_gui_fork_exec(char *pathname, char **args, size_t args_n,
                 const XteeEnvData *env_data, size_t env_data_n)
@@ -1760,7 +1777,7 @@ xtee_gui_fork_exec(char *pathname, char **args, size_t args_n,
                                 struct timespec req = { 0, 33000000L };
                                 int wait_rtrn;
 
-                                xtee_gui_update_display();
+                                xtee_gui_handle_busy_events();
                                 wait_rtrn = waitpid(-1, &rv, 0 | WNOHANG);
                                 if(wait_rtrn == -1) {
                                         return -1;

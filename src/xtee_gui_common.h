@@ -8,6 +8,7 @@
         void func_name (Widget w, XtPointer client_data, XtPointer call_data)
 
 void xtee_gui_update_display(void);
+Display *xtee_gui_get_display(void);
 
 Widget xtee_gui_get_textfield_child_widget(Widget);
 char *xtee_gui_get_textfield_child_string(Widget);
