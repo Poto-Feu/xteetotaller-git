@@ -11,6 +11,8 @@ xteetotaller_SOURCES =  src/xteetotaller.c \
                         src/xtee_date.c \
                         src/xtee_date.h \
                         src/xtee_dll.h \
+                        src/xtee_dxvk.c \
+                        src/xtee_dxvk.h \
                         src/xtee_error.c \
                         src/xtee_error.h \
                         src/xtee_file.c \

@@ -326,32 +326,13 @@ get_XteeGuiFormField_widget(XteeGuiFormField *field)
 
         type = field->type;
 
-        if (type != XTEE_GUI_FORM_FIELD_LABELTEXT
-                        && type != XTEE_GUI_FORM_FIELD_LTPF
-                        && type != XTEE_GUI_FORM_FIELD_TOGGLE
-                        && type != XTEE_GUI_FORM_FIELD_RADIOBOX
-                        && type != XTEE_GUI_FORM_FIELD_DROPDOWNLIST
-                        && type != XTEE_GUI_FORM_FIELD_LIST_BUTTONS) {
-                type = XTEE_GUI_FORM_FIELD_LABELTEXT;
+        if (!is_form_field_type_correct(type)) {
+                fatal_error("Incorrect XteeGuiFormFieldType value.");
+                return NULL;
         }
 
-        switch (type) {
-                case XTEE_GUI_FORM_FIELD_LABELTEXT:
-                        return field->data.ltf.form;
-                case XTEE_GUI_FORM_FIELD_LTPF:
-                        return field->data.ltpf.form;
-                case XTEE_GUI_FORM_FIELD_TOGGLE:
-                        return field->data.toggle_g;
-                case XTEE_GUI_FORM_FIELD_RADIOBOX:
-                        return field->data.radiobox_form.form;
-                case XTEE_GUI_FORM_FIELD_DROPDOWNLIST:
-                        return field->data.dropdownlist_form.form;
-                case XTEE_GUI_FORM_FIELD_LIST_BUTTONS:
-                        return field->data.listbuttons_form.form;
-                default:
-                        return NULL;
-        }
-        return field->data.ltpf.form;
+        /* Type punning to get first member or widget field */
+        return field->data.field_widget;
 }
 
 /* PushButtons and RowColumn widgets are managed at creation. */

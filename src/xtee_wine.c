@@ -132,8 +132,7 @@ xtee_wine_add_installed(void)
         if (xtee_file_get_dir_files_list(
                                 XteeString_to_XteeConstString(wine_comp_path),
                                 &files_list)
-                                != 0)
-        {
+                                != 0) {
                 print_error("Cannot read wine components directory");
                 goto error_rtrn;
         }

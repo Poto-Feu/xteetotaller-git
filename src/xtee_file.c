@@ -270,3 +270,29 @@ xtee_file_get_dir_files_list(XteeConstString dir_path,
 
         return 0;
 }
+
+bool
+xtee_is_file_regular(const char *path)
+{
+        struct stat sb;
+
+        if (stat(path, &sb) != 0) {
+                return false;
+        } else if (!S_ISREG(sb.st_mode)) {
+                return false;
+        }
+        return true;
+}
+
+bool
+xtee_is_file_directory(const char *path)
+{
+        struct stat sb;
+
+        if (stat(path, &sb) != 0) {
+                return false;
+        } else if (!S_ISDIR(sb.st_mode)) {
+                return false;
+        }
+        return true;
+}

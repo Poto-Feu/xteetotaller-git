@@ -60,8 +60,13 @@ enum XteeGuiFormFieldType {
         XTEE_GUI_FORM_FIELD_LAST,
 };
 
+/* Each field type must be either store its data in a single Widget or in a
+ * struct which must have the main Widget as its first member.
+ * This way, the main Widget of each field can be acquired with type punning
+ * through the union. */
 typedef struct XteeGuiFormField {
         union {
+                Widget field_widget;
                 XteeGuiLabelTextForm ltf;
                 XteeGuiLTPF ltpf;
                 Widget toggle_g;

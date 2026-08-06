@@ -1,8 +1,12 @@
+2026-08-06
+* Scan dxvk components directory
+
 2026-08-04
 * Allow user to change gui.show_hidden_files through Preferences
 * Improve busy events handling
 * Use wine start when launching programs
 * Use const for X11 String type and adapt Motif/Xt functions changes
+* Simplify get_XteeGuiFormField_widget
 
 2026-08-03
 * Implement Remove argument button in Program Options dialog

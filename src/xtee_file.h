@@ -45,4 +45,7 @@ bool xtee_does_dir_exist(const char *path);
 int xtee_file_get_dir_files_list(XteeConstString dir_path,
                 XteeStringList *list);
 
+bool xtee_is_file_regular(const char *path);
+bool xtee_is_file_directory(const char *path);
+
 #endif

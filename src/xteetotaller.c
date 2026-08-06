@@ -1,4 +1,5 @@
 #include "xtee_config.h"
+#include "xtee_dxvk.h"
 #include "xtee_error.h"
 #include "xtee_file.h"
 #include "xtee_gui.h"
@@ -92,6 +93,7 @@ main(int argc, char *argv[])
         set_log_level();
         xtee_system_init();
         xtee_wine_init();
+        xtee_dxvk_init();
         xtee_dir_path = get_xteetotaller_dir_path();
 
         if (create_xteetotaller_dirs(xtee_dir_path) != 0) {
@@ -109,6 +111,7 @@ main(int argc, char *argv[])
 
         xtee_prefixes_free();
         xtee_config_free();
+        xtee_dxvk_free();
         xtee_wine_free();
         xtee_state_free();
         status = 0;
