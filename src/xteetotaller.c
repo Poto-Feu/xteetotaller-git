@@ -1,3 +1,4 @@
+#include "xteetotaller.h"
 #include "xtee_config.h"
 #include "xtee_dxvk.h"
 #include "xtee_error.h"
@@ -84,6 +85,17 @@ create_xteetotaller_dirs(const XteeConstString xtee_dir_path)
         return 0;
 }
 
+void
+xtee_clean()
+{
+        xtee_prefixes_free();
+        xtee_config_free();
+        xtee_dxvk_free();
+        xtee_wine_free();
+        xtee_state_free();
+        free_xteetotaller_dir_path();
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -107,14 +119,8 @@ main(int argc, char *argv[])
 
         xtee_gui_init(&argc, argv);
         xtee_gui_run();
-        xtee_gui_free();
-
-        xtee_prefixes_free();
-        xtee_config_free();
-        xtee_dxvk_free();
-        xtee_wine_free();
-        xtee_state_free();
-        status = 0;
+        /* The program exits with WM_DELETE_WINDOW callback,
+         * so no need to free components there. */
 err_exit:
         free_xteetotaller_dir_path();
         return status;

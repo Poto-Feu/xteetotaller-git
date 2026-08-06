@@ -9,7 +9,9 @@
 #include "xtee_system.h"
 #include "xtee_utils.h"
 #include "xtee_wine.h"
+#include "xteetotaller.h"
 
+#include <Xm/AtomMgr.h>
 #include <Xm/FileSB.h>
 #include <Xm/Form.h>
 #include <Xm/Frame.h>
@@ -18,6 +20,7 @@
 #include <Xm/List.h>
 #include <Xm/MainW.h>
 #include <Xm/MessageB.h>
+#include <Xm/Protocols.h>
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
 #include <Xm/SelectioB.h>
@@ -1637,6 +1640,45 @@ gui_create_main_application(void)
         disable_prefix_btns();
 }
 
+static
+XTEE_XT_CALLBACK_FUNC(shell_close_callback)
+{
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+        print_info("Closing window shell");
+        XtDestroyWidget(w);
+        xtee_gui_free();
+        xtee_clean();
+        exit(0);
+}
+
+static void
+set_window_close_callback(Widget shell)
+{
+        Display *dpy;
+        Atom prop, prot;
+
+        if (!shell) {
+                fatal_error("Motif shell is NULL");
+        }
+
+        if (!(dpy = XtDisplay(shell))) {
+                print_error("Cannot get X11 Display from window shell.");
+                return;
+        }
+        if (!(prop = XmInternAtom(dpy, "WM_PROTOCOLS", False))) {
+                print_error("Cannot get WM_PROTOCOLS atom");
+                return;
+        }
+        if (!(prot = XmInternAtom(dpy, "WM_DELETE_WINDOW", True))) {
+                print_error("Cannot get WM_DELETE_WINDOW atom");
+                return;
+        }
+        XmAddProtocols(shell, prop, &prot, 1);
+        XmAddProtocolCallback(shell, prop, prot, shell_close_callback, NULL);
+}
+
 static void
 create_xtee_render_table(void)
 {
@@ -1664,6 +1706,7 @@ xtee_gui_init(int *argc, char *argv[])
                         &main_gui_data.app_context, "XTeetotaller", NULL, 0,
                         argc, argv, NULL,
                         sessionShellWidgetClass, NULL);
+        set_window_close_callback(main_gui_data.toplevel);
         create_xtee_render_table();
 
         gui_create_main_application();
@@ -1707,8 +1750,9 @@ xtee_gui_free(void)
 {
         xtee_gui_new_prefix_free();
         xtee_gui_prefix_options_free();
+        xtee_gui_program_options_free();
         free_XteeGuiBasicFormDialog(&main_gui_data.new_program_data.dialog);
-        XtDestroyWidget(main_gui_data.toplevel);
+        /*XtDestroyWidget(main_gui_data.toplevel);*/
         XmRenderTableFree(xtee_gui_render_table);
 }
 

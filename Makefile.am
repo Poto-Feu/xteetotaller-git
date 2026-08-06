@@ -6,6 +6,7 @@ EXTRA_DIST =    .editorconfig \
 bin_PROGRAMS = xteetotaller
 
 xteetotaller_SOURCES =  src/xteetotaller.c \
+                        src/xteetotaller.h \
                         src/xtee_config.c \
                         src/xtee_config.h \
                         src/xtee_date.c \

@@ -291,3 +291,9 @@ xtee_gui_show_program_options_dialog(Widget main_win)
         reload_program_cmd_line_args_list(dialog);
         XtManageChild(dialog->dialog_form);
 }
+
+void
+xtee_gui_program_options_free(void)
+{
+        free_XteeGuiBasicFormDialog(&xtee_gui_program_options_data.dialog);
+}

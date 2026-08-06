@@ -403,6 +403,22 @@ create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
 void
 free_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog)
 {
+        for (size_t i = 0; i < dialog->fields_n; ++i) {
+                XteeGuiFormField *field;
+
+                field = dialog->fields + i;
+
+                switch (field->type) {
+                        case XTEE_GUI_FORM_FIELD_RADIOBOX:
+                                free(field->data.radiobox_form.choices_w);
+                                break;
+                        case XTEE_GUI_FORM_FIELD_LIST_BUTTONS:
+                                free(field->data.listbuttons_form.buttons);
+                                break;
+                        default:
+                                break;
+                }
+        }
         free(dialog->fields);
 }
 
