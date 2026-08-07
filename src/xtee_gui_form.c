@@ -267,6 +267,9 @@ manage_XteeGuiFormField(XteeGuiFormField *field)
                         manage_gui_listbuttons_form(
                                         &field->data.listbuttons_form);
                         break;
+                case XTEE_GUI_FORM_FIELD_STRING_AND_BUTTON:
+                        XtManageChild(field->data.stringandbutton_form.form);
+                        break;
                 default:
                         break;
         }
@@ -769,6 +772,76 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         }
         XtManageChild(form_data->row_column);
         XtManageChild(form_data->child_form);
+        set_form_attach_resources(form_data->form, prev_w);
+}
+
+void
+add_string_and_button_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
+                char *string_name, char *string_str,
+                char *button_name, char *button_str,
+                XTEE_XT_CALLBACK_FUNC_PTR(button_cb))
+{
+        const int string_w_margin = 10;
+        XteeGuiFormField *tmp_ptr;
+        XteeGuiStringAndButtonForm *form_data;
+        Widget prev_w = NULL;
+        XmString tmp_str;
+        size_t field_i;
+        bool is_first_field;
+
+        is_first_field = dialog->fields_n ? false : true;
+        if (!is_first_field) {
+                prev_w = get_last_XteeGuiFormField_widget(dialog);
+        }
+        tmp_ptr = realloc_or_exit(dialog->fields,
+                        ++dialog->fields_n * sizeof(XteeGuiFormField));
+        dialog->fields = tmp_ptr;
+        field_i = dialog->fields_n - 1;
+        form_data = &dialog->fields[field_i].data.stringandbutton_form;
+        form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
+                        dialog->dialog_form, NULL, 0);
+        dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_STRING_AND_BUTTON;
+
+        tmp_str = XmStringCreateLocalized(label_str);
+        form_data->label = XtVaCreateManagedWidget(
+                        "form_label",
+                        xmLabelGadgetClass,
+                        form_data->form,
+                        XmNlabelString, tmp_str,
+                        XmNtopAttachment, XmATTACH_FORM,
+                        XmNtopOffset, 5,
+                        XmNleftAttachment, XmATTACH_FORM,
+                        NULL);
+        XmStringFree(tmp_str);
+
+        tmp_str = XmStringCreateLocalized(button_str);
+        form_data->button = XtVaCreateManagedWidget(button_name,
+                        xmPushButtonWidgetClass, form_data->form,
+                        XmNlabelString, tmp_str,
+                        XmNmarginWidth, 8,
+                        XmNtopAttachment, XmATTACH_FORM,
+                        XmNrightAttachment, XmATTACH_FORM,
+                        NULL);
+        XtAddCallback(form_data->button, XmNactivateCallback, button_cb,
+                        NULL);
+        XmStringFree(tmp_str);
+
+        tmp_str = XmStringCreateLocalized(string_str);
+        form_data->string_label = XtVaCreateManagedWidget(string_name,
+                        xmLabelGadgetClass, form_data->form,
+                        XmNlabelString, tmp_str,
+                        XmNalignment, XmALIGNMENT_BEGINNING,
+                        XmNtopAttachment, XmATTACH_OPPOSITE_WIDGET,
+                        XmNtopWidget, form_data->label,
+                        XmNleftAttachment, XmATTACH_WIDGET,
+                        XmNleftWidget, form_data->label,
+                        XmNleftOffset, string_w_margin,
+                        XmNrightAttachment, XmATTACH_WIDGET,
+                        XmNrightWidget, form_data->button,
+                        XmNrightOffset, string_w_margin,
+                        NULL);
+        XmStringFree(tmp_str);
         set_form_attach_resources(form_data->form, prev_w);
 }
 

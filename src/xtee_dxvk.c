@@ -142,6 +142,7 @@ xtee_dxvk_init(void)
                                                 x32_dir_path),
                                         &dlls_files_list) != 0) {
                         free_XteeString(x32_dir_path);
+                        free_XteeString(dxvk_root_path);
                         print_error("Cannot read dxvk x32 directory.");
                         continue;
                 }

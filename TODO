@@ -1,2 +1,3 @@
+- Allow user to switch between compatible Wine versions
 - Install DXVK versions found at $XTEE_DATA_DIR/components/wine in prefix if
 the user wants it.

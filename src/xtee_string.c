@@ -184,3 +184,22 @@ xtee_remove_string_in_XteeStringList(XteeStringList *list, size_t i)
                         (list->n - i - 1) * sizeof(XteeString));
         --list->n;
 }
+
+XteeStringList
+XteeStringList_duplicate(XteeStringList list)
+{
+        XteeStringList new_list = { 0 };
+
+        new_list.data = malloc_or_exit(list.n * sizeof(*new_list.data));
+        new_list.n = list.n;
+        for (size_t i = 0; i < list.n; ++i) {
+                new_list.data[i] = XteeString_duplicate(list.data[i]);
+        }
+        return new_list;
+}
+
+void
+XteeConstStringList_free(XteeConstStringList list)
+{
+        free(list.data);
+}

@@ -1,7 +1,11 @@
+2026-08-07
+* Implement XteeGuiStringAndButtonForm
+
 2026-08-06
 * Scan dxvk components directory
 * Handle WM_DELETE_WINDOW event
 * Improve gui memory freeing
+* Fix DXVK x32 error memory leak
 
 2026-08-04
 * Allow user to change gui.show_hidden_files through Preferences

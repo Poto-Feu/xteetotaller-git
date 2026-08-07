@@ -1,11 +1,9 @@
 #ifndef XTEE_GUI_FORMS_H
 #define XTEE_GUI_FORMS_H
 
+#include "xtee_gui_common.h"
 #include "xtee_string.h"
 
-#include <X11/Intrinsic.h>
-
-#include <stdbool.h>
 #include <stdlib.h>
 
 #define XTEE_FORM_LR_MARGIN 25
@@ -49,6 +47,13 @@ typedef struct XteeGuiListButtonsForm {
         size_t buttons_n;
 } XteeGuiListButtonsForm;
 
+typedef struct XteeGuiStringAndButtonForm {
+        Widget form;
+        Widget label;
+        Widget string_label;
+        Widget button;
+} XteeGuiStringAndButtonForm;
+
 enum XteeGuiFormFieldType {
         XTEE_GUI_FORM_FIELD_LABELTEXT = 0,
         XTEE_GUI_FORM_FIELD_LTPF,
@@ -56,6 +61,7 @@ enum XteeGuiFormFieldType {
         XTEE_GUI_FORM_FIELD_RADIOBOX,
         XTEE_GUI_FORM_FIELD_DROPDOWNLIST,
         XTEE_GUI_FORM_FIELD_LIST_BUTTONS,
+        XTEE_GUI_FORM_FIELD_STRING_AND_BUTTON,
         /* Not used, only set to compare it with previous */
         XTEE_GUI_FORM_FIELD_LAST,
 };
@@ -73,6 +79,7 @@ typedef struct XteeGuiFormField {
                 XteeGuiRadioBoxForm radiobox_form;
                 XteeGuiDropDownListForm dropdownlist_form;
                 XteeGuiListButtonsForm listbuttons_form;
+                XteeGuiStringAndButtonForm stringandbutton_form;
         } data;
         enum XteeGuiFormFieldType type;
 } XteeGuiFormField;
@@ -115,6 +122,11 @@ void add_list_buttons_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
                 XteeStringList buttons_names,
                 char **buttons_strs, bool are_btns_enabled);
+void add_string_and_button_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
+                char *string_name, char *string_str,
+                char *button_name, char *button_str,
+                XTEE_XT_CALLBACK_FUNC_PTR(button_cb));
 
 /* Add a XmNvalueChangedCallback to each RadioBox children.
  * The client_data will contain the id number of the toggle that triggered it

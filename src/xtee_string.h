@@ -35,6 +35,13 @@ typedef struct XteeStringList {
         size_t n;
 } XteeStringList;
 
+/* The only allocation for this structure should be the data block.
+ * The block objects point to already allocated strings. */
+typedef struct XteeConstStringList {
+        XteeConstString *data;
+        size_t n;
+} XteeConstStringList;
+
 #define XTEE_CONSTSTRING_STATIC_INIT(x) { x, sizeof(x) - 1 }
 
 /* When using this function, only use memory allocated char strings and DO NOT
@@ -62,6 +69,9 @@ void free_XteeStringList(XteeStringList list);
 void xtee_add_charstring_to_XteeStringList(XteeStringList *list,
                 const char *s);
 void xtee_remove_string_in_XteeStringList(XteeStringList *list, size_t i);
+XteeStringList XteeStringList_duplicate(XteeStringList list);
+
+void XteeConstStringList_free(XteeConstStringList list);
 
 inline void
 free_XteeString(XteeString xteestr)

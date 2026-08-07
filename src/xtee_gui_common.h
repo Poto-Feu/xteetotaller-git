@@ -7,6 +7,9 @@
 #define XTEE_XT_CALLBACK_FUNC(func_name) \
         void func_name (Widget w, XtPointer client_data, XtPointer call_data)
 
+#define XTEE_XT_CALLBACK_FUNC_PTR(fp) \
+        void (*fp) (Widget, XtPointer, XtPointer)
+
 void xtee_gui_update_display(void);
 Display *xtee_gui_get_display(void);
 
