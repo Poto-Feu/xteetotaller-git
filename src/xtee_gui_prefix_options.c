@@ -2,20 +2,29 @@
 #include "xtee_gui.h"
 #include "xtee_gui_common.h"
 #include "xtee_state.h"
+#include "xtee_wine.h"
 
+#include <Xm/List.h>
+#include <Xm/SelectioB.h>
 #include <Xm/ToggleBG.h>
 
 static XteeGuiPrefixOptionsData xtee_gui_prefix_options_data = { 0 };
+static Widget wine_version_selection_box = NULL;
 
 static const int disable_winemenubuilder_i = 0;
-static const int install_dxvk_i = 1;
+static const int change_wine_version_i = 1;
+static const int install_dxvk_i = 2;
 
 static
 XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_ok_cb)
 {
         XteePrefix *loaded_prefix;
         XteeGuiFormField *disable_winemenubuilder_field;
+        XteeGuiFormField *change_wine_field;
+        XteeGuiStringAndButtonForm *change_wine_form_data;
         XteeGuiBasicFormDialog *dialog;
+        XmString new_wine_version_xmstr;
+        char *new_wine_version_str;
         Widget main_win;
         bool disable_winemenubuilder;
 
@@ -31,6 +40,16 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_ok_cb)
         loaded_prefix->disable_winemenubuilder = disable_winemenubuilder;
 
         main_win = xtee_gui_get_main_win();
+        change_wine_field = dialog->fields + change_wine_version_i;
+        change_wine_form_data = &change_wine_field->data.stringandbutton_form;
+        XtVaGetValues(change_wine_form_data->string_label,
+                        XmNlabelString, &new_wine_version_xmstr,
+                        NULL);
+        new_wine_version_str = XmString_to_char_str(&new_wine_version_xmstr);
+        XmStringFree(new_wine_version_xmstr);
+        free_XteeString(loaded_prefix->wine_version);
+        loaded_prefix->wine_version.s = new_wine_version_str;
+        loaded_prefix->wine_version.n = strlen(new_wine_version_str);
         if (xtee_prefix_save_config(loaded_prefix) != 0) {
                 XtUnmanageChild(dialog->dialog_form);
                 gui_print_error_log_and_dialog("Cannot save prefix config.",
@@ -66,6 +85,110 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
                         dialog->dialog_form);
 }
 
+static
+XTEE_XT_CALLBACK_FUNC(wine_version_selection_box_cb)
+{
+        XteeGuiBasicFormDialog *dialog;
+        XteeGuiFormField *change_wine_field;
+        XteeGuiStringAndButtonForm *form_data;
+        XteePrefix *loaded_prefix;
+        XteeWineVersionData *current_wine;
+        XteeWineVersionData *new_wine;
+        char *new_wine_str;
+        XmSelectionBoxCallbackStruct *cbs;
+
+        (void)client_data;
+        cbs = (XmSelectionBoxCallbackStruct *)call_data;
+        switch (cbs->reason) {
+                case XmCR_OK:
+                        /* See rest of function */
+                        break;
+                case XmCR_CANCEL:
+                        XtUnmanageChild(w);
+                        return;
+                case XmCR_NO_MATCH:
+                        gui_print_error_log_and_dialog("Wine version name "
+                                        "not valid.",
+                                        w);
+                        return;
+                default:
+                        return;
+        }
+        dialog = &xtee_gui_prefix_options_data.dialog;
+        change_wine_field = dialog->fields + change_wine_version_i;
+        form_data = &change_wine_field->data.stringandbutton_form;
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        current_wine = xtee_wine_get_version_data(
+                        loaded_prefix->wine_version.s);
+        new_wine_str = XmString_to_char_str(&cbs->value);
+        new_wine = xtee_wine_get_version_data(new_wine_str);
+        if (current_wine->arch != new_wine->arch) {
+                gui_print_error_log_and_dialog("Selected wine version has a "
+                                "different arch than prefix wine version.",
+                                w);
+                free(new_wine_str);
+                return;
+        }
+        set_motif_label_string(form_data->string_label,
+                        new_wine_str);
+        free(new_wine_str);
+        XtUnmanageChild(w);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
+{
+        XteeGuiBasicFormDialog *dialog;
+
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+        dialog = &xtee_gui_prefix_options_data.dialog;
+        if (!wine_version_selection_box) {
+                XteeStringList wine_versions_list;
+                Arg args[5];
+                Cardinal n = 0;
+                Widget items_list;
+
+                XtSetArg(args[n], XmNdialogStyle,
+                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
+                XtSetArg(args[n], XmNmustMatch, True); n++;
+                XtSetArg(args[n], XmNautoUnmanage, False); n++;
+                wine_version_selection_box = XmCreateSelectionDialog(
+                                dialog->dialog_form,
+                                "wine_version_selection_box",
+                                args, n);
+                xtee_gui_disable_dialog_help_button(
+                                wine_version_selection_box);
+                XtUnmanageChild(XtNameToWidget(wine_version_selection_box,
+                                        "Apply"));
+                wine_versions_list = xtee_wine_get_versions_ids();
+                items_list = XtNameToWidget(wine_version_selection_box,
+                                "*ItemsList");
+                if (!items_list) {
+                        fatal_error("No ItemsList child in XmSelectionBox.");
+                }
+                for (size_t i = 0; i < wine_versions_list.n; ++i) {
+                        XmString item_str;
+
+                        item_str = XmStringCreateLocalized(
+                                        wine_versions_list.data[i].s);
+                        XmListAddItem(items_list, item_str, 0);
+                }
+                free_XteeStringList(wine_versions_list);
+                XtAddCallback(wine_version_selection_box, XmNokCallback,
+                                wine_version_selection_box_cb,
+                                NULL);
+                XtAddCallback(wine_version_selection_box, XmNcancelCallback,
+                                wine_version_selection_box_cb,
+                                NULL);
+                XtAddCallback(wine_version_selection_box, XmNnoMatchCallback,
+                                wine_version_selection_box_cb,
+                                NULL);
+        }
+        XtManageChild(wine_version_selection_box);
+}
+
 static void
 set_installed_dxvk_string(XteeGuiBasicFormDialog *dialog)
 {
@@ -80,6 +203,20 @@ set_installed_dxvk_string(XteeGuiBasicFormDialog *dialog)
                         XmNlabelString, tmp_str,
                         NULL);
         XmStringFree(tmp_str);
+}
+
+static void
+set_change_wine_string(XteeGuiBasicFormDialog *dialog)
+{
+        XteeGuiFormField *change_wine_field;
+        XteeGuiStringAndButtonForm *form_data;
+        XteePrefix *loaded_prefix;
+
+        change_wine_field = dialog->fields + change_wine_version_i;
+        form_data = &change_wine_field->data.stringandbutton_form;
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        set_motif_label_string(form_data->string_label,
+                        loaded_prefix->wine_version.s);
 }
 
 void
@@ -111,6 +248,12 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                                 prefix_options_dialog_cancel_cb,
                                 (XtPointer)dialog->dialog_form);
                 add_string_and_button_field_to_XteeGuiBasicFormDialog(dialog,
+                                "wine_version_form", "Wine version: ",
+                                "wine_version_string_label",
+                                loaded_prefix->wine_version.s,
+                                "change_wine_button", "Change Wine version",
+                                prefix_options_change_wine_cb);
+                add_string_and_button_field_to_XteeGuiBasicFormDialog(dialog,
                                 "install_dxvk_form", "DXVK version: ",
                                 "dxvk_version_string_label", "Lorem ipsum",
                                 "install_dxvk_button", "Install DXVK",
@@ -127,6 +270,7 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                         loaded_prefix->disable_winemenubuilder,
                         False);
         set_installed_dxvk_string(dialog);
+        set_change_wine_string(dialog);
         XtManageChild(dialog->dialog_form);
 }
 

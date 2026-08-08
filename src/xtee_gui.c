@@ -157,7 +157,7 @@ hide_main_working_dialog(void)
         XtUnmanageChild(main_working_dialog);
 }
 
-static void
+void
 set_motif_label_string(Widget w, char *s)
 {
         XmString xmstr;

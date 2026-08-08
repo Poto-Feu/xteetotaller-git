@@ -1,3 +1,6 @@
+2026-08-08
+* Allow changing prefix wine version with same architecture
+
 2026-08-07
 * Implement XteeGuiStringAndButtonForm
 
