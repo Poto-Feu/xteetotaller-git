@@ -16,9 +16,9 @@ xtee_init_program(XteeProgram *program, const char* id, const char *exe_path)
 void
 xtee_free_program(XteeProgram *program)
 {
-        free_XteeString(program->id);
-        free_XteeString(program->exe_path);
-        free_XteeStringList(program->args_list);
+        XteeString_free(program->id);
+        XteeString_free(program->exe_path);
+        XteeStringList_free(program->args_list);
 }
 
 void

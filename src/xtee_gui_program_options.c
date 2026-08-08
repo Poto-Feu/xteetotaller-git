@@ -37,7 +37,7 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
                 gui_print_error_log_and_dialog("Cannot save program data.",
                                 dialog->dialog_form);
         } else {
-                gui_set_message_area_string("Program data saved.");
+                xtee_gui_set_message_area_string("Program data saved.");
                 XtUnmanageChild(dialog->dialog_form);
         }
 }

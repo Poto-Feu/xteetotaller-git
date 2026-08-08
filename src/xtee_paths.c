@@ -73,5 +73,5 @@ free_xteetotaller_dir_path(void)
         if (!is_xteetotaller_dir_path_ready) {
                 return;
         }
-        free_XteeString(xteetotaller_dir_path);
+        XteeString_free(xteetotaller_dir_path);
 }

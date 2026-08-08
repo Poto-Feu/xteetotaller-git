@@ -54,12 +54,12 @@ xtee_prefixes_init(void)
 void
 xtee_free_prefix_struct(XteePrefix *prefix)
 {
-        free_XteeString(prefix->id);
-        free_XteeString(prefix->wineprefix_dir);
-        free_XteeString(prefix->wine_version);
+        XteeString_free(prefix->id);
+        XteeString_free(prefix->wineprefix_dir);
+        XteeString_free(prefix->wine_version);
 
         for (size_t i = 0; i < prefix->programs_n; ++i) {
-                free_XteeString(prefix->programs_ids[i]);
+                XteeString_free(prefix->programs_ids[i]);
         }
         free(prefix->programs_ids);
 }
@@ -67,7 +67,7 @@ xtee_free_prefix_struct(XteePrefix *prefix)
 void
 xtee_prefixes_free(void)
 {
-        free_XteeString(prefixes_data_dir_path);
+        XteeString_free(prefixes_data_dir_path);
 }
 
 void
@@ -89,7 +89,7 @@ void
 free_XteePrefixIdBlock(XteePrefixIdBlock *block)
 {
         for (size_t i = 0; i < block->n; ++i) {
-                free_XteeString(block->data[i]);
+                XteeString_free(block->data[i]);
         }
         free(block->data);
         block->n = 0;
@@ -122,7 +122,7 @@ write_prefix_config_file(XteePrefix *prefix, const char *prefix_data_dir_path)
 
         prefix_config_path = get_prefix_config_file_path(prefix_data_dir_path);
         f = fopen(prefix_config_path.s, "wb");
-        free_XteeString(prefix_config_path);
+        XteeString_free(prefix_config_path);
         if (!f) {
                 print_error("Cannot write to prefix config file");
                 return -1;
@@ -187,8 +187,8 @@ create_new_prefix(const char *id, const char *dir, const char *wine_version,
         full_dir_path = get_prefix_data_dir(id);
 
         if (mkdir(full_dir_path.s, XTEE_NEW_DIR_MODE) != 0) {
-                free_XteeString(new_prefix.id);
-                free_XteeString(full_dir_path);
+                XteeString_free(new_prefix.id);
+                XteeString_free(full_dir_path);
                 if (errno == EEXIST) {
                         return XTEE_NEW_PREFIX_CREATE_ID_EXIST;
                 }
@@ -197,11 +197,11 @@ create_new_prefix(const char *id, const char *dir, const char *wine_version,
         programs_dir_path = get_prefix_data_programs_dir(
                         XteeString_to_XteeConstString(full_dir_path));
         mkdir_ret = mkdir(programs_dir_path.s, XTEE_NEW_DIR_MODE);
-        free_XteeString(programs_dir_path);
+        XteeString_free(programs_dir_path);
         if (mkdir_ret != 0) {
                 rmdir(full_dir_path.s);
-                free_XteeString(new_prefix.id);
-                free_XteeString(full_dir_path);
+                XteeString_free(new_prefix.id);
+                XteeString_free(full_dir_path);
                 return XTEE_NEW_PREFIX_CREATE_DIR_ERROR;
         }
 
@@ -213,12 +213,12 @@ create_new_prefix(const char *id, const char *dir, const char *wine_version,
         xtee_date_set_to_current_day(&new_prefix.creation_date);
 
         if (write_prefix_config_file(&new_prefix, full_dir_path.s) != 0) {
-                free_XteeString(full_dir_path);
+                XteeString_free(full_dir_path);
                 xtee_free_prefix_struct(&new_prefix);
                 return XTEE_NEW_PREFIX_CREATE_WRITE_ERROR;
         }
         xtee_free_prefix_struct(&new_prefix);
-        free_XteeString(full_dir_path);
+        XteeString_free(full_dir_path);
 
         return XTEE_NEW_PREFIX_CREATE_OK;
 }
@@ -278,8 +278,8 @@ xtee_prefix_load(XteePrefix *prefix, const char *id)
         prefix_data_dir = get_prefix_data_dir(id);
         config_file_path = get_prefix_config_file_path(prefix_data_dir.s);
         if (!(config_file = fopen(config_file_path.s, "r"))) {
-                free_XteeString(config_file_path);
-                free_XteeString(prefix_data_dir);
+                XteeString_free(config_file_path);
+                XteeString_free(prefix_data_dir);
                 switch (errno) {
                         case EACCES:
                                 return XTEE_LOAD_PREFIX_CONFIG_ACCESS_ERR;
@@ -289,8 +289,8 @@ xtee_prefix_load(XteePrefix *prefix, const char *id)
                                 return XTEE_LOAD_PREFIX_CONFIG_READ_ERR;
                 }
         }
-        free_XteeString(config_file_path);
-        free_XteeString(prefix_data_dir);
+        XteeString_free(config_file_path);
+        XteeString_free(prefix_data_dir);
 
         while ((r = xtee_config_read_variable_line(var_name, var_value,
                                         sizeof(var_name), sizeof(var_value),
@@ -470,7 +470,7 @@ xtee_prefix_save_config(XteePrefix *prefix)
 
         prefix_data_dir = get_prefix_data_dir(prefix->id.s);
         r = write_prefix_config_file(prefix, prefix_data_dir.s);
-        free_XteeString(prefix_data_dir);
+        XteeString_free(prefix_data_dir);
         return r;
 }
 
@@ -574,10 +574,10 @@ get_prefix_programs_ids(XteeConstString prefix_id, XteePrefixIdBlock *block)
         prefix_data_dir_path = get_prefix_data_dir(prefix_id.s);
         programs_dir_path = get_prefix_data_programs_dir(
                         XteeString_to_XteeConstString(prefix_data_dir_path));
-        free_XteeString(prefix_data_dir_path);
+        XteeString_free(prefix_data_dir_path);
 
         if (!(programs_dir = opendir(programs_dir_path.s))) {
-                free_XteeString(programs_dir_path);
+                XteeString_free(programs_dir_path);
                 print_error("Cannot read prefix programs directory.");
                 return -1;
         }
@@ -621,7 +621,7 @@ get_prefix_programs_ids(XteeConstString prefix_id, XteePrefixIdBlock *block)
         }
         r = 0;
 err_return:
-        free_XteeString(programs_dir_path);
+        XteeString_free(programs_dir_path);
         if (r != 0) {
                 free_XteePrefixIdBlock(block);
         }
@@ -670,12 +670,12 @@ xtee_prefix_get_program_config_path(XteePrefix *prefix,
         prefix_data_dir_path = get_prefix_data_dir(prefix->id.s);
         programs_dir_path = get_prefix_data_programs_dir(
                         XteeString_to_XteeConstString(prefix_data_dir_path));
-        free_XteeString(prefix_data_dir_path);
+        XteeString_free(prefix_data_dir_path);
         program_config_path.n = programs_dir_path.n + program->id.n;
         program_config_path.s = malloc(program_config_path.n + 1);
         strcpy(program_config_path.s, programs_dir_path.s);
         strcat(program_config_path.s, program->id.s);
-        free_XteeString(programs_dir_path);
+        XteeString_free(programs_dir_path);
         return program_config_path;
 }
 
@@ -699,7 +699,7 @@ XteeAddProgramStatus add_program_to_prefix(XteePrefix *prefix,
          * After that, it is converted to a FILE pointer with fdopen(). */
         fd = open(new_program_config_path.s, O_WRONLY | O_CREAT | O_EXCL,
                         XTEE_NEW_FILE_MODE);
-        free_XteeString(new_program_config_path);
+        XteeString_free(new_program_config_path);
         if (fd == -1) {
                 print_error(error_str);
                 if (errno == EEXIST) {
@@ -737,7 +737,7 @@ xtee_prefix_reload_programs_list(XteePrefix *prefix)
         }
 
         for (size_t i = 0; i < prefix->programs_n; ++i) {
-                free_XteeString(prefix->programs_ids[i]);
+                XteeString_free(prefix->programs_ids[i]);
         }
         free(prefix->programs_ids);
         /* Do not free allocation as we move it to XteePrefix field. */
@@ -889,7 +889,7 @@ read_program_config_file(XteeProgram *restrict program,
 
         if (r != 0) {
                 *status = XTEE_GET_PROGRAM_DATA_READ_ERROR;
-                free_XteeString(program->id);
+                XteeString_free(program->id);
                 return -1;
         }
         is_creation_date_set = (is_creation_year_set && is_creation_month_set
@@ -942,7 +942,7 @@ xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program)
         if(!(f = fopen(program_config_path.s, "wb"))) {
                 return -1;
         }
-        free_XteeString(program_config_path);
+        XteeString_free(program_config_path);
         r = write_program_config_file(program, f);
         fclose(f);
         return r;

@@ -55,8 +55,8 @@ set_wine_system_version_data(void)
         system_wine_data->wineserver_path = XteeConstString_to_new_XteeString(
                         xtee_system_wineserver_path);
 
-        free_XteeString(i386_unix_dir_path);
-        free_XteeString(x86_64_unix_dir_path);
+        XteeString_free(i386_unix_dir_path);
+        XteeString_free(x86_64_unix_dir_path);
 }
 
 static enum XteeWineVersionArch
@@ -74,7 +74,7 @@ get_installed_wine_arch(XteeConstString wine_root_dir)
         x86_64_unix_dir_path = XteeString_merge_XteeConstString_charstring(
                         XteeString_to_XteeConstString(wine_lib_path),
                         X86_64_UNIX_WINE_DIR_NAME);
-        free_XteeString(wine_lib_path);
+        XteeString_free(wine_lib_path);
 
         if (xtee_does_dir_exist(i386_unix_dir_path.s)) {
                 if (xtee_does_dir_exist(x86_64_unix_dir_path.s)) {
@@ -88,8 +88,8 @@ get_installed_wine_arch(XteeConstString wine_root_dir)
                 rtrn_val = XTEE_WINE_VERSION_ARCH_WRONG;
         }
 
-        free_XteeString(x86_64_unix_dir_path);
-        free_XteeString(i386_unix_dir_path);
+        XteeString_free(x86_64_unix_dir_path);
+        XteeString_free(i386_unix_dir_path);
 
         return rtrn_val;
 }
@@ -172,7 +172,7 @@ xtee_wine_add_installed(void)
                                         files_list.data[i].s,
                                         NULL
                                         });
-                        free_XteeString(wine_root_dir);
+                        XteeString_free(wine_root_dir);
                         continue;
                 } else if (!S_ISDIR(sb.st_mode)) {
                         print_warning_strs(
@@ -181,7 +181,7 @@ xtee_wine_add_installed(void)
                                         files_list.data[i].s,
                                         NULL
                                         });
-                        free_XteeString(wine_root_dir);
+                        XteeString_free(wine_root_dir);
                         continue;
                 } else if (xtee_strcmp_bool(files_list.data[i].s,
                                         "System")) {
@@ -214,20 +214,20 @@ xtee_wine_add_installed(void)
                                 break;
                         case XTEE_WINE_VERSION_ARCH_WRONG:
                                 print_error("Wrong installed Wine arch");
-                                free_XteeString(wine_root_dir);
+                                XteeString_free(wine_root_dir);
                                 continue;
                 }
 
                 version_data->id = XteeString_duplicate(files_list.data[i]);
                 xtee_wine_version_set_paths(version_data,
                                 XteeString_to_XteeConstString(wine_root_dir));
-                free_XteeString(wine_root_dir);
+                XteeString_free(wine_root_dir);
                 ++xtee_wine_versions_data.n;
         }
-        free_XteeStringList(files_list);
+        XteeStringList_free(files_list);
 error_rtrn:
 direct_rtrn:
-        free_XteeString(wine_comp_path);
+        XteeString_free(wine_comp_path);
 }
 
 void
@@ -246,12 +246,12 @@ xtee_wine_free(void)
                 XteeWineVersionData *version_data;
 
                 version_data = xtee_wine_versions_data.block + i;
-                free_XteeString(version_data->id);
-                free_XteeString(version_data->wine_lib_path);
-                free_XteeString(version_data->wine_path);
-                free_XteeString(version_data->wineboot_path);
-                free_XteeString(version_data->winecfg_path);
-                free_XteeString(version_data->wineserver_path);
+                XteeString_free(version_data->id);
+                XteeString_free(version_data->wine_lib_path);
+                XteeString_free(version_data->wine_path);
+                XteeString_free(version_data->wineboot_path);
+                XteeString_free(version_data->winecfg_path);
+                XteeString_free(version_data->wineserver_path);
         }
         free(xtee_wine_versions_data.block);
 }

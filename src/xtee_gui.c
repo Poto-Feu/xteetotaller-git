@@ -158,7 +158,7 @@ hide_main_working_dialog(void)
 }
 
 void
-set_motif_label_string(Widget w, char *s)
+xtee_gui_set_motif_label_string(Widget w, char *s)
 {
         XmString xmstr;
 
@@ -251,9 +251,9 @@ gui_print_warning_dialog(char *msg, Widget parent)
 }
 
 void
-gui_set_message_area_string(char *s)
+xtee_gui_set_message_area_string(char *s)
 {
-        set_motif_label_string(main_gui_data.message_area_label, s);
+        xtee_gui_set_motif_label_string(main_gui_data.message_area_label, s);
 }
 
 #define XTEE_UNFINISHED_APP_CONTENT \
@@ -314,7 +314,8 @@ show_unfinished_app_dialog(Widget parent)
                         XmNalignment, XmALIGNMENT_BEGINNING,
                         XmNspacing, 20,
                         NULL);
-        set_motif_label_string(dont_show_again, "Don't show this again");
+        xtee_gui_set_motif_label_string(dont_show_again,
+                        "Don't show this again");
         XtManageChild(dont_show_again);
 
         xtee_gui_hide_dialog_cancel_button(dialog);
@@ -348,7 +349,7 @@ reset_prefix_info_label(void)
 
         wa_struct = &main_gui_data.work_area_struct;
 
-        set_motif_label_string(wa_struct->prefix_info_label,
+        xtee_gui_set_motif_label_string(wa_struct->prefix_info_label,
                         no_prefix_opened_str);
 }
 
@@ -413,7 +414,7 @@ update_prefix_info_label(void)
         strcat(source_str, "-");
         strcat(source_str, current_prefix->creation_date.day);
 
-        set_motif_label_string(
+        xtee_gui_set_motif_label_string(
                         main_gui_data.work_area_struct.prefix_info_label,
                         source_str);
         free(source_str);
@@ -700,7 +701,7 @@ XTEE_XT_CALLBACK_FUNC(reload_prefix_btn_cb)
                         != 0) {
                 return;
         }
-        gui_set_message_area_string("Prefix reloaded.");
+        xtee_gui_set_message_area_string("Prefix reloaded.");
 }
 
 static void
@@ -810,7 +811,8 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                                         dialog->dialog_form);
                         return;
                 default:
-                        gui_set_message_area_string("New program created.");
+                        xtee_gui_set_message_area_string(
+                                        "New program created.");
                         XtUnmanageChild(dialog->dialog_form);
         }
 
@@ -994,7 +996,7 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
                                 "button on an installer.",
                                 main_gui_data.main_win);
         } else {
-                gui_set_message_area_string("Program run successfully.");
+                xtee_gui_set_message_area_string("Program run successfully.");
         }
 }
 
@@ -1241,7 +1243,7 @@ xtee_gui_load_prefix(const char *prefix_id, Widget parent)
                 gui_print_warning_dialog("Cannot save prefix config "
                                 "file.", main_gui_data.main_win);
         } else {
-                gui_set_message_area_string("Prefix loaded and saved.");
+                xtee_gui_set_message_area_string("Prefix loaded and saved.");
                 print_info("Prefix config file saved.");
         }
 
@@ -1402,7 +1404,7 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_ok_cb)
         show_hidden_files_str = xtee_bool_to_string(show_hidden_files_bool);
         xtee_config_set_entry_value_and_write("gui.show_hidden_files",
                         show_hidden_files_str);
-        gui_set_message_area_string("Configuration modified and saved.");
+        xtee_gui_set_message_area_string("Configuration modified and saved.");
         XtUnmanageChild(prefs_dialog->dialog_form);
 }
 
@@ -1610,7 +1612,7 @@ create_gui_message_area(Widget main_win)
                         XmNmarginLeft, XTEE_FORM_LR_MARGIN,
                         XmNmarginBottom, 15,
                         NULL);
-        set_motif_label_string(main_gui_data.message_area_label,
+        xtee_gui_set_motif_label_string(main_gui_data.message_area_label,
                         "Ready.");
         XtManageChild(main_gui_data.message_area_label);
 }

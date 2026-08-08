@@ -47,7 +47,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_ok_cb)
                         NULL);
         new_wine_version_str = XmString_to_char_str(&new_wine_version_xmstr);
         XmStringFree(new_wine_version_xmstr);
-        free_XteeString(loaded_prefix->wine_version);
+        XteeString_free(loaded_prefix->wine_version);
         loaded_prefix->wine_version.s = new_wine_version_str;
         loaded_prefix->wine_version.n = strlen(new_wine_version_str);
         if (xtee_prefix_save_config(loaded_prefix) != 0) {
@@ -59,8 +59,8 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_ok_cb)
 
         XtUnmanageChild(dialog->dialog_form);
         if (xtee_gui_load_prefix(loaded_prefix->id.s, main_win) == 0) {
-                gui_set_message_area_string("Prefix configuration updated and "
-                                "reloaded.");
+                xtee_gui_set_message_area_string(
+                                "Prefix configuration updated and reloaded.");
         }
 }
 
@@ -129,7 +129,7 @@ XTEE_XT_CALLBACK_FUNC(wine_version_selection_box_cb)
                 free(new_wine_str);
                 return;
         }
-        set_motif_label_string(form_data->string_label,
+        xtee_gui_set_motif_label_string(form_data->string_label,
                         new_wine_str);
         free(new_wine_str);
         XtUnmanageChild(w);
@@ -175,7 +175,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
                                         wine_versions_list.data[i].s);
                         XmListAddItem(items_list, item_str, 0);
                 }
-                free_XteeStringList(wine_versions_list);
+                XteeStringList_free(wine_versions_list);
                 XtAddCallback(wine_version_selection_box, XmNokCallback,
                                 wine_version_selection_box_cb,
                                 NULL);
@@ -215,7 +215,7 @@ set_change_wine_string(XteeGuiBasicFormDialog *dialog)
         change_wine_field = dialog->fields + change_wine_version_i;
         form_data = &change_wine_field->data.stringandbutton_form;
         loaded_prefix = xtee_state_get_loaded_prefix();
-        set_motif_label_string(form_data->string_label,
+        xtee_gui_set_motif_label_string(form_data->string_label,
                         loaded_prefix->wine_version.s);
 }
 

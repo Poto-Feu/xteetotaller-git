@@ -308,7 +308,7 @@ xtee_config_free(void)
         for (size_t i = 0; i < config_entries.n; ++i) {
                 free(config_entries.entries[i].val);
         }
-        free_XteeString(config_file_path);
+        XteeString_free(config_file_path);
         free(config_entries.entries);
 }
 

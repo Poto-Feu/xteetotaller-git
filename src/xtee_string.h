@@ -65,7 +65,7 @@ char *xtee_string_merge_char_strings(const char *s1, const char *s2);
 /* Merge all char strings in block until NULL is encountered. */
 char *xtee_string_merge_char_strings_block(const char **strs);
 
-void free_XteeStringList(XteeStringList list);
+void XteeStringList_free(XteeStringList list);
 void xtee_add_charstring_to_XteeStringList(XteeStringList *list,
                 const char *s);
 void xtee_remove_string_in_XteeStringList(XteeStringList *list, size_t i);
@@ -74,7 +74,7 @@ XteeStringList XteeStringList_duplicate(XteeStringList list);
 void XteeConstStringList_free(XteeConstStringList list);
 
 inline void
-free_XteeString(XteeString xteestr)
+XteeString_free(XteeString xteestr)
 {
         free(xteestr.s);
 }

@@ -51,7 +51,7 @@ create_xteetotaller_dirs(const XteeConstString xtee_dir_path)
                 print_error("Cannot create components directory.");
                 return -1;
         }
-        free_XteeString(components_dir_str);
+        XteeString_free(components_dir_str);
 
         wine_dir_str = XteeString_merge_XteeConstStrings(xtee_dir_path,
                         wine_dir_path_end);
@@ -60,7 +60,7 @@ create_xteetotaller_dirs(const XteeConstString xtee_dir_path)
                 print_error("Cannot create wine components directory.");
                 return -1;
         }
-        free_XteeString(wine_dir_str);
+        XteeString_free(wine_dir_str);
 
         dxvk_dir_str = XteeString_merge_XteeConstStrings(xtee_dir_path,
                         dxvk_dir_path_end);
@@ -69,7 +69,7 @@ create_xteetotaller_dirs(const XteeConstString xtee_dir_path)
                 print_error("Cannot create dxvk components directory.");
                 return -1;
         }
-        free_XteeString(dxvk_dir_str);
+        XteeString_free(dxvk_dir_str);
 
         prefixes_dir_str = XteeString_merge_XteeConstStrings(
                         xtee_dir_path,
@@ -80,7 +80,7 @@ create_xteetotaller_dirs(const XteeConstString xtee_dir_path)
                 print_error("Cannot create wine_prefixes directory.");
                 return -1;
         }
-        free_XteeString(prefixes_dir_str);
+        XteeString_free(prefixes_dir_str);
 
         return 0;
 }

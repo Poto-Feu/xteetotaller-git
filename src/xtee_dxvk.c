@@ -41,7 +41,7 @@ add_dxvk_dlls_to_list(XteeStringList *dlls_list,
                         };
 
                         print_warning_strs(warning_strs);
-                        free_XteeString(dll_full_path);
+                        XteeString_free(dll_full_path);
                         continue;
                 }
                 info_strs[0] = "Adding ";
@@ -51,18 +51,18 @@ add_dxvk_dlls_to_list(XteeStringList *dlls_list,
                 print_info_strs(info_strs);
                 xtee_add_charstring_to_XteeStringList(dlls_list,
                                 current_file_str.s);
-                free_XteeString(dll_full_path);
+                XteeString_free(dll_full_path);
         }
 }
 
 static void
 free_dxvk_version_data(XteeDxvkVersionData *dxvk_version)
 {
-        free_XteeString(dxvk_version->id);
-        free_XteeStringList(dxvk_version->x32_dll_strs);
-        free_XteeStringList(dxvk_version->x64_dll_strs);
-        free_XteeString(dxvk_version->x32_path);
-        free_XteeString(dxvk_version->x64_path);
+        XteeString_free(dxvk_version->id);
+        XteeStringList_free(dxvk_version->x32_dll_strs);
+        XteeStringList_free(dxvk_version->x64_dll_strs);
+        XteeString_free(dxvk_version->x32_path);
+        XteeString_free(dxvk_version->x64_path);
 }
 
 void
@@ -123,7 +123,7 @@ xtee_dxvk_init(void)
                         };
 
                         print_warning_strs(warning_strs);
-                        free_XteeString(dxvk_root_path);
+                        XteeString_free(dxvk_root_path);
                         continue;
                 }
                 reading_path_info_strs[0] = "Reading ";
@@ -141,16 +141,16 @@ xtee_dxvk_init(void)
                                         XteeString_to_XteeConstString(
                                                 x32_dir_path),
                                         &dlls_files_list) != 0) {
-                        free_XteeString(x32_dir_path);
-                        free_XteeString(dxvk_root_path);
+                        XteeString_free(x32_dir_path);
+                        XteeString_free(dxvk_root_path);
                         print_error("Cannot read dxvk x32 directory.");
                         continue;
                 }
 
                 if (!dlls_files_list.n) {
                         print_error("No x32 dxvk dlls");
-                        free_XteeString(x32_dir_path);
-                        free_XteeString(dxvk_root_path);
+                        XteeString_free(x32_dir_path);
+                        XteeString_free(dxvk_root_path);
                         continue;
                 }
                 print_info("Reading dxvk x32 directory");
@@ -159,7 +159,7 @@ xtee_dxvk_init(void)
                                 dlls_files_list);
                 /* Move instead of duplicate to avoid another allocation */
                 version_data->x32_path = x32_dir_path;
-                free_XteeStringList(dlls_files_list);
+                XteeStringList_free(dlls_files_list);
 
                 /* Reset dlls_files_list to reuse it for x64 dlls */
                 dlls_files_list.data = NULL;
@@ -168,35 +168,35 @@ xtee_dxvk_init(void)
                 x64_dir_path = XteeString_merge_XteeConstString_charstring(
                                 XteeString_to_XteeConstString(dxvk_root_path),
                                 x64_dir_suffix);
-                free_XteeString(dxvk_root_path);
+                XteeString_free(dxvk_root_path);
                 if (xtee_file_get_dir_files_list(
                                         XteeString_to_XteeConstString(
                                                 x64_dir_path),
                                         &dlls_files_list) != 0) {
-                        free_XteeString(x64_dir_path);
+                        XteeString_free(x64_dir_path);
                         free_dxvk_version_data(version_data);
                         print_error("Cannot read dxvk x64 directory.");
                         continue;
                 }
                 if (!dlls_files_list.n) {
                         print_error("No x64 dxvk dlls");
-                        free_XteeString(x64_dir_path);
+                        XteeString_free(x64_dir_path);
                         free_dxvk_version_data(version_data);
                 }
                 print_info("Reading dxvk x64 directory");
                 add_dxvk_dlls_to_list(&version_data->x64_dll_strs,
                                 XteeString_to_XteeConstString(x64_dir_path),
                                 dlls_files_list);
-                free_XteeStringList(dlls_files_list);
+                XteeStringList_free(dlls_files_list);
                 version_data->x64_path = x64_dir_path;
                 version_data->id = XteeConstString_to_new_XteeString(
                                 current_file_str);
                 ++dxvk_versions_data.n;
         }
-        free_XteeStringList(files_list);
+        XteeStringList_free(files_list);
 error_rtrn:
 direct_rtrn:
-        free_XteeString(dxvk_comp_path);
+        XteeString_free(dxvk_comp_path);
 }
 
 void

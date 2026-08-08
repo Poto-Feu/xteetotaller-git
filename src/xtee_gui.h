@@ -13,11 +13,10 @@ void xtee_gui_free(void);
 
 char *XmString_to_char_str(XmString *xmstr);
 
-void disable_dialog_help_button(Widget w);
-void gui_set_message_area_string(char *s);
+void xtee_gui_set_message_area_string(char *s);
 int xtee_gui_load_prefix(const char *prefix_id, Widget parent);
 
-void set_motif_label_string(Widget w, char *s);
+void xtee_gui_set_motif_label_string(Widget w, char *s);
 
 void gui_print_error_dialog(char *msg, Widget parent);
 void gui_print_error_log_and_dialog(char *msg, Widget parent);

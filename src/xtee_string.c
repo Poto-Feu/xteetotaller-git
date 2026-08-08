@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-extern inline void free_XteeString(XteeString xteestr);
+extern inline void XteeString_free(XteeString xteestr);
 extern inline XteeConstString XteeString_to_XteeConstString(
                 const XteeString xteestr);
 extern inline bool xtee_strcmp_bool(const char *s1, const char *s2);
@@ -155,10 +155,10 @@ XteeString_merge_XteeConstStrings(const XteeConstString cstr1,
 }
 
 void
-free_XteeStringList(XteeStringList list)
+XteeStringList_free(XteeStringList list)
 {
         for (size_t i = 0; i < list.n; ++i) {
-                free_XteeString(list.data[i]);
+                XteeString_free(list.data[i]);
         }
         free(list.data);
 }
@@ -179,7 +179,7 @@ xtee_add_charstring_to_XteeStringList(XteeStringList *list,
 void
 xtee_remove_string_in_XteeStringList(XteeStringList *list, size_t i)
 {
-        free_XteeString(list->data[i]);
+        XteeString_free(list->data[i]);
         memmove(list->data + i, list->data + i + 1,
                         (list->n - i - 1) * sizeof(XteeString));
         --list->n;

@@ -1,5 +1,6 @@
 2026-08-08
 * Allow changing prefix wine version with same architecture
+* Rename a few functions for more consistency
 
 2026-08-07
 * Implement XteeGuiStringAndButtonForm

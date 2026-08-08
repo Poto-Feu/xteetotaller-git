@@ -372,7 +372,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                                 xtee_gui_main_win);
                 goto load_prefix_error;
         }
-        gui_set_message_area_string("Prefix created and loaded.");
+        xtee_gui_set_message_area_string("Prefix created and loaded.");
         loaded_prefix = xtee_state_get_loaded_prefix();
         xtee_gui_update_display();
         print_info("Running wineboot -i");
@@ -381,7 +381,8 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                 gui_print_error_log_and_dialog("Cannot initialize Wine prefix "
                                 "with wineboot.",
                                 xtee_gui_main_win);
-                gui_set_message_area_string("Wine prefix creation failed.");
+                xtee_gui_set_message_area_string(
+                                "Wine prefix creation failed.");
                 goto load_prefix_error;
         }
         if (loaded_prefix->isolate_home) {
@@ -390,7 +391,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                         gui_print_error_log_and_dialog("Cannot run winetricks "
                                         "isolate_home.",
                                         xtee_gui_main_win);
-                        gui_set_message_area_string(
+                        xtee_gui_set_message_area_string(
                                         "Wine prefix creation failed.");
                         goto load_prefix_error;
                 }
@@ -436,7 +437,7 @@ create_new_prefix_wine_version_dropdownlist(XteeGuiBasicFormDialog *dialog)
         add_dropdownlist_field_to_XteeGuiBasicFormDialog(dialog,
                         "wine_version_form", "Wine version: ",
                         items_list);
-        free_XteeStringList(items_list);
+        XteeStringList_free(items_list);
 }
 
 void
