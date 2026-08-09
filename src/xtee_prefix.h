@@ -125,9 +125,11 @@ XteeProgram *xtee_prefix_get_program_data(XteePrefix *prefix,
                 const char *program_id,
                 enum XteeGetProgramDataStatus *status);
 
+/* Both xtee_prefix_install_dxvk and xtee_prefix_remove_dxvk call
+ * xtee_gui_update_display as the process is not forked when calling these
+ * functions. */
 int xtee_prefix_install_dxvk(XteePrefix *prefix,
                 XteeDxvkVersionData *dxvk_data);
-
 int xtee_prefix_remove_dxvk(XteePrefix *prefix);
 
 /* Do not free returned string as they are pointers to string literals. */

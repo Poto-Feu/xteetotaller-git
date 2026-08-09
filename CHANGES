@@ -3,6 +3,8 @@
 * Set Run executable in prefix FileSelectionBox title
 * Set width and height of FileSelectionBox
 * Allow removing DXVK from prefixes
+* Update display when installing and removing DXVK
+* Make working dialog busy loop nanosleep value a macro constant
 
 2026-08-08
 * Allow changing prefix wine version with same architecture

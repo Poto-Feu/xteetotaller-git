@@ -2,6 +2,7 @@
 #include "xtee_config.h"
 #include "xtee_error.h"
 #include "xtee_file.h"
+#include "xtee_gui.h"
 #include "xtee_paths.h"
 #include "xtee_utils.h"
 #include "xtee_wine.h"
@@ -1045,6 +1046,7 @@ xtee_prefix_install_dxvk(XteePrefix *prefix, XteeDxvkVersionData *dxvk_data)
         system32_info_strs[1] = system32_path.s;
         system32_info_strs[2] = NULL;
         print_info_strs(system32_info_strs);
+        xtee_gui_update_display();
 
         if (prefix->arch == XTEE_PREFIX_ARCH_WIN32) {
                 prefix_32bits_dlls_path = &system32_path;
@@ -1087,6 +1089,7 @@ xtee_prefix_install_dxvk(XteePrefix *prefix, XteeDxvkVersionData *dxvk_data)
                 XteeString_free(dest_dll_path);
                 XteeString_free(full_dll_path);
         }
+        xtee_gui_update_display();
 
         for (size_t i = 0; prefix->arch != XTEE_PREFIX_ARCH_WIN32
                         && i < dxvk_data->x64_dll_strs.n; ++i) {
@@ -1120,6 +1123,7 @@ xtee_prefix_install_dxvk(XteePrefix *prefix, XteeDxvkVersionData *dxvk_data)
                                 dxvk_data->x64_dll_strs);
                 XteeString_free(syswow64_path);
         }
+        xtee_gui_update_display();
         prefix->dxvk_version = XteeString_duplicate(dxvk_data->id);
         prefix->dxvk_x32_dlls = XteeStringList_duplicate(
                         dxvk_data->x32_dll_strs);
@@ -1140,6 +1144,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
         XteeWineVersionData *wine_version;
 
         wine_version = xtee_wine_get_version_data(prefix->wine_version.s);
+        xtee_gui_update_display();
         system32_path = XteeString_merge_XteeConstString_charstring(
                         XteeString_to_XteeConstString(prefix->wineprefix_dir),
                         "/drive_c/windows/system32/");
@@ -1147,6 +1152,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
         system32_info_strs[1] = system32_path.s;
         system32_info_strs[2] = NULL;
         print_info_strs(system32_info_strs);
+        xtee_gui_update_display();
         wine_x32_lib_path = XteeString_merge_XteeConstString_charstring(
                         XteeString_to_XteeConstString(
                                 wine_version->wine_lib_path),
@@ -1198,6 +1204,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
                 XteeString_free(dest_dll_path);
                 XteeString_free(full_dll_path);
         }
+        xtee_gui_update_display();
 
         for (size_t i = 0; prefix->arch != XTEE_PREFIX_ARCH_WIN32
                         && i < prefix->dxvk_x64_dlls.n; ++i) {
@@ -1228,6 +1235,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
 
         XteeString_free(system32_path);
         XteeString_free(wine_x32_lib_path);
+        xtee_gui_update_display();
         prefix->is_dxvk_installed = false;
         XteeStringList_free(prefix->dxvk_x32_dlls);
         prefix->dxvk_x32_dlls.data = NULL;

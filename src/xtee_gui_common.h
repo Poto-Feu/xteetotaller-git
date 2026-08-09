@@ -10,6 +10,8 @@
 #define XTEE_XT_CALLBACK_FUNC_PTR(fp) \
         void (*fp) (Widget, XtPointer, XtPointer)
 
+#define XTEE_BUSY_NANOSLEEP 33000000L
+
 #define XTEE_FILESELECTIONBOX_WIDTH 350
 #define XTEE_FILESELECTIONBOX_HEIGHT 380
 

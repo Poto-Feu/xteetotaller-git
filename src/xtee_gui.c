@@ -1831,7 +1831,8 @@ xtee_gui_fork_exec(char *pathname, char **args, size_t args_n,
                 default:
                         print_info("Waiting for child process to end");
                         while (true) {
-                                struct timespec req = { 0, 33000000L };
+                                struct timespec req = { 0,
+                                        XTEE_BUSY_NANOSLEEP };
                                 int wait_rtrn;
 
                                 xtee_gui_handle_busy_events();
