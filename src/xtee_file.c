@@ -296,3 +296,26 @@ xtee_is_file_directory(const char *path)
         }
         return true;
 }
+
+int
+xtee_file_copy(const char *restrict dest, const char *restrict file_path)
+{
+        FILE *input_f;
+        FILE *output_f;
+        char buf[4096];
+
+        input_f = fopen(file_path, "rb");
+        output_f = fopen(dest, "wb");
+
+        while (!feof(input_f)) {
+                size_t n;
+
+                n = fread(buf, 1, sizeof(buf), input_f);
+                if (n) {
+                        fwrite(buf, 1, n, output_f);
+                }
+        }
+        fclose(input_f);
+        fclose(output_f);
+        return 0;
+}

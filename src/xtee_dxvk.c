@@ -207,3 +207,32 @@ xtee_dxvk_free(void)
         }
         free(dxvk_versions_data.block);
 }
+
+XteeStringList
+xtee_dxvk_get_ids(void)
+{
+        XteeStringList strings_list;
+
+        strings_list.n = dxvk_versions_data.n;
+        strings_list.data = malloc(strings_list.n * sizeof(XteeConstString));
+        for (size_t i = 0; i < dxvk_versions_data.n; ++i) {
+                strings_list.data[i].s = strdup(
+                                dxvk_versions_data.block[i].id.s);
+                strings_list.data[i].n = dxvk_versions_data.block[i].id.n;
+        }
+        return strings_list;
+}
+
+XteeDxvkVersionData *
+xtee_dxvk_get_data(const char *id)
+{
+        for (size_t i = 0; i < dxvk_versions_data.n; ++i) {
+                XteeDxvkVersionData *version_data;
+
+                version_data = &dxvk_versions_data.block[i];
+                if (xtee_strcmp_bool(id, version_data->id.s)) {
+                        return version_data;
+                }
+        }
+        return NULL;
+}

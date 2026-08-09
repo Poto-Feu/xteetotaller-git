@@ -48,4 +48,6 @@ int xtee_file_get_dir_files_list(XteeConstString dir_path,
 bool xtee_is_file_regular(const char *path);
 bool xtee_is_file_directory(const char *path);
 
+int xtee_file_copy(const char *restrict dest, const char *restrict file_path);
+
 #endif

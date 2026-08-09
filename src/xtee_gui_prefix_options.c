@@ -5,11 +5,18 @@
 #include "xtee_wine.h"
 
 #include <Xm/List.h>
+#include <Xm/MessageB.h>
 #include <Xm/SelectioB.h>
 #include <Xm/ToggleBG.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <unistd.h>
 
 static XteeGuiPrefixOptionsData xtee_gui_prefix_options_data = { 0 };
+
 static Widget wine_version_selection_box = NULL;
+static Widget dxvk_version_selection_box = NULL;
+static Widget install_dxvk_working_dialog = NULL;
 
 static const int disable_winemenubuilder_i = 0;
 static const int change_wine_version_i = 1;
@@ -72,6 +79,128 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_cancel_cb)
         XtUnmanageChild((Widget)client_data);
 }
 
+static void
+set_and_show_install_dxvk_working_dialog(char *title, char *msg)
+{
+        XmString title_str, msg_str;
+        if (!install_dxvk_working_dialog) {
+                Arg args[5];
+                Cardinal n = 0;
+
+                XtSetArg(args[n], XmNdialogStyle,
+                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
+                install_dxvk_working_dialog = XmCreateWorkingDialog(
+                                dxvk_version_selection_box,
+                                "install_dxvk_working_dialog",
+                                args, n);
+                XtUnmanageChild(XtNameToWidget(install_dxvk_working_dialog,
+                                        "OK"));
+                xtee_gui_hide_dialog_cancel_button(
+                                install_dxvk_working_dialog);
+                xtee_gui_hide_dialog_help_button(install_dxvk_working_dialog);
+        }
+        title_str = XmStringCreateLocalized(title);
+        msg_str = XmStringCreateLocalized(msg);
+        XtVaSetValues(install_dxvk_working_dialog,
+                        XmNdialogTitle, title_str,
+                        XmNmessageString, msg_str,
+                        NULL);
+        XmStringFree(title_str);
+        XmStringFree(msg_str);
+        XtManageChild(install_dxvk_working_dialog);
+}
+
+static void
+hide_install_dxvk_working_dialog(void)
+{
+        XtUnmanageChild(install_dxvk_working_dialog);
+}
+
+static int
+xtee_gui_install_dxvk(XteePrefix *restrict prefix, char *restrict dxvk_str)
+{
+        XteeDxvkVersionData *dxvk_data;
+
+        if(!(dxvk_data = xtee_dxvk_get_data(dxvk_str))) {
+                return -1;
+        }
+        set_and_show_install_dxvk_working_dialog("Installing DXVK",
+                        "DXVK is being installed into the prefix.");
+        XmUpdateDisplay(install_dxvk_working_dialog);
+        if (xtee_prefix_install_dxvk(prefix, dxvk_data) != 0) {
+                hide_install_dxvk_working_dialog();
+                gui_print_error_log_and_dialog("Cannot install DXVK into "
+                                "prefix.", dxvk_version_selection_box);
+                return -1;
+        }
+        hide_install_dxvk_working_dialog();
+        return 0;
+}
+
+static void
+set_installed_dxvk_field(XteeGuiBasicFormDialog *dialog)
+{
+        XteePrefix *loaded_prefix;
+        XteeGuiFormField *install_dxvk_field;
+        XteeGuiStringAndButtonForm *form_data;
+        XmString tmp_str;
+
+        install_dxvk_field = dialog->fields + install_dxvk_i;
+        form_data = &install_dxvk_field->data.stringandbutton_form;
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        if (loaded_prefix->is_dxvk_installed) {
+                tmp_str = XmStringCreateLocalized(
+                                loaded_prefix->dxvk_version.s);
+                XtSetSensitive(form_data->button, False);
+        } else {
+                tmp_str = XmStringCreateLocalized("(not installed)");
+                XtSetSensitive(form_data->button, True);
+        }
+        XtVaSetValues(form_data->string_label,
+                        XmNlabelString, tmp_str,
+                        NULL);
+        XmStringFree(tmp_str);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(dxvk_version_selection_box_cb)
+{
+        XteeGuiBasicFormDialog *dialog;
+        XteePrefix *loaded_prefix;
+        XmSelectionBoxCallbackStruct *cbs;
+        char *dxvk_str;
+
+        (void)client_data;
+        cbs = (XmSelectionBoxCallbackStruct *)call_data;
+        switch (cbs->reason) {
+                case XmCR_OK:
+                        /* See rest of function */
+                        break;
+                case XmCR_CANCEL:
+                        XtUnmanageChild(w);
+                        return;
+                case XmCR_NO_MATCH:
+                        gui_print_error_log_and_dialog("DXVK version name is "
+                                        "not valid.",
+                                        w);
+                        return;
+                default:
+                        return;
+        }
+        dialog = &xtee_gui_prefix_options_data.dialog;
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        dxvk_str = XmString_to_char_str(&cbs->value);
+        if (xtee_gui_install_dxvk(loaded_prefix, dxvk_str) != 0) {
+                gui_print_error_log_and_dialog("Cannot install DXVK in "
+                                "prefix.", w);
+                free(dxvk_str);
+                return;
+        }
+        set_installed_dxvk_field(dialog);
+        free(dxvk_str);
+        XtUnmanageChild(w);
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
 {
@@ -81,8 +210,49 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
         (void)call_data;
         (void)client_data;
         dialog = &xtee_gui_prefix_options_data.dialog;
-        gui_print_warning_dialog("Installing DXVK is not implemented yet.",
-                        dialog->dialog_form);
+        if (!dxvk_version_selection_box) {
+                XteeStringList dxvk_versions_list;
+                Arg args[5];
+                Cardinal n = 0;
+                Widget items_list;
+
+                XtSetArg(args[n], XmNdialogStyle,
+                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
+                XtSetArg(args[n], XmNmustMatch, True); n++;
+                XtSetArg(args[n], XmNautoUnmanage, False); n++;
+                dxvk_version_selection_box = XmCreateSelectionDialog(
+                                dialog->dialog_form,
+                                "dxvk_version_selection_box",
+                                args, n);
+                xtee_gui_disable_dialog_help_button(
+                                dxvk_version_selection_box);
+                XtUnmanageChild(XtNameToWidget(dxvk_version_selection_box,
+                                        "Apply"));
+                dxvk_versions_list = xtee_dxvk_get_ids();
+                items_list = XtNameToWidget(dxvk_version_selection_box,
+                                "*ItemsList");
+                if (!items_list) {
+                        fatal_error("No ItemsList child in XmSelectionBox.");
+                }
+                for (size_t i = 0; i < dxvk_versions_list.n; ++i) {
+                        XmString item_str;
+
+                        item_str = XmStringCreateLocalized(
+                                        dxvk_versions_list.data[i].s);
+                        XmListAddItem(items_list, item_str, 0);
+                }
+                XteeStringList_free(dxvk_versions_list);
+                XtAddCallback(dxvk_version_selection_box, XmNokCallback,
+                                dxvk_version_selection_box_cb,
+                                NULL);
+                XtAddCallback(dxvk_version_selection_box, XmNcancelCallback,
+                                dxvk_version_selection_box_cb,
+                                NULL);
+                XtAddCallback(dxvk_version_selection_box, XmNnoMatchCallback,
+                                dxvk_version_selection_box_cb,
+                                NULL);
+        }
+        XtManageChild(dxvk_version_selection_box);
 }
 
 static
@@ -190,22 +360,6 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
 }
 
 static void
-set_installed_dxvk_string(XteeGuiBasicFormDialog *dialog)
-{
-        XteeGuiFormField *install_dxvk_field;
-        XteeGuiStringAndButtonForm *form_data;
-        XmString tmp_str;
-
-        install_dxvk_field = dialog->fields + install_dxvk_i;
-        form_data = &install_dxvk_field->data.stringandbutton_form;
-        tmp_str = XmStringCreateLocalized("(not installed)");
-        XtVaSetValues(form_data->string_label,
-                        XmNlabelString, tmp_str,
-                        NULL);
-        XmStringFree(tmp_str);
-}
-
-static void
 set_change_wine_string(XteeGuiBasicFormDialog *dialog)
 {
         XteeGuiFormField *change_wine_field;
@@ -269,7 +423,7 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                         disable_winemenubuilder_field->data.toggle_g,
                         loaded_prefix->disable_winemenubuilder,
                         False);
-        set_installed_dxvk_string(dialog);
+        set_installed_dxvk_field(dialog);
         set_change_wine_string(dialog);
         XtManageChild(dialog->dialog_form);
 }

@@ -24,6 +24,9 @@ void gui_print_warning_dialog(char *msg, Widget parent);
 
 Widget xtee_gui_get_main_win(void);
 
+/* Mostly used for working dialogs */
+void xtee_gui_handle_busy_events(void);
+
 /* The block pointed by args MUST NOT have a NULL pointer at its end and
  * args_n should also reflect this.
  * The first argument MUST NOT be the path to the program, as the function

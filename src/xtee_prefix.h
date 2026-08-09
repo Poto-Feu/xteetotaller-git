@@ -2,6 +2,7 @@
 #define XTEE_PREFIX_H
 
 #include "xtee_config.h"
+#include "xtee_dxvk.h"
 #include "xtee_program.h"
 
 #define XTEE_PREFIX_DEFAULT_ID_MAX_LEN 200
@@ -67,11 +68,15 @@ typedef struct XteePrefix {
         XteeString wineprefix_dir;
         XteeString wine_version;
         XteeDate creation_date;
+        XteeString dxvk_version;
+        XteeStringList dxvk_x32_dlls;
+        XteeStringList dxvk_x64_dlls;
         XteeString *programs_ids;
         size_t programs_n;
         enum XteePrefixArch arch;
         bool isolate_home;
         bool disable_winemenubuilder;
+        bool is_dxvk_installed;
 } XteePrefix;
 
 typedef struct XteePrefixIdBlock {
@@ -119,6 +124,9 @@ int xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program);
 XteeProgram *xtee_prefix_get_program_data(XteePrefix *prefix,
                 const char *program_id,
                 enum XteeGetProgramDataStatus *status);
+
+int xtee_prefix_install_dxvk(XteePrefix *prefix,
+                XteeDxvkVersionData *dxvk_data);
 
 /* Do not free returned string as they are pointers to string literals. */
 inline char *

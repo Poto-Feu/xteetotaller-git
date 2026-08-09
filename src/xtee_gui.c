@@ -1789,7 +1789,7 @@ xtee_gui_exec(char *pathname, char **args, size_t args_n,
         return r;
 }
 
-static void
+void
 xtee_gui_handle_busy_events(void)
 {
         Display *dpy;

@@ -14,4 +14,7 @@ typedef struct XteeDxvkVersionData {
 void xtee_dxvk_init(void);
 void xtee_dxvk_free(void);
 
+XteeStringList xtee_dxvk_get_ids(void);
+XteeDxvkVersionData *xtee_dxvk_get_data(const char *id);
+
 #endif
