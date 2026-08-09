@@ -143,6 +143,9 @@ write_prefix_config_file(XteePrefix *prefix, const char *prefix_data_dir_path)
                         "dxvk_x32_dlls", prefix->dxvk_x32_dlls.data[i].s
                 };
 
+                if (!prefix->is_dxvk_installed) {
+                        break;
+                }
                 if (xtee_write_config_entry(f, conf_entry) != 0) {
                         fclose(f);
                         return -1;
@@ -154,6 +157,9 @@ write_prefix_config_file(XteePrefix *prefix, const char *prefix_data_dir_path)
                         "dxvk_x64_dlls", prefix->dxvk_x64_dlls.data[i].s
                 };
 
+                if (!prefix->is_dxvk_installed) {
+                        break;
+                }
                 if (xtee_write_config_entry(f, conf_entry) != 0) {
                         fclose(f);
                         return -1;
@@ -1118,6 +1124,122 @@ xtee_prefix_install_dxvk(XteePrefix *prefix, XteeDxvkVersionData *dxvk_data)
         prefix->dxvk_x32_dlls = XteeStringList_duplicate(
                         dxvk_data->x32_dll_strs);
         prefix->is_dxvk_installed = true;
+        xtee_prefix_save_config(prefix);
+        return 0;
+}
+
+int
+xtee_prefix_remove_dxvk(XteePrefix *prefix)
+{
+        const char *system32_info_strs[3];
+        XteeString system32_path = { 0 };
+        XteeString syswow64_path = { 0 };
+        XteeString wine_x32_lib_path = { 0 };
+        XteeString wine_x64_lib_path = { 0 };
+        XteeString *prefix_32bits_dlls_path;
+        XteeWineVersionData *wine_version;
+
+        wine_version = xtee_wine_get_version_data(prefix->wine_version.s);
+        system32_path = XteeString_merge_XteeConstString_charstring(
+                        XteeString_to_XteeConstString(prefix->wineprefix_dir),
+                        "/drive_c/windows/system32/");
+        system32_info_strs[0] = "system32 path: ";
+        system32_info_strs[1] = system32_path.s;
+        system32_info_strs[2] = NULL;
+        print_info_strs(system32_info_strs);
+        wine_x32_lib_path = XteeString_merge_XteeConstString_charstring(
+                        XteeString_to_XteeConstString(
+                                wine_version->wine_lib_path),
+                        "i386-windows/");
+
+        if (prefix->arch == XTEE_PREFIX_ARCH_WIN32) {
+                prefix_32bits_dlls_path = &system32_path;
+        } else {
+                const char *syswow64_info_strs[3];
+
+                syswow64_path = XteeString_merge_XteeConstString_charstring(
+                                XteeString_to_XteeConstString(
+                                        prefix->wineprefix_dir),
+                                "/drive_c/windows/syswow64/");
+                syswow64_info_strs[0] = "syswow64 path: ";
+                syswow64_info_strs[1] = syswow64_path.s;
+                syswow64_info_strs[2] = NULL;
+                print_info_strs(syswow64_info_strs);
+                prefix_32bits_dlls_path = &syswow64_path;
+                wine_x64_lib_path =
+                        XteeString_merge_XteeConstString_charstring(
+                                XteeString_to_XteeConstString(
+                                        wine_version->wine_lib_path),
+                                "x86_64-windows/");
+        }
+
+        for (size_t i = 0; i < prefix->dxvk_x32_dlls.n; ++i) {
+                const char *dll_copying_info_strs[5];
+                XteeString full_dll_path;
+                XteeString dest_dll_path;
+
+                full_dll_path = XteeString_merge_XteeConstStrings(
+                                XteeString_to_XteeConstString(
+                                        wine_x32_lib_path),
+                                XteeString_to_XteeConstString(
+                                        prefix->dxvk_x32_dlls.data[i]));
+                dest_dll_path = XteeString_merge_XteeConstStrings(
+                                XteeString_to_XteeConstString(
+                                        *prefix_32bits_dlls_path),
+                                XteeString_to_XteeConstString(
+                                        prefix->dxvk_x32_dlls.data[i]));
+                dll_copying_info_strs[0] = "Copying ";
+                dll_copying_info_strs[1] = full_dll_path.s;
+                dll_copying_info_strs[2] = " to ";
+                dll_copying_info_strs[3] = dest_dll_path.s;
+                dll_copying_info_strs[4] = NULL;
+                print_info_strs(dll_copying_info_strs);
+                xtee_file_copy(dest_dll_path.s, full_dll_path.s);
+                XteeString_free(dest_dll_path);
+                XteeString_free(full_dll_path);
+        }
+
+        for (size_t i = 0; prefix->arch != XTEE_PREFIX_ARCH_WIN32
+                        && i < prefix->dxvk_x64_dlls.n; ++i) {
+                const char *dll_copying_info_strs[5];
+                XteeString full_dll_path;
+                XteeString dest_dll_path;
+
+                full_dll_path = XteeString_merge_XteeConstStrings(
+                                XteeString_to_XteeConstString(
+                                        wine_x64_lib_path),
+                                XteeString_to_XteeConstString(
+                                        prefix->dxvk_x64_dlls.data[i]));
+                dest_dll_path = XteeString_merge_XteeConstStrings(
+                                XteeString_to_XteeConstString(
+                                        system32_path),
+                                XteeString_to_XteeConstString(
+                                        prefix->dxvk_x64_dlls.data[i]));
+                dll_copying_info_strs[0] = "Copying ";
+                dll_copying_info_strs[1] = full_dll_path.s;
+                dll_copying_info_strs[2] = " to ";
+                dll_copying_info_strs[3] = dest_dll_path.s;
+                dll_copying_info_strs[4] = NULL;
+                print_info_strs(dll_copying_info_strs);
+                xtee_file_copy(dest_dll_path.s, full_dll_path.s);
+                XteeString_free(dest_dll_path);
+                XteeString_free(full_dll_path);
+        }
+
+        XteeString_free(system32_path);
+        XteeString_free(wine_x32_lib_path);
+        prefix->is_dxvk_installed = false;
+        XteeStringList_free(prefix->dxvk_x32_dlls);
+        prefix->dxvk_x32_dlls.data = NULL;
+        prefix->dxvk_x32_dlls.n = 0;
+        XteeString_free(prefix->dxvk_version);
+        if (prefix->arch != XTEE_PREFIX_ARCH_WIN32) {
+                XteeString_free(syswow64_path);
+                XteeString_free(wine_x64_lib_path);
+                XteeStringList_free(prefix->dxvk_x64_dlls);
+                prefix->dxvk_x64_dlls.data = NULL;
+                prefix->dxvk_x64_dlls.n = 0;
+        }
         xtee_prefix_save_config(prefix);
         return 0;
 }

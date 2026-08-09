@@ -1010,12 +1010,21 @@ XTEE_XT_CALLBACK_FUNC(run_exec_in_prefix_btn_cb)
         (void)call_data;
 
         if (!run_exec_browse_dialog) {
-                Arg args[5];
+                Arg args[10];
                 Cardinal n = 0;
+                XmString dialog_title;
+
+                dialog_title = XmStringCreateLocalized("Run executable...");
                 XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
+                XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
+                XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
+                XtSetArg(args[n], XmNwidth, XTEE_FILESELECTIONBOX_WIDTH); n++;
+                XtSetArg(args[n], XmNheight,
+                                XTEE_FILESELECTIONBOX_HEIGHT); n++;
                 run_exec_browse_dialog = XmCreateFileSelectionDialog(
                                 main_gui_data.main_win,
                                 "run_exec_browse_dialog", args, n);
+                XmStringFree(dialog_title);
                 XtAddCallback(run_exec_browse_dialog, XmNokCallback,
                                 run_exec_browse_dialog_btns_cb,
                                 NULL);

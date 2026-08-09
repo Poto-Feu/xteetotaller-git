@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 static XteeGuiPrefixOptionsData xtee_gui_prefix_options_data = { 0 };
+static bool xtee_gui_is_dxvk_installed = false;
 
 static Widget wine_version_selection_box = NULL;
 static Widget dxvk_version_selection_box = NULL;
@@ -83,14 +84,18 @@ static void
 set_and_show_install_dxvk_working_dialog(char *title, char *msg)
 {
         XmString title_str, msg_str;
+
         if (!install_dxvk_working_dialog) {
+                XteeGuiBasicFormDialog *dialog;
                 Arg args[5];
                 Cardinal n = 0;
+
+                dialog = &xtee_gui_prefix_options_data.dialog;
 
                 XtSetArg(args[n], XmNdialogStyle,
                                 XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
                 install_dxvk_working_dialog = XmCreateWorkingDialog(
-                                dxvk_version_selection_box,
+                                dialog->dialog_form,
                                 "install_dxvk_working_dialog",
                                 args, n);
                 XtUnmanageChild(XtNameToWidget(install_dxvk_working_dialog,
@@ -143,23 +148,32 @@ set_installed_dxvk_field(XteeGuiBasicFormDialog *dialog)
         XteePrefix *loaded_prefix;
         XteeGuiFormField *install_dxvk_field;
         XteeGuiStringAndButtonForm *form_data;
-        XmString tmp_str;
+        XmString label_str;
+        XmString button_label;
 
         install_dxvk_field = dialog->fields + install_dxvk_i;
         form_data = &install_dxvk_field->data.stringandbutton_form;
         loaded_prefix = xtee_state_get_loaded_prefix();
         if (loaded_prefix->is_dxvk_installed) {
-                tmp_str = XmStringCreateLocalized(
+                label_str = XmStringCreateLocalized(
                                 loaded_prefix->dxvk_version.s);
-                XtSetSensitive(form_data->button, False);
+                button_label = XmStringCreateLocalized(
+                                "Remove DXVK");
+                xtee_gui_is_dxvk_installed = true;
         } else {
-                tmp_str = XmStringCreateLocalized("(not installed)");
-                XtSetSensitive(form_data->button, True);
+                label_str = XmStringCreateLocalized("(not installed)");
+                button_label = XmStringCreateLocalized(
+                                "Install DXVK");
+                xtee_gui_is_dxvk_installed = false;
         }
         XtVaSetValues(form_data->string_label,
-                        XmNlabelString, tmp_str,
+                        XmNlabelString, label_str,
                         NULL);
-        XmStringFree(tmp_str);
+        XtVaSetValues(form_data->button,
+                        XmNlabelString, button_label,
+                        NULL);
+        XmStringFree(label_str);
+        XmStringFree(button_label);
 }
 
 static
@@ -201,6 +215,19 @@ XTEE_XT_CALLBACK_FUNC(dxvk_version_selection_box_cb)
         XtUnmanageChild(w);
 }
 
+static int
+xtee_gui_remove_dxvk(XteePrefix *prefix)
+{
+        XteeGuiBasicFormDialog *dialog;
+
+        dialog = &xtee_gui_prefix_options_data.dialog;
+        if (xtee_prefix_remove_dxvk(prefix) != 0) {
+                return -1;
+        }
+        set_installed_dxvk_field(dialog);
+        return 0;
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
 {
@@ -210,6 +237,24 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
         (void)call_data;
         (void)client_data;
         dialog = &xtee_gui_prefix_options_data.dialog;
+
+        if (xtee_gui_is_dxvk_installed) {
+                set_and_show_install_dxvk_working_dialog("Removing DXVK",
+                                "DXVK is being removed from prefix.");
+                XmUpdateDisplay(install_dxvk_working_dialog);
+                if (xtee_gui_remove_dxvk(xtee_state_get_loaded_prefix())
+                                != 0) {
+                        hide_install_dxvk_working_dialog();
+                        gui_print_error_log_and_dialog("An error occured "
+                                        "while removing DXVK",
+                                        dialog->dialog_form);
+                }
+                XmUpdateDisplay(install_dxvk_working_dialog);
+                hide_install_dxvk_working_dialog();
+                set_installed_dxvk_field(dialog);
+                return;
+        }
+
         if (!dxvk_version_selection_box) {
                 XteeStringList dxvk_versions_list;
                 Arg args[5];

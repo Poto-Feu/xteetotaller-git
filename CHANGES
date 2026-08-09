@@ -1,5 +1,8 @@
 2026-08-09
-* Add experimental support for DXVK installation on prefixes
+* Add experimental support for DXVK installation in prefixes
+* Set Run executable in prefix FileSelectionBox title
+* Set width and height of FileSelectionBox
+* Allow removing DXVK from prefixes
 
 2026-08-08
 * Allow changing prefix wine version with same architecture

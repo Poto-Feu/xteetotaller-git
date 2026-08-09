@@ -10,6 +10,9 @@
 #define XTEE_XT_CALLBACK_FUNC_PTR(fp) \
         void (*fp) (Widget, XtPointer, XtPointer)
 
+#define XTEE_FILESELECTIONBOX_WIDTH 350
+#define XTEE_FILESELECTIONBOX_HEIGHT 380
+
 void xtee_gui_update_display(void);
 Display *xtee_gui_get_display(void);
 

@@ -122,7 +122,7 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                 char *label_name, char *label_str,
                 char *text_name, int text_margin)
 {
-        Arg args[5];
+        Arg args[10];
         Cardinal n = 0;
         XmString tmp_str;
         char *gui_show_hidden_files_val;
@@ -150,6 +150,9 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
         gui_show_hidden_files_val = xtee_config_get_entry_value(
                         "gui.show_hidden_files");
         XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
+        XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
+        XtSetArg(args[n], XmNwidth, XTEE_FILESELECTIONBOX_WIDTH); n++;
+        XtSetArg(args[n], XmNheight, XTEE_FILESELECTIONBOX_HEIGHT); n++;
         if (!gui_show_hidden_files_val
                         || !xtee_string_to_bool(gui_show_hidden_files_val)) {
                 XtSetArg(args[n], XmNfileFilterStyle,

@@ -128,6 +128,8 @@ XteeProgram *xtee_prefix_get_program_data(XteePrefix *prefix,
 int xtee_prefix_install_dxvk(XteePrefix *prefix,
                 XteeDxvkVersionData *dxvk_data);
 
+int xtee_prefix_remove_dxvk(XteePrefix *prefix);
+
 /* Do not free returned string as they are pointers to string literals. */
 inline char *
 xtee_prefix_get_arch_string(enum XteePrefixArch arch)
