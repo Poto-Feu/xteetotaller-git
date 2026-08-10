@@ -1,5 +1,7 @@
 2026-08-10
 * Add non-working DXVK warning in README
+* Set WINEDLLOVERRIDES for DXVK libraries
+* Fix occasional crash when exiting Prefix Options after removing DXVK
 
 2026-08-09
 * Add experimental support for DXVK installation in prefixes

@@ -19,7 +19,4 @@ directory.
 This is source-available software.
 It is not yet licensed under a Free Software license.
 
-WARNING: while it is possible to install DXVK into a prefix through the Prefix
-Options, dlls overrides are not set so it does not work yet.
-
 Copyright 2026 Adrien Saad. All Rights Reserved.

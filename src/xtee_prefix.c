@@ -58,9 +58,17 @@ xtee_free_prefix_struct(XteePrefix *prefix)
         XteeString_free(prefix->id);
         XteeString_free(prefix->wineprefix_dir);
         XteeString_free(prefix->wine_version);
-        XteeString_free(prefix->dxvk_version);
-        XteeStringList_free(prefix->dxvk_x32_dlls);
-        XteeStringList_free(prefix->dxvk_x64_dlls);
+        if (prefix->is_dxvk_installed) {
+                XteeString_free(prefix->dxvk_version);
+                XteeStringList_free(prefix->dxvk_x32_dlls);
+                XteeStringList_free(prefix->dxvk_x64_dlls);
+                prefix->dxvk_version.s = NULL;
+                prefix->dxvk_version.n = 0;
+                prefix->dxvk_x32_dlls.data = NULL;
+                prefix->dxvk_x32_dlls.n = 0;
+                prefix->dxvk_x64_dlls.data = NULL;
+                prefix->dxvk_x64_dlls.n = 0;
+        }
 
         for (size_t i = 0; i < prefix->programs_n; ++i) {
                 XteeString_free(prefix->programs_ids[i]);
@@ -847,10 +855,55 @@ get_prefix_arch_from_str(const char *s)
 void
 xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
 {
+        const char *info_strs[3];
+        char *winedlloverrides_str;
+        size_t env_str_len = 0;
+
         if (prefix->disable_winemenubuilder) {
+                winedlloverrides_str = strdup("winemenubuilder.exe=");
+                env_str_len = sizeof("winemenubuilder.exe=") - 1;
                 setenv("WINEDLLOVERRIDES", "winemenubuilder.exe=", 1);
+        } else {
+                winedlloverrides_str = malloc(1);
+                winedlloverrides_str[0] = '\0';
         }
-        return;
+
+        if (!prefix->is_dxvk_installed) {
+                print_info("Setting WINEDLLOVERRIDES to "
+                                "\"winemenubuilder.exe=\"");
+                free(winedlloverrides_str);
+                return;
+        }
+
+        for (size_t i = 0; i < prefix->dxvk_x32_dlls.n; ++i) {
+                bool is_semicolon_needed;
+                char *tmp_ptr;
+
+                is_semicolon_needed = (i != 0
+                                || prefix->disable_winemenubuilder);
+                env_str_len += prefix->dxvk_x32_dlls.data[i].n - 4
+                        + sizeof("=n,b");
+                if (is_semicolon_needed) {
+                        ++env_str_len;
+                }
+
+                tmp_ptr = realloc_or_exit(winedlloverrides_str,
+                                env_str_len + 1);
+                winedlloverrides_str = tmp_ptr;
+                if (is_semicolon_needed) {
+                        strcat(winedlloverrides_str, ";");
+                }
+                strncat(winedlloverrides_str,
+                                prefix->dxvk_x32_dlls.data[i].s,
+                                prefix->dxvk_x32_dlls.data[i].n - 4);
+                strcat(winedlloverrides_str, "=n,b");
+        }
+        setenv("WINEDLLOVERRIDES", winedlloverrides_str, 1);
+        info_strs[0] = "Setting WINEDLLOVERRIDES to ";
+        info_strs[1] = winedlloverrides_str;
+        info_strs[2] = NULL;
+        print_info_strs(info_strs);
+        free(winedlloverrides_str);
 }
 
 static int
