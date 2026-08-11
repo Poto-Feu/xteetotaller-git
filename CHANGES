@@ -1,3 +1,7 @@
+2026-08-11
+* Fix WINEDLLOVERRIDES log info displayed when there is no overrides
+* Add Winecfg button in main window prefix frame
+
 2026-08-10
 * Add non-working DXVK warning in README
 * Set WINEDLLOVERRIDES for DXVK libraries

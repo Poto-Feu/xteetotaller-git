@@ -53,6 +53,7 @@ typedef struct XteeWorkAreaStruct {
         Widget prefix_options_btn;
         Widget new_program_btn;
         Widget run_exec_in_prefix_btn;
+        Widget winecfg_btn;
         Widget winetricks_btn;
         Widget prefix_info_label;
 } XteeWorkAreaStruct;
@@ -106,6 +107,8 @@ static XteePushButtonData prefix_btns_data[] = {
                 &main_gui_data.work_area_struct.new_program_btn },
         { "run_exec_in_prefix_btn", "Run executable in prefix",
                 &main_gui_data.work_area_struct.run_exec_in_prefix_btn },
+        { "winecfg_btn", "Winecfg",
+                &main_gui_data.work_area_struct.winecfg_btn },
         { "winetricks_btn", "Winetricks",
                 &main_gui_data.work_area_struct.winetricks_btn },
 };
@@ -1049,6 +1052,36 @@ XTEE_XT_CALLBACK_FUNC(run_exec_in_prefix_btn_cb)
 }
 
 static
+XTEE_XT_CALLBACK_FUNC(winecfg_btn_cb)
+{
+        XteeEnvData env_data[1];
+        XteeWineVersionData *wine_version;
+        XteePrefix *loaded_prefix;
+        int r;
+
+        (void)w;
+        (void)client_data;
+        (void)call_data;
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        wine_version = xtee_wine_get_version_data(
+                        loaded_prefix->wine_version.s);
+        set_and_show_main_working_dialog("Running winecfg",
+                        "Running winecfg");
+        env_data[0].name = "WINEPREFIX";
+        env_data[0].value = loaded_prefix->wineprefix_dir.s;
+        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
+        r = xtee_gui_fork_exec((char *)wine_version->winecfg_path.s, NULL, 0,
+                                env_data, XTEE_ARRAY_LEN(env_data));
+        unsetenv("WINEDLLOVERRIDES");
+        hide_main_working_dialog();
+        if (r != 0) {
+                gui_print_error_log_and_dialog("Cannot run winecfg.",
+                                main_gui_data.main_win);
+        }
+
+}
+
+static
 XTEE_XT_CALLBACK_FUNC(winetricks_btn_cb)
 {
         XteeEnvData env_data[3];
@@ -1148,6 +1181,8 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNactivateCallback, new_program_btn_cb, NULL);
         XtAddCallback(main_gui_data.work_area_struct.run_exec_in_prefix_btn,
                         XmNactivateCallback, run_exec_in_prefix_btn_cb, NULL);
+        XtAddCallback(main_gui_data.work_area_struct.winecfg_btn,
+                        XmNactivateCallback, winecfg_btn_cb, NULL);
         XtAddCallback(main_gui_data.work_area_struct.winetricks_btn,
                         XmNactivateCallback, winetricks_btn_cb, NULL);
         wa_struct->prefix_info_label = XtVaCreateManagedWidget(

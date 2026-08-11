@@ -869,8 +869,10 @@ xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
         }
 
         if (!prefix->is_dxvk_installed) {
-                print_info("Setting WINEDLLOVERRIDES to "
-                                "\"winemenubuilder.exe=\"");
+                if (prefix->disable_winemenubuilder) {
+                        print_info("Setting WINEDLLOVERRIDES to "
+                                        "\"winemenubuilder.exe=\"");
+                }
                 free(winedlloverrides_str);
                 return;
         }
