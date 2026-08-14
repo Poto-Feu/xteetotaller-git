@@ -95,7 +95,7 @@ static XteePushButtonData programs_btns_data[] = {
                 &main_gui_data.work_area_struct.start_program_btn },
         { "program_options_btn", "Program options",
                 &main_gui_data.work_area_struct.program_options_btn },
-        { "start_gamescope_btn", "Start Gamescope",
+        { "start_gamescope_btn", "Start Gamescope (experimental)",
                 &main_gui_data.work_area_struct.start_gamescope_btn },
 };
 
