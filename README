@@ -1,4 +1,4 @@
-xteetotaller is a Wine prefix and installations manager.
+xteetotaller is a Wine prefix manager.
 
 The only required dependencies are Motif and standard X11 libraries.
 It requires a C99-compliant compiler with some parts of the Single Unix
@@ -9,12 +9,51 @@ thus disabled with the "-fno-strict-aliasing" on GCC and compatible compilers.
 xteetotaller is meant to be used on an x86 CPU.
 Using this program on a big-endian CPU may cause issues.
 
+Requirements
+============
+
 This program is linked with the following libraries:
 - libX11 (also known as Xlib)
 - libXt
 - Motif
 Licensing information for these libraries is available in the licenses
 directory.
+
+Known issues
+============
+* Gamescope may silently fail to start.
+When this happens, try to start the program with gamescope again.
+* It is not possible to copy and paste with ^C and ^V yet.
+However, it is possible to copy and paste with middle click like all X11
+programs do.
+* Some parts of the program could have their number of memory allocations
+reduced.
+A lot of allocations are made in a naive way, where blocks are resized by one
+when an object is added.
+This is unnoticeable for the user in most cases, but must still be addressed.
+* Keyboard traversal and Enter key have some issues on forms with fields.
+* There are no documentation or help system for the program.
+* Labels with UTF-8 characters may not be displayed correctly.
+However, this isssue should not be present on TextField widgets.
+* Some errors may result in crash or are ignored silently.
+The former is mostly caused by a configuration file writing error.
+This should not happen unless the file system is corrupted or has not enough
+free space, or the files have incorrect permissions.
+This is not a big issue as the user will probably notice these issues on
+other programs before launching xteetotaller or will be the result of their own actions.
+* There are TOCTOU vulnerabilities.
+Wine and DXVK versions and prefix and programs information are read during the
+launch of xteetotaller.
+These should not be deleted or modified by an external tool while xteetotaller
+is running.
+However, it is safe to delete Wine, DXVK, program configuration files and
+prefixes directories when xteetotaller is closed.
+Since xteetotaller is not a critical part of the operating system and does not
+use the network interfaces in any way, this should not cause an issue with
+almost all users.
+
+Copyright and licensing information
+===================================
 
 This is source-available software.
 It is not yet licensed under a Free Software license.

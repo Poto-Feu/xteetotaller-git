@@ -2,6 +2,8 @@
 * Implement experimental gamescope support
 * Use common macro value for prefix and program names maximum length
 * Add "(experimental)" to Start Gamescope button
+* Add Known issues section to README
+* Add two issues to Known issues section
 
 2026-08-11
 * Fix WINEDLLOVERRIDES log info displayed when there is no overrides
