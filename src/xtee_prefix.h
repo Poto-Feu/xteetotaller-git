@@ -4,8 +4,9 @@
 #include "xtee_config.h"
 #include "xtee_dxvk.h"
 #include "xtee_program.h"
+#include "xtee_utils.h"
 
-#define XTEE_PREFIX_DEFAULT_ID_MAX_LEN 200
+#define XTEE_PREFIX_DEFAULT_ID_MAX_LEN XTEE_MAX_ID_LEN
 
 #define XTEE_PREFIX_VAR_NAME_MAX_LEN XTEE_VAR_NAME_MAX_LEN
 #define XTEE_PREFIX_VAR_VALUE_MAX_LEN XTEE_VAR_VALUE_MAX_LEN

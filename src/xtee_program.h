@@ -4,8 +4,9 @@
 #include "xtee_date.h"
 #include "xtee_dll.h"
 #include "xtee_string.h"
+#include "xtee_utils.h"
 
-#define XTEE_PROGRAM_ID_MAX_LEN 200
+#define XTEE_PROGRAM_ID_MAX_LEN XTEE_MAX_ID_LEN
 
 typedef struct XteeProgram {
         XteeString id;

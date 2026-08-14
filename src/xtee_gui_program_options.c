@@ -261,7 +261,7 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 NULL);
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 program_options_dialog_cancel_cb,
-                                (XtPointer)dialog->dialog_form);
+                                NULL);
                 add_list_buttons_field_to_XteeGuiBasicFormDialog(dialog,
                                 "cmd_line_args_form",
                                 "Command line arguments: ",

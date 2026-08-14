@@ -35,7 +35,8 @@ void xtee_gui_handle_busy_events(void);
 int xtee_gui_fork_exec(char *pathname, char **args, size_t args_n,
                 const XteeEnvData *env, size_t env_n);
 
-/* If there are no selected program, a non-zero value is returned. */
+/* If there are no selected program, a non-zero value is returned.
+ * DO NOT free XteeString after usage. */
 int xtee_gui_get_selected_program_string(XteeString *str);
 
 void xtee_gui_print_get_program_data_error(

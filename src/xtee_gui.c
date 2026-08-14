@@ -2,6 +2,7 @@
 #include "xtee_error.h"
 #include "xtee_file.h"
 #include "xtee_gui_form.h"
+#include "xtee_gui_gamescope.h"
 #include "xtee_gui_new_prefix.h"
 #include "xtee_gui_prefix_options.h"
 #include "xtee_gui_program_options.h"
@@ -45,6 +46,7 @@ typedef struct XteeWorkAreaStruct {
         Widget programs_buttons;
         Widget start_program_btn;
         Widget program_options_btn;
+        Widget start_gamescope_btn;
         Widget prefix_frame;
         Widget prefix_frame_title;
         Widget prefix_form;
@@ -92,11 +94,14 @@ static XteePushButtonData programs_btns_data[] = {
         { "start_program_btn", "Start program",
                 &main_gui_data.work_area_struct.start_program_btn },
         { "program_options_btn", "Program options",
-                &main_gui_data.work_area_struct.program_options_btn }
+                &main_gui_data.work_area_struct.program_options_btn },
+        { "start_gamescope_btn", "Start Gamescope",
+                &main_gui_data.work_area_struct.start_gamescope_btn },
 };
 
 static int start_program_btn_i = 0;
 static int program_options_btn_i = 1;
+static int start_gamescope_btn_i = 2;
 
 static XteePushButtonData prefix_btns_data[] = {
         { "reload_prefix_btn", "Reload prefix",
@@ -209,7 +214,17 @@ gui_print_message_dialog(char *msg, Widget parent, unsigned char type)
                 type = XmDIALOG_MESSAGE;
         }
 
-        dialog_title = XmStringCreateLocalized("Error");
+        switch (type) {
+                case XmDIALOG_ERROR:
+                        dialog_title = XmStringCreateLocalized("Error");
+                        break;
+                case XmDIALOG_WARNING:
+                        dialog_title = XmStringCreateLocalized("Warning");
+                        break;
+                default:
+                        dialog_title = XmStringCreateLocalized("Information");
+                        break;
+        }
         dialog_text = XmStringCreateLocalized(msg);
         set_message_dialog_args(args, &n, dialog_title, dialog_text);
         switch (type) {
@@ -339,8 +354,14 @@ disable_programs_btns(void)
 static void
 enable_programs_btns(void)
 {
-        for (size_t i = 0; i < XTEE_ARRAY_LEN(programs_btns_data); ++i) {
+        /* Do not enable Start gamescope button yet! */
+        for (size_t i = 0; i < XTEE_ARRAY_LEN(programs_btns_data) - 1; ++i) {
                 XtSetSensitive(*(programs_btns_data[i].w), True);
+        }
+
+        if (xtee_system_is_gamescope_installed) {
+                XtSetSensitive(*(programs_btns_data[start_gamescope_btn_i].w),
+                                True);
         }
 }
 
@@ -591,6 +612,15 @@ XTEE_XT_CALLBACK_FUNC(program_options_btn_cb)
         xtee_gui_show_program_options_dialog(main_gui_data.main_win);
 }
 
+static
+XTEE_XT_CALLBACK_FUNC(start_gamescope_btn_cb)
+{
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+        xtee_gui_gamescope_show_dialog();
+}
+
 static void
 create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
 {
@@ -681,6 +711,9 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         NULL);
         XtAddCallback(*programs_btns_data[program_options_btn_i].w,
                         XmNactivateCallback, program_options_btn_cb,
+                        NULL);
+        XtAddCallback(*programs_btns_data[start_gamescope_btn_i].w,
+                        XmNactivateCallback, start_gamescope_btn_cb,
                         NULL);
 
         XtManageChild(wa_struct->programs_buttons);

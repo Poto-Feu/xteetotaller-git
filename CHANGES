@@ -1,6 +1,12 @@
+2026-08-14
+* Implement experimental gamescope support
+* Use common macro value for prefix and program names maximum length
+
 2026-08-11
 * Fix WINEDLLOVERRIDES log info displayed when there is no overrides
 * Add Winecfg button in main window prefix frame
+* Add dummy Gamescope button
+* Fix message and warning dialog titles
 
 2026-08-10
 * Add non-working DXVK warning in README
