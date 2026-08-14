@@ -1,0 +1,5 @@
+This git repository is a mirror of a local CVS repository.
+It is set up for users' convenience and no development takes place in the git
+repository.
+It will be regularly updated through "snapshots" of the local CVS repository.
+To see detailed changes descriptions, see the CHANGES file entries.
