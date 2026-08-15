@@ -24,7 +24,6 @@ const unsigned int arch_choices_n = XTEE_ARRAY_LEN(arch_choices_str);
 unsigned xtee_new_prefix_arch_choice_i;
 XteeGuiNewPrefixData xtee_gui_new_prefix_data = { 0 };
 
-static Widget xtee_gui_main_win;
 static Widget new_prefix_working_dialog = NULL;
 
 void
@@ -365,11 +364,11 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                 }
         }
 
-        r = xtee_gui_load_prefix(prefix_id_str, xtee_gui_main_win);
+        r = xtee_gui_load_prefix(prefix_id_str, xtee_gui_get_main_win());
         free(prefix_id_str);
         if (r != 0) {
                 gui_print_error_log_and_dialog("Cannot load new prefix.",
-                                xtee_gui_main_win);
+                                xtee_gui_get_main_win());
                 goto load_prefix_error;
         }
         xtee_gui_set_message_area_string("Prefix created and loaded.");
@@ -380,7 +379,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                 XtUnmanageChild(dialog->dialog_form);
                 gui_print_error_log_and_dialog("Cannot initialize Wine prefix "
                                 "with wineboot.",
-                                xtee_gui_main_win);
+                                xtee_gui_get_main_win());
                 xtee_gui_set_message_area_string(
                                 "Wine prefix creation failed.");
                 goto load_prefix_error;
@@ -390,7 +389,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                         XtUnmanageChild(dialog->dialog_form);
                         gui_print_error_log_and_dialog("Cannot run winetricks "
                                         "isolate_home.",
-                                        xtee_gui_main_win);
+                                        xtee_gui_get_main_win());
                         xtee_gui_set_message_area_string(
                                         "Wine prefix creation failed.");
                         goto load_prefix_error;
@@ -441,13 +440,22 @@ create_new_prefix_wine_version_dropdownlist(XteeGuiBasicFormDialog *dialog)
 }
 
 void
-show_new_prefix_dialog(Widget main_win)
+show_new_prefix_dialog(void)
 {
         struct XteeGuiNewPrefixData *new_prefix_data;
         static bool is_dialog_ready = false;
 
         new_prefix_data = &xtee_gui_new_prefix_data;
-        xtee_gui_main_win = main_win;
+
+        if (xtee_wine_versions_data.n == 0
+                        && !xtee_system_is_wine_installed) {
+                gui_print_error_dialog("No wine installation present in "
+                                "components directory and no system-wide "
+                                "wine is installed.\n"
+                                "A prefix cannot be created.",
+                                xtee_gui_get_main_win());
+                return;
+        }
 
         if (!is_dialog_ready) {
                 const int prefix_dir_field_i = XTEE_NEW_PREFIX_DIR_FIELD_I;
@@ -457,7 +465,7 @@ show_new_prefix_dialog(Widget main_win)
 
                 dialog = &new_prefix_data->dialog;
                 create_XteeGuiBasicFormDialog(dialog,
-                                xtee_gui_main_win,
+                                xtee_gui_get_main_win(),
                                 "new_prefix_dialog",
                                 "New Prefix");
                 add_simple_form_field_to_XteeGuiBasicFormDialog(

@@ -18,7 +18,7 @@ extern XteeGuiNewPrefixData xtee_gui_new_prefix_data;
 XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_cancel_cb);
 XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_arch_radiobox_cb);
 
-void show_new_prefix_dialog(Widget main_win);
+void show_new_prefix_dialog(void);
 void xtee_gui_new_prefix_free(void);
 void create_new_prefix_arch_radiobox(XteeGuiBasicFormDialog *dialog);
 

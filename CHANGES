@@ -1,5 +1,10 @@
 2026-08-15
 * Write installation instructions in INSTALL
+* Fix minor formatting issue in README
+* Free toplevel Motif widget in xtee_gui_free
+* Prevent prefix creation if there are no wine version available
+* Remove xtee_gui_main_win static variable from xtee_gui_new_prefix.c
+* Add executable search path warning in Known issues section of README
 
 2026-08-14
 * Implement experimental gamescope support

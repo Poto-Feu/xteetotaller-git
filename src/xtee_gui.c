@@ -1456,7 +1456,7 @@ XTEE_XT_CALLBACK_FUNC(file_menu_cb)
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
         if (item_i == new_prefix_i) {
-                show_new_prefix_dialog(main_gui_data.main_win);
+                show_new_prefix_dialog();
         } else if (item_i == open_prefix_i) {
                 show_open_prefix_dialog();
         } else if (item_i == exit_i) {
@@ -1726,7 +1726,6 @@ XTEE_XT_CALLBACK_FUNC(shell_close_callback)
         (void)call_data;
         (void)client_data;
         print_info("Closing window shell");
-        XtDestroyWidget(w);
         xtee_gui_free();
         xtee_clean();
         exit(0);
@@ -1831,7 +1830,7 @@ xtee_gui_free(void)
         xtee_gui_prefix_options_free();
         xtee_gui_program_options_free();
         free_XteeGuiBasicFormDialog(&main_gui_data.new_program_data.dialog);
-        /*XtDestroyWidget(main_gui_data.toplevel);*/
+        XtDestroyWidget(main_gui_data.toplevel);
         XmRenderTableFree(xtee_gui_render_table);
 }
 

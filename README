@@ -43,10 +43,19 @@ prefixes directories when xteetotaller is closed.
 Since xteetotaller is not a critical part of the operating system and does not
 use the network interfaces in any way, this should not cause an issue with
 almost all users.
+* The only places where wine, winetricks and gamescope executable path are
+searched are /usr/bin and /usr/local/bin.
+However, almost no user will encounter any problem as system-wide installation
+of programs should not be in other locations.
+Moreover, these programs should not be installed in /bin or /sbin as these
+directories are meant for commands used in emergency cases before any
+filesystem is mounted.
+Some Unix-like systems - such as those embracing the misguided "/usr merge" -
+are simply symlinking these directories to /usr/bin so it will not create any
+conflict.
 
 Copyright and licensing information
 ===================================
-
 This is source-available software.
 It is not yet licensed under a Free Software license.
 
