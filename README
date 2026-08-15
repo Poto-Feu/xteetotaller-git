@@ -9,15 +9,7 @@ thus disabled with the "-fno-strict-aliasing" on GCC and compatible compilers.
 xteetotaller is meant to be used on an x86 CPU.
 Using this program on a big-endian CPU may cause issues.
 
-Requirements
-============
-
-This program is linked with the following libraries:
-- libX11 (also known as Xlib)
-- libXt
-- Motif
-Licensing information for these libraries is available in the licenses
-directory.
+Third-party libraries licenses are present in the licenses subdirectory.
 
 Known issues
 ============

@@ -50,6 +50,7 @@ xteetotaller_SOURCES =  src/xteetotaller.c \
                         src/xtee_wine.h
 dist_doc_DATA = README \
                 CHANGES \
+                INSTALL \
                 licenses/COPYING.Motif \
                 licenses/COPYING.libXt \
                 licenses/COPYING.libX11

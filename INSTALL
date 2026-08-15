@@ -1,0 +1,42 @@
+xteetotaller build system is generated with autoconf and automake.
+If you got the sources directly from the repository, you will need to generate
+the required files with `autoreconf -fi`.
+If you got the sources from a distribution tarball, you can skip this step.
+
+Requirements
+============
+This program is linked with the following libraries:
+- libX11 (also known as Xlib)
+- libXt
+- Motif
+Licensing information for these libraries is available in the licenses
+directory.
+
+Basic instructions
+==================
+To build and install xteetotaller, simply use the following commands in the
+root directory of the sources:
+`./configure
+make
+make install`
+
+These commands will build xteetotaller with the default build flags.
+The following sections will explain how to customize build options.
+
+configure script
+================
+To see the available flags for the configure script, simply type
+`./configure --help`.
+An useful environment variable is CFLAGS as it can be set to enable or disable
+flags related to warnings or optimization.
+The `--prefix` option can be set to change the installation root directory
+location of the program. Its default value is `/usr/local`.
+
+Makefile
+========
+The generated makefile can have a target specified for various types of build.
+`make dist` will generate a tarball of the sources which can be distributed to
+avoid forcing the user to generate autoconf and automake files.
+`make install` will install the program to the prefix set with `--prefix`.
+The `-j` flag can be used for running multiple jobs simultaneously. This is
+useful for systems with multi-threading support.

@@ -1,3 +1,6 @@
+2026-08-15
+* Write installation instructions in INSTALL
+
 2026-08-14
 * Implement experimental gamescope support
 * Use common macro value for prefix and program names maximum length
