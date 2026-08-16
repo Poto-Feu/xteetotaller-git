@@ -1,3 +1,7 @@
+2026-08-16
+* Replace xtee_gui structs with one member to a variable with that member type
+* Add check for 32-bits systems and prefix architecture
+
 2026-08-15
 * Write installation instructions in INSTALL
 * Fix minor formatting issue in README

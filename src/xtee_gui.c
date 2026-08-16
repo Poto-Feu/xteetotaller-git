@@ -1305,6 +1305,12 @@ xtee_gui_load_prefix(const char *prefix_id, Widget parent)
                                         "version.",
                                         parent);
                         return -1;
+                case XTEE_LOAD_PREFIX_WINE_ARCH_SYSTEM_NOMATCH:
+                        gui_print_error_log_and_dialog("Prefix architecture "
+                                        "is not compatible with 32-bits "
+                                        "systems.",
+                                        parent);
+                        return -1;
                 default:
                         gui_print_error_log_and_dialog("An error occured "
                                         "while trying to open a prefix.",

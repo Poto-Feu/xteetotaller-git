@@ -12,7 +12,7 @@
 #include <time.h>
 #include <unistd.h>
 
-static XteeGuiPrefixOptionsData xtee_gui_prefix_options_data = { 0 };
+static XteeGuiBasicFormDialog xtee_gui_prefix_options_dialog = { 0 };
 static bool xtee_gui_is_dxvk_installed = false;
 
 static Widget wine_version_selection_box = NULL;
@@ -39,7 +39,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_ok_cb)
         (void)w;
         (void)client_data;
         (void)call_data;
-        dialog = &xtee_gui_prefix_options_data.dialog;
+        dialog = &xtee_gui_prefix_options_dialog;
         loaded_prefix = xtee_state_get_loaded_prefix();
         disable_winemenubuilder_field = dialog->fields
                 + disable_winemenubuilder_i;
@@ -86,16 +86,13 @@ set_and_show_install_dxvk_working_dialog(char *title, char *msg)
         XmString title_str, msg_str;
 
         if (!install_dxvk_working_dialog) {
-                XteeGuiBasicFormDialog *dialog;
                 Arg args[5];
                 Cardinal n = 0;
-
-                dialog = &xtee_gui_prefix_options_data.dialog;
 
                 XtSetArg(args[n], XmNdialogStyle,
                                 XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
                 install_dxvk_working_dialog = XmCreateWorkingDialog(
-                                dialog->dialog_form,
+                                xtee_gui_prefix_options_dialog.dialog_form,
                                 "install_dxvk_working_dialog",
                                 args, n);
                 XtUnmanageChild(XtNameToWidget(install_dxvk_working_dialog,
@@ -201,7 +198,7 @@ XTEE_XT_CALLBACK_FUNC(dxvk_version_selection_box_cb)
                 default:
                         return;
         }
-        dialog = &xtee_gui_prefix_options_data.dialog;
+        dialog = &xtee_gui_prefix_options_dialog;
         loaded_prefix = xtee_state_get_loaded_prefix();
         dxvk_str = XmString_to_char_str(&cbs->value);
         if (xtee_gui_install_dxvk(loaded_prefix, dxvk_str) != 0) {
@@ -218,13 +215,10 @@ XTEE_XT_CALLBACK_FUNC(dxvk_version_selection_box_cb)
 static int
 xtee_gui_remove_dxvk(XteePrefix *prefix)
 {
-        XteeGuiBasicFormDialog *dialog;
-
-        dialog = &xtee_gui_prefix_options_data.dialog;
         if (xtee_prefix_remove_dxvk(prefix) != 0) {
                 return -1;
         }
-        set_installed_dxvk_field(dialog);
+        set_installed_dxvk_field(&xtee_gui_prefix_options_dialog);
         return 0;
 }
 
@@ -236,7 +230,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
         (void)w;
         (void)call_data;
         (void)client_data;
-        dialog = &xtee_gui_prefix_options_data.dialog;
+        dialog = &xtee_gui_prefix_options_dialog;
 
         if (xtee_gui_is_dxvk_installed) {
                 set_and_show_install_dxvk_working_dialog("Removing DXVK",
@@ -329,7 +323,7 @@ XTEE_XT_CALLBACK_FUNC(wine_version_selection_box_cb)
                 default:
                         return;
         }
-        dialog = &xtee_gui_prefix_options_data.dialog;
+        dialog = &xtee_gui_prefix_options_dialog;
         change_wine_field = dialog->fields + change_wine_version_i;
         form_data = &change_wine_field->data.stringandbutton_form;
         loaded_prefix = xtee_state_get_loaded_prefix();
@@ -358,7 +352,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
         (void)w;
         (void)call_data;
         (void)client_data;
-        dialog = &xtee_gui_prefix_options_data.dialog;
+        dialog = &xtee_gui_prefix_options_dialog;
         if (!wine_version_selection_box) {
                 XteeStringList wine_versions_list;
                 Arg args[5];
@@ -426,11 +420,10 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
         XteePrefix *loaded_prefix;
         XteeGuiFormField *disable_winemenubuilder_field;
 
-        dialog = &xtee_gui_prefix_options_data.dialog;
+        dialog = &xtee_gui_prefix_options_dialog;
         loaded_prefix = xtee_state_get_loaded_prefix();
 
         if (!is_dialog_ready) {
-                dialog = &xtee_gui_prefix_options_data.dialog;
                 create_XteeGuiBasicFormDialog(dialog,
                                 main_win,
                                 "prefix_options_dialog",
@@ -476,5 +469,5 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
 void
 xtee_gui_prefix_options_free(void)
 {
-        free_XteeGuiBasicFormDialog(&xtee_gui_prefix_options_data.dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_prefix_options_dialog);
 }

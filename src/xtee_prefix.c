@@ -4,6 +4,7 @@
 #include "xtee_file.h"
 #include "xtee_gui.h"
 #include "xtee_paths.h"
+#include "xtee_system.h"
 #include "xtee_utils.h"
 #include "xtee_wine.h"
 
@@ -497,6 +498,10 @@ xtee_prefix_load(XteePrefix *prefix, const char *id)
         } else if (prefix->arch == XTEE_PREFIX_ARCH_WRONG) {
                 xtee_free_prefix_struct(prefix);
                 return XTEE_LOAD_PREFIX_WRONG_ARCH;
+        } else if (prefix->arch != XTEE_PREFIX_ARCH_WIN32
+                        && !xtee_system_is_amd64()) {
+                xtee_free_prefix_struct(prefix);
+                return XTEE_LOAD_PREFIX_WINE_ARCH_SYSTEM_NOMATCH;
         }
 
         if (!is_wine_version_set) {

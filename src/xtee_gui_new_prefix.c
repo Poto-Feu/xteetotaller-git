@@ -18,20 +18,21 @@
 #define XTEE_NEW_PREFIX_ISOLATE_HOME_FIELD_I 2
 #define XTEE_NEW_PREFIX_WINE_VERSION_FIELD_I 4
 
-char *arch_choices_str[3] = { "win32", "win64", "wow64" };
-const unsigned int arch_choices_n = XTEE_ARRAY_LEN(arch_choices_str);
+static char *arch_choices_str[3] = { "win32", "win64", "wow64" };
+static const unsigned int arch_choices_n = XTEE_ARRAY_LEN(arch_choices_str);
 
-unsigned xtee_new_prefix_arch_choice_i;
-XteeGuiNewPrefixData xtee_gui_new_prefix_data = { 0 };
+static unsigned xtee_new_prefix_arch_choice_i;
+static XteeGuiBasicFormDialog xtee_gui_new_prefix_dialog = { 0 };
 
 static Widget new_prefix_working_dialog = NULL;
 
 void
 xtee_gui_new_prefix_free(void)
 {
-        free_XteeGuiBasicFormDialog(&xtee_gui_new_prefix_data.dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_new_prefix_dialog);
 }
 
+static
 XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_cancel_cb)
 {
         (void)w;
@@ -39,6 +40,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_cancel_cb)
         XtUnmanageChild((Widget)client_data);
 }
 
+static
 XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_arch_radiobox_cb)
 {
         XmToggleButtonCallbackStruct *cbs;
@@ -69,7 +71,7 @@ show_new_prefix_working_dialog(void)
 {
         XteeGuiBasicFormDialog *parent;
 
-        parent = &xtee_gui_new_prefix_data.dialog;
+        parent = &xtee_gui_new_prefix_dialog;
 
         if (!new_prefix_working_dialog) {
                 Arg args[10];
@@ -168,7 +170,6 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         const int isolate_home_field_i = XTEE_NEW_PREFIX_ISOLATE_HOME_FIELD_I;
         char *wine_version_charstr = NULL;
         XteeWineVersionData *wine_version_data;
-        XteeGuiNewPrefixData *new_prefix_data;
         XteeGuiBasicFormDialog *dialog;
         char *prefix_arch_str;
         char *prefix_id_str, *prefix_dir_str;
@@ -184,8 +185,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         (void)w;
         (void)call_data;
 
-        new_prefix_data = (XteeGuiNewPrefixData *)client_data;
-        dialog = &new_prefix_data->dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         wine_version_form =
                 dialog->fields + XTEE_NEW_PREFIX_WINE_VERSION_FIELD_I;
         arch_choice_i = xtee_new_prefix_arch_choice_i;
@@ -232,6 +232,13 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         if (arch_enum_val == XTEE_PREFIX_ARCH_WRONG) {
                 /* Should not happen. */
                 fatal_error("Impossible new prefix architecture selected.");
+        } else if (arch_enum_val != XTEE_PREFIX_ARCH_WIN32
+                        && !xtee_system_is_amd64()) {
+                gui_print_error_log_and_dialog("win64 and wow64 prefixes can "
+                                "not be created on 32-bits systems.",
+                                dialog->dialog_form);
+                free(prefix_id_str);
+                return;
         }
 
         wine_version_charstr = get_XteeGuiFormField_string_value(
@@ -442,10 +449,10 @@ create_new_prefix_wine_version_dropdownlist(XteeGuiBasicFormDialog *dialog)
 void
 show_new_prefix_dialog(void)
 {
-        struct XteeGuiNewPrefixData *new_prefix_data;
+        XteeGuiBasicFormDialog *dialog;
         static bool is_dialog_ready = false;
 
-        new_prefix_data = &xtee_gui_new_prefix_data;
+        dialog = &xtee_gui_new_prefix_dialog;
 
         if (xtee_wine_versions_data.n == 0
                         && !xtee_system_is_wine_installed) {
@@ -460,24 +467,22 @@ show_new_prefix_dialog(void)
         if (!is_dialog_ready) {
                 const int prefix_dir_field_i = XTEE_NEW_PREFIX_DIR_FIELD_I;
                 XmString tmp_str;
-                XteeGuiBasicFormDialog *dialog;
                 XteeGuiLTPF *dir_form;
 
-                dialog = &new_prefix_data->dialog;
                 create_XteeGuiBasicFormDialog(dialog,
                                 xtee_gui_get_main_win(),
                                 "new_prefix_dialog",
                                 "New Prefix");
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                &new_prefix_data->dialog,
+                                dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,
                                 "new_prefix_id_form", "Id: ");
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                &new_prefix_data->dialog,
+                                dialog,
                                 XTEE_GUI_FORM_FIELD_LTPF,
                                 "prefix_dir_form", "Prefix directory: ");
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                &new_prefix_data->dialog,
+                                dialog,
                                 XTEE_GUI_FORM_FIELD_TOGGLE,
                                 "isolate_home_toggle", "Isolate home");
                 dir_form = &dialog->fields[prefix_dir_field_i].data.ltpf;
@@ -490,20 +495,18 @@ show_new_prefix_dialog(void)
                 XmStringFree(tmp_str);
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,
                                 new_prefix_dialog_ok_cb,
-                                (XtPointer)new_prefix_data);
+                                (XtPointer)dialog);
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 new_prefix_dialog_cancel_cb,
                                 (XtPointer)dialog->dialog_form);
-                create_new_prefix_arch_radiobox(&new_prefix_data->dialog);
-                create_new_prefix_wine_version_dropdownlist(
-                                &new_prefix_data->dialog);
+                create_new_prefix_arch_radiobox(dialog);
+                create_new_prefix_wine_version_dropdownlist(dialog);
 
-                manage_XteeGuiBasicFormDialog_fields(
-                                &new_prefix_data->dialog);
+                manage_XteeGuiBasicFormDialog_fields(dialog);
                 is_dialog_ready = true;
         } else {
                 /* Reset forms only if dialog was already existing */
-                reset_XteeGuiBasicFormDialog_fields(&new_prefix_data->dialog);
+                reset_XteeGuiBasicFormDialog_fields(dialog);
         }
-        XtManageChild(new_prefix_data->dialog.dialog_form);
+        XtManageChild(dialog->dialog_form);
 }
