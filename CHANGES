@@ -1,3 +1,7 @@
+2026-08-17
+* Add DXVK x64 dlls to WINEDLLOVERRIDES if needed
+* Remove no-strict-aliasing flag as it is useless in our case
+
 2026-08-16
 * Replace xtee_gui structs with one member to a variable with that member type
 * Add check for 32-bits systems and prefix architecture

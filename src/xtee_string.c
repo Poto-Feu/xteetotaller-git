@@ -198,6 +198,18 @@ XteeStringList_duplicate(XteeStringList list)
         return new_list;
 }
 
+bool
+XteeStringList_is_charstring_present(const XteeStringList *restrict list,
+                const char *restrict s)
+{
+        for (size_t i = 0; i < list->n; ++i) {
+                if (xtee_strcmp_bool(s, list->data[i].s)) {
+                        return true;
+                }
+        }
+        return false;
+}
+
 void
 XteeConstStringList_free(XteeConstStringList list)
 {

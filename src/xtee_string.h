@@ -70,6 +70,8 @@ void xtee_add_charstring_to_XteeStringList(XteeStringList *list,
                 const char *s);
 void xtee_remove_string_in_XteeStringList(XteeStringList *list, size_t i);
 XteeStringList XteeStringList_duplicate(XteeStringList list);
+bool XteeStringList_is_charstring_present(const XteeStringList *restrict list,
+                const char *restrict s);
 
 void XteeConstStringList_free(XteeConstStringList list);
 

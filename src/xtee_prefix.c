@@ -860,6 +860,7 @@ get_prefix_arch_from_str(const char *s)
 void
 xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
 {
+        XteeStringList dlls_list = { 0 };
         const char *info_strs[3];
         char *winedlloverrides_str;
         size_t env_str_len = 0;
@@ -883,13 +884,46 @@ xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
         }
 
         for (size_t i = 0; i < prefix->dxvk_x32_dlls.n; ++i) {
+                const char *x32_dll_info_strs[4];
+
+                x32_dll_info_strs[0] = "Adding ";
+                x32_dll_info_strs[1] = prefix->dxvk_x32_dlls.data[i].s;
+                x32_dll_info_strs[2] = " to dll list.";
+                x32_dll_info_strs[3] = NULL;
+                print_info_strs(x32_dll_info_strs);
+                xtee_add_charstring_to_XteeStringList(&dlls_list,
+                                prefix->dxvk_x32_dlls.data[i].s);
+        }
+
+        for (size_t i = 0; i < prefix->dxvk_x64_dlls.n; ++i) {
+                if (XteeStringList_is_charstring_present(&dlls_list,
+                                        prefix->dxvk_x64_dlls.data[i].s)) {
+                        const char *x64_dll_info_strs[3];
+
+                        x64_dll_info_strs[0] = prefix->dxvk_x64_dlls.data[i].s;
+                        x64_dll_info_strs[1] = " is already on dll list.";
+                        x64_dll_info_strs[2] = NULL;
+                        print_info_strs(x64_dll_info_strs);
+                } else {
+                        const char *x64_dll_info_strs[4];
+
+                        x64_dll_info_strs[0] = "Adding ";
+                        x64_dll_info_strs[1] = prefix->dxvk_x64_dlls.data[i].s;
+                        x64_dll_info_strs[2] = " to dll list.";
+                        x64_dll_info_strs[3] = NULL;
+                        print_info_strs(x64_dll_info_strs);
+                        xtee_add_charstring_to_XteeStringList(&dlls_list,
+                                        prefix->dxvk_x64_dlls.data[i].s);
+                }
+        }
+
+        for (size_t i = 0; i < dlls_list.n; ++i) {
                 bool is_semicolon_needed;
                 char *tmp_ptr;
 
                 is_semicolon_needed = (i != 0
                                 || prefix->disable_winemenubuilder);
-                env_str_len += prefix->dxvk_x32_dlls.data[i].n - 4
-                        + sizeof("=n,b");
+                env_str_len += dlls_list.data[i].n - 4 + sizeof("=n,b");
                 if (is_semicolon_needed) {
                         ++env_str_len;
                 }
@@ -901,10 +935,11 @@ xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
                         strcat(winedlloverrides_str, ";");
                 }
                 strncat(winedlloverrides_str,
-                                prefix->dxvk_x32_dlls.data[i].s,
-                                prefix->dxvk_x32_dlls.data[i].n - 4);
+                                dlls_list.data[i].s,
+                                dlls_list.data[i].n - 4);
                 strcat(winedlloverrides_str, "=n,b");
         }
+        XteeStringList_free(dlls_list);
         setenv("WINEDLLOVERRIDES", winedlloverrides_str, 1);
         info_strs[0] = "Setting WINEDLLOVERRIDES to ";
         info_strs[1] = winedlloverrides_str;

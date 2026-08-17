@@ -3,8 +3,6 @@ xteetotaller is a Wine prefix manager.
 The only required dependencies are Motif and standard X11 libraries.
 It requires a C99-compliant compiler with some parts of the Single Unix
 Specification, Version 3 (also known as POSIX.1-2001), implemented.
-Please note that Motif callbacks may break the strict aliasing rule and it is
-thus disabled with the "-fno-strict-aliasing" on GCC and compatible compilers.
 
 xteetotaller is meant to be used on an x86 CPU.
 Using this program on a big-endian CPU may cause issues.

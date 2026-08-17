@@ -17,11 +17,9 @@ AC_SEARCH_LIBS(XtOpenApplication, Xt)
 AC_SEARCH_LIBS(XmuInternAtom, Xmu)
 AC_SEARCH_LIBS(XmStringCreateLocalized, Xm)
 
-dnl Add -std and -fno-strict-aliasing CFLAGS if compiler is GCC or compatible.
-dnl Motif has several strict aliasing violations with struct pointer casts in
-dnl callbacks.
+dnl Add -std CFLAGS if compiler is GCC or compatible.
 if test x"$GCC" = x"yes"; then
-        CFLAGS="$CFLAGS -std=c99 -fno-strict-aliasing"
+        CFLAGS="$CFLAGS -std=c99"
 fi
 
 AC_OUTPUT
