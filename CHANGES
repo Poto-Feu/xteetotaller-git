@@ -1,3 +1,7 @@
+2026-08-20
+* Add Fullscreen checkbox in Start Gamescope dialog
+* Center main window at launch
+
 2026-08-17
 * Add DXVK x64 dlls to WINEDLLOVERRIDES if needed
 * Remove no-strict-aliasing flag as it is useless in our case

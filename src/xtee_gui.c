@@ -31,6 +31,9 @@
 #include <time.h>
 #include <unistd.h>
 
+#define XTEE_GUI_START_WIDTH 800
+#define XTEE_GUI_START_HEIGHT 600
+
 typedef struct XteePushButtonData {
         const char *id;
         char *label;
@@ -1709,8 +1712,8 @@ gui_create_main_application(void)
         main_gui_data.main_win = XmCreateMainWindow(main_gui_data.toplevel,
                         "main_win", NULL, 0);
         XtVaSetValues(main_gui_data.main_win,
-                        XmNwidth, 800,
-                        XmNheight, 600,
+                        XmNwidth, XTEE_GUI_START_WIDTH,
+                        XmNheight, XTEE_GUI_START_HEIGHT,
                         NULL);
         gui_create_menubar();
         create_gui_work_area(main_gui_data.main_win);
@@ -1785,6 +1788,10 @@ create_xtee_render_table(void)
 void
 xtee_gui_init(int *argc, char *argv[])
 {
+        Screen *screen;
+        int screen_width, screen_height;
+        Dimension x_pos, y_pos;
+
         XtSetLanguageProc(NULL, NULL, NULL);
         main_gui_data.toplevel = XtVaOpenApplication(
                         &main_gui_data.app_context, "XTeetotaller", NULL, 0,
@@ -1792,6 +1799,18 @@ xtee_gui_init(int *argc, char *argv[])
                         sessionShellWidgetClass, NULL);
         set_window_close_callback(main_gui_data.toplevel);
         create_xtee_render_table();
+
+        screen = XtScreen(main_gui_data.toplevel);
+        screen_width = WidthOfScreen(screen);
+        screen_height = HeightOfScreen(screen);
+        x_pos = (Dimension)((screen_width - XTEE_GUI_START_WIDTH) / 2);
+        y_pos = (Dimension)((screen_height - XTEE_GUI_START_HEIGHT) / 2);
+        XtVaSetValues(main_gui_data.toplevel,
+                        XmNwidth, XTEE_GUI_START_WIDTH,
+                        XmNheight, XTEE_GUI_START_HEIGHT,
+                        XmNx, x_pos,
+                        XmNy, y_pos,
+                        NULL);
 
         gui_create_main_application();
 }

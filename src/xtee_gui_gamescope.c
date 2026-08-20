@@ -6,7 +6,10 @@
 #include "xtee_wine.h"
 
 #include <Xm/MessageB.h>
+#include <Xm/ToggleBG.h>
 #include <unistd.h>
+
+#define XTEE_GAMESCOPE_BORDERLESS_FIELD_I 4
 
 static const size_t internal_width_field_i = 0;
 static const size_t internal_height_field_i = 1;
@@ -77,7 +80,8 @@ static void
 run_program_with_gamescope(char *restrict internal_width_str,
                 char *restrict internal_height_str,
                 char *restrict window_width_str,
-                char *restrict window_height_str)
+                char *restrict window_height_str,
+                bool is_borderless)
 {
         const char *current_wd_info_strs[3];
         Widget main_win_w;
@@ -135,8 +139,15 @@ run_program_with_gamescope(char *restrict internal_width_str,
         /* The 2 additional argument represent the "wine" and program
          * arguments. */
         total_args_n = gamescope_args_n + 2 + program_args_n;
+        if (is_borderless) {
+                ++total_args_n;
+        }
         args_block = malloc_or_exit(total_args_n * sizeof(char *));
         args_ptr = args_block;
+        if (is_borderless) {
+                *args_ptr = "-b";
+                ++args_ptr;
+        }
         *args_ptr = "-w";
         ++args_ptr;
         *args_ptr = internal_width_str;
@@ -183,11 +194,13 @@ run_program_with_gamescope(char *restrict internal_width_str,
 static
 XTEE_XT_CALLBACK_FUNC(gamescope_dialog_ok_cb)
 {
+        const int is_borderless_field_i = XTEE_GAMESCOPE_BORDERLESS_FIELD_I;
         XteeGuiBasicFormDialog *dialog;
         char *internal_width_str = NULL;
         char *internal_height_str = NULL;
         char *window_width_str = NULL;
         char *window_height_str = NULL;
+        bool is_borderless;
 
         dialog = &start_gamescope_form_dialog;
         (void)w;
@@ -225,8 +238,10 @@ XTEE_XT_CALLBACK_FUNC(gamescope_dialog_ok_cb)
                 free(window_height_str);
                 return;
         }
+        is_borderless = (bool)XmToggleButtonGadgetGetState(
+                        dialog->fields[is_borderless_field_i].data.toggle_g);
         run_program_with_gamescope(internal_width_str, internal_height_str,
-                        window_width_str, window_height_str);
+                        window_width_str, window_height_str, is_borderless);
         free(internal_width_str);
         free(internal_height_str);
         free(window_width_str);
@@ -274,6 +289,11 @@ xtee_gui_gamescope_show_dialog(void)
                                 dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,
                                 "window_height_form", "Window height: ");
+                add_simple_form_field_to_XteeGuiBasicFormDialog(
+                                dialog,
+                                XTEE_GUI_FORM_FIELD_TOGGLE,
+                                "is_borderless_toggle",
+                                "Borderless mode");
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,
                                 gamescope_dialog_ok_cb,
                                 NULL);
