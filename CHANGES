@@ -1,6 +1,8 @@
 2026-08-20
 * Add Fullscreen checkbox in Start Gamescope dialog
 * Center main window at launch
+* Add config entries for default Start gamescope dialog values
+* Move Preferences dialog functions and data to separate source file
 
 2026-08-17
 * Add DXVK x64 dlls to WINEDLLOVERRIDES if needed

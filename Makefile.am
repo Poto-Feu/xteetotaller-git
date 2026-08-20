@@ -29,6 +29,8 @@ xteetotaller_SOURCES =  src/xteetotaller.c \
                         src/xtee_gui_new_prefix.c \
                         src/xtee_gui_new_prefix.h \
                         src/xtee_gui_prefix_options.c \
+                        src/xtee_gui_preferences.c \
+                        src/xtee_gui_preferences.h \
                         src/xtee_gui_prefix_options.h \
                         src/xtee_gui_program_options.c \
                         src/xtee_gui_program_options.h \

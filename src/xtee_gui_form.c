@@ -849,6 +849,12 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
 }
 
 void
+XteeGuiLabelTextForm_set_text_string(XteeGuiLabelTextForm *form, char *s)
+{
+        XmTextFieldSetString(form->text, s);
+}
+
+void
 XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
                 void (*cb_func)(Widget, XtPointer, XtPointer))
 {

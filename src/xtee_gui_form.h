@@ -128,6 +128,8 @@ void add_string_and_button_field_to_XteeGuiBasicFormDialog(
                 char *button_name, char *button_str,
                 XTEE_XT_CALLBACK_FUNC_PTR(button_cb));
 
+void XteeGuiLabelTextForm_set_text_string(XteeGuiLabelTextForm *form, char *s);
+
 /* Add a XmNvalueChangedCallback to each RadioBox children.
  * The client_data will contain the id number of the toggle that triggered it
  * casted to an XtPointer.

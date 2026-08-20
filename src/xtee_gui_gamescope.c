@@ -264,8 +264,12 @@ XTEE_XT_CALLBACK_FUNC(gamescope_dialog_cancel_cb)
 void
 xtee_gui_gamescope_show_dialog(void)
 {
+        char *default_internal_width, *default_internal_height;
+        char *default_window_width, *default_window_height;
         static bool is_dialog_ready = false;
         XteeGuiBasicFormDialog *dialog;
+        XteeGuiFormField *internal_width_field, *internal_height_field;
+        XteeGuiFormField *window_width_field, *window_height_field;
 
         dialog = &start_gamescope_form_dialog;
 
@@ -303,6 +307,43 @@ xtee_gui_gamescope_show_dialog(void)
                 manage_XteeGuiBasicFormDialog_fields(dialog);
                 is_dialog_ready = true;
         }
+        /* Set default values from config entries */
+        default_internal_width = xtee_config_get_entry_value(
+                        "gamescope.default_internal_width");
+        default_internal_height = xtee_config_get_entry_value(
+                        "gamescope.default_internal_height");
+        default_window_width = xtee_config_get_entry_value(
+                        "gamescope.default_window_width");
+        default_window_height = xtee_config_get_entry_value(
+                        "gamescope.default_window_height");
+        internal_width_field = dialog->fields + internal_width_field_i;
+        internal_height_field = dialog->fields + internal_height_field_i;
+        window_width_field = dialog->fields + window_width_field_i;
+        window_height_field = dialog->fields + window_height_field_i;
+        if (default_internal_width) {
+                XteeGuiLabelTextForm_set_text_string(
+                                &internal_width_field->data.ltf,
+                                default_internal_width);
+        }
+
+        if (default_internal_height) {
+                XteeGuiLabelTextForm_set_text_string(
+                                &internal_height_field->data.ltf,
+                                default_internal_height);
+        }
+
+        if (default_window_width) {
+                XteeGuiLabelTextForm_set_text_string(
+                                &window_width_field->data.ltf,
+                                default_window_width);
+        }
+
+        if (default_window_height) {
+                XteeGuiLabelTextForm_set_text_string(
+                                &window_height_field->data.ltf,
+                                default_window_height);
+        }
+
         /* Do not reset fields as it can be useful for users to re-use the same
          * values. */
         XtManageChild(dialog->dialog_form);

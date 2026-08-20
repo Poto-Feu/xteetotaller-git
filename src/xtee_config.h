@@ -39,7 +39,8 @@ int xtee_write_config_entry(FILE *f, const XteeConfigurationEntry entry);
 int xtee_config_init(XteeConstString xtee_dir_path);
 void xtee_config_free(void);
 
-/* If NULL is returned, the configuration entry does not exist. */
+/* If NULL is returned, the configuration entry does not exist.
+ * DO NOT free the returned pointer as it points to the entry string. */
 char *xtee_config_get_entry_value(const char *name);
 
 /* If a non-zero value is returned, the configuration entry does not exist. */
