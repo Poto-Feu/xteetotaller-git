@@ -14,6 +14,8 @@ void xtee_gui_free(void);
 char *XmString_to_char_str(XmString *xmstr);
 
 void xtee_gui_set_message_area_string(char *s);
+int refresh_program_list(void);
+
 int xtee_gui_load_prefix(const char *prefix_id, Widget parent);
 
 void xtee_gui_set_motif_label_string(Widget w, char *s);

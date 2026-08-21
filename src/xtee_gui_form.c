@@ -44,11 +44,6 @@ create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
                         XmNleftOffset, text_left_margin,
                         XmNrightAttachment, XmATTACH_FORM,
                         NULL);
-}
-
-static void
-manage_gui_label_text_form(XteeGuiLabelTextForm *form_data)
-{
         XtManageChild(form_data->text);
         XtManageChild(form_data->form);
 }
@@ -182,11 +177,6 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
         XtAddCallback(form_data->browse_dialog, XmNcancelCallback,
                         ltpf_file_selection_btns_cb,
                         (XtPointer)form_data->text);
-}
-
-static void
-manage_gui_ltpf(XteeGuiLTPF *form_data)
-{
         XtManageChild(form_data->text);
         XtManageChild(form_data->browse_btn);
         XtManageChild(form_data->form);
@@ -213,77 +203,10 @@ create_gui_toggle_field(Widget *toggle_g, Widget parent,
         XmStringFree(tmp_str);
 }
 
-void
-manage_gui_radiobox_form(XteeGuiRadioBoxForm *field)
-{
-        XtManageChild(field->row_column);
-        XtManageChild(field->form);
-}
-
-void
-manage_gui_dropdownlist_form(XteeGuiDropDownListForm *field)
-{
-        XtManageChild(field->form);
-}
-
-void
-manage_gui_listbuttons_form(XteeGuiListButtonsForm *field)
-{
-        XtManageChild(field->form);
-}
-
 static bool
 is_form_field_type_correct(enum XteeGuiFormFieldType type)
 {
         return !!(type < XTEE_GUI_FORM_FIELD_LAST && type >= 0);
-}
-
-static void
-manage_XteeGuiFormField(XteeGuiFormField *field)
-{
-        enum XteeGuiFormFieldType type;
-
-        type = field->type;
-        if (!is_form_field_type_correct(type)) {
-                print_warning("Incorrect XteeGuiFormFieldType value.");
-                type = XTEE_GUI_FORM_FIELD_LABELTEXT;
-        }
-
-        switch (type) {
-                case XTEE_GUI_FORM_FIELD_LABELTEXT:
-                        manage_gui_label_text_form(&field->data.ltf);
-                        break;
-                case XTEE_GUI_FORM_FIELD_LTPF:
-                        manage_gui_ltpf(&field->data.ltpf);
-                        break;
-                case XTEE_GUI_FORM_FIELD_TOGGLE:
-                        /* Already managed at creation. */
-                        break;
-                case XTEE_GUI_FORM_FIELD_RADIOBOX:
-                        manage_gui_radiobox_form(&field->data.radiobox_form);
-                        break;
-                case XTEE_GUI_FORM_FIELD_DROPDOWNLIST:
-                        manage_gui_dropdownlist_form(
-                                        &field->data.dropdownlist_form);
-                        break;
-                case XTEE_GUI_FORM_FIELD_LIST_BUTTONS:
-                        manage_gui_listbuttons_form(
-                                        &field->data.listbuttons_form);
-                        break;
-                case XTEE_GUI_FORM_FIELD_STRING_AND_BUTTON:
-                        XtManageChild(field->data.stringandbutton_form.form);
-                        break;
-                default:
-                        break;
-        }
-}
-
-void
-manage_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)
-{
-        for (size_t i = 0; i < dialog->fields_n; ++i) {
-                manage_XteeGuiFormField(&dialog->fields[i]);
-        }
 }
 
 char *
@@ -586,7 +509,8 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
         }
 
         set_form_attach_resources(form_data->form, prev_w);
-
+        XtManageChild(form_data->row_column);
+        XtManageChild(form_data->form);
 }
 
 void
@@ -671,6 +595,7 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
         free(items_table);
 
         set_form_attach_resources(form_data->form, prev_w);
+        XtManageChild(form_data->form);
 }
 
 void
@@ -776,6 +701,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         XtManageChild(form_data->row_column);
         XtManageChild(form_data->child_form);
         set_form_attach_resources(form_data->form, prev_w);
+        XtManageChild(form_data->form);
 }
 
 void
@@ -846,6 +772,7 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                         NULL);
         XmStringFree(tmp_str);
         set_form_attach_resources(form_data->form, prev_w);
+        XtManageChild(form_data->form);
 }
 
 void

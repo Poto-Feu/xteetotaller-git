@@ -502,8 +502,6 @@ show_new_prefix_dialog(void)
                                 (XtPointer)dialog->dialog_form);
                 create_new_prefix_arch_radiobox(dialog);
                 create_new_prefix_wine_version_dropdownlist(dialog);
-
-                manage_XteeGuiBasicFormDialog_fields(dialog);
                 is_dialog_ready = true;
         } else {
                 /* Reset forms only if dialog was already existing */

@@ -450,7 +450,6 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                                 "dxvk_version_string_label", "Lorem ipsum",
                                 "install_dxvk_button", "Install DXVK",
                                 prefix_options_install_dxvk_cb);
-                manage_XteeGuiBasicFormDialog_fields(dialog);
                 is_dialog_ready = true;
         }
 

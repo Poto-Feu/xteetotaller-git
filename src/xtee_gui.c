@@ -4,6 +4,7 @@
 #include "xtee_gui_form.h"
 #include "xtee_gui_gamescope.h"
 #include "xtee_gui_new_prefix.h"
+#include "xtee_gui_new_program.h"
 #include "xtee_gui_preferences.h"
 #include "xtee_gui_prefix_options.h"
 #include "xtee_gui_program_options.h"
@@ -446,7 +447,7 @@ update_prefix_info_label(void)
         free(source_str);
 }
 
-static int
+int
 refresh_program_list(void)
 {
         XmStringTable str_list;
@@ -757,186 +758,13 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_btn_cb)
         show_prefix_options_dialog();
 }
 
-#define XTEE_NEW_PROGRAM_ID_FIELD_I 0
-#define XTEE_NEW_PROGRAM_EXEPATH_FIELD_I 1
-static
-XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
-{
-        const size_t id_field_i = XTEE_NEW_PROGRAM_ID_FIELD_I;
-        const size_t exe_path_field_i = XTEE_NEW_PROGRAM_EXEPATH_FIELD_I;
-        XteePrefix *current_prefix;
-        XteeProgram program;
-        XteeConstString exe_path_xteestr;
-        XteeGuiNewProgramData *new_program_data;
-        XteeGuiBasicFormDialog *dialog;
-        XteeGuiFormField *id_field, *exe_path_field;
-        char *id_str, *exe_path_str;
-        enum XteeAddProgramStatus status;
-
-        (void)w;
-        (void)call_data;
-        new_program_data = (XteeGuiNewProgramData *)client_data;
-        dialog = &new_program_data->dialog;
-        current_prefix = xtee_state_get_loaded_prefix();
-
-        id_field = &dialog->fields[id_field_i];
-        id_str = get_XteeGuiFormField_string_value(id_field);
-        if (!id_str) {
-                fatal_error("program id_str is NULL (alloc error?)");
-        } else if (id_str[0] == '\0') {
-                gui_print_error_log_and_dialog("Program id is empty.",
-                                dialog->dialog_form);
-                XtFree(id_str);
-                return;
-        } else if (strlen(id_str) > XTEE_PROGRAM_ID_MAX_LEN) {
-                XtFree(id_str);
-                gui_print_error_log_and_dialog("Program id is too long.",
-                                dialog->dialog_form);
-                return;
-        }
-
-        exe_path_field = &dialog->fields[exe_path_field_i];
-        exe_path_str = get_XteeGuiFormField_string_value(exe_path_field);
-
-        if (!exe_path_str) {
-                fatal_error("exe_path_str is NULL (alloc error?)");
-        } else if (exe_path_str[0] == '\0') {
-                gui_print_error_log_and_dialog("Program executable path is "
-                                "empty.",
-                                dialog->dialog_form);
-                XtFree(id_str);
-                XtFree(exe_path_str);
-                return;
-        }
-        exe_path_xteestr.s = exe_path_str;
-        exe_path_xteestr.n = strlen(exe_path_str);
-        if (exe_path_xteestr.n > XTEE_PROGRAM_EXE_PATH_MAX_LEN) {
-                gui_print_error_log_and_dialog("Program executable path is "
-                                "too long.",
-                                dialog->dialog_form);
-                XtFree(id_str);
-                XtFree(exe_path_str);
-                return;
-        }
-
-        if (!xtee_is_file_msi(exe_path_xteestr)) {
-                enum XteeExecutableType exe_type;
-
-                if (xtee_get_executable_type(&exe_type, exe_path_xteestr)
-                                != 0) {
-                        gui_print_error_log_and_dialog("Cannot read "
-                                        "executable file.",
-                                        dialog->dialog_form);
-                        XtFree(id_str);
-                        XtFree(exe_path_str);
-                        return;
-                } else if (exe_type == XTEE_EXECUTABLE_UNKNOWN) {
-                        gui_print_error_log_and_dialog("Incorrect executable "
-                                        "format.",
-                                        dialog->dialog_form);
-                        XtFree(id_str);
-                        XtFree(exe_path_str);
-                        return;
-                }
-        }
-
-        xtee_init_program(&program, id_str, exe_path_str);
-        status = add_program_to_prefix(current_prefix, &program);
-        xtee_free_program(&program);
-        XtFree(id_str);
-        XtFree(exe_path_str);
-        switch(status) {
-                case XTEE_ADD_PROGRAM_ID_EXIST:
-                        gui_print_error_log_and_dialog("Program id is already "
-                                        "in use.",
-                                        dialog->dialog_form);
-                        return;
-                case XTEE_ADD_PROGRAM_WRITE_ERROR:
-                        gui_print_error_log_and_dialog("Cannot write program "
-                                        "configuration.",
-                                        dialog->dialog_form);
-                        return;
-                default:
-                        xtee_gui_set_message_area_string(
-                                        "New program created.");
-                        XtUnmanageChild(dialog->dialog_form);
-        }
-
-        if (xtee_prefix_reload_programs_list(current_prefix) != 0) {
-                gui_print_error_log_and_dialog("Cannot get prefix programs "
-                                "list.", main_gui_data.main_win);
-        }
-        refresh_program_list();
-
-}
-
-static
-XTEE_XT_CALLBACK_FUNC(new_program_cancel_cb)
-{
-        (void)w;
-        (void)call_data;
-        XtUnmanageChild((Widget)client_data);
-}
-
-static void
-show_new_program_dialog(void)
-{
-        static bool is_dialog_ready;
-        struct XteeGuiNewProgramData *new_program_data;
-
-        new_program_data = &main_gui_data.new_program_data;
-
-        if (!is_dialog_ready) {
-                const size_t exe_path_field_i = 1;
-                XmString tmp_str;
-                XteeGuiLTPF *dir_form;
-                XteeGuiBasicFormDialog *dialog;
-
-                create_XteeGuiBasicFormDialog(&new_program_data->dialog,
-                                main_gui_data.main_win,
-                                "new_program_dialog",
-                                "New Program");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                &new_program_data->dialog,
-                                XTEE_GUI_FORM_FIELD_LABELTEXT,
-                                "program_id_form", "Id: ");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                &new_program_data->dialog,
-                                XTEE_GUI_FORM_FIELD_LTPF,
-                                "program_exepath_form",
-                                "Executable path: ");
-                dialog = &new_program_data->dialog;
-                dir_form = &dialog->fields[exe_path_field_i].data.ltpf;
-                tmp_str = XmStringCreateLocalized("Program file selection");
-                XtVaSetValues(dir_form->browse_dialog,
-                                XmNfileTypeMask, XmFILE_REGULAR,
-                                XmNdialogTitle, tmp_str,
-                                NULL);
-                XtAddCallback(new_program_data->dialog.ok_btn,
-                                XmNactivateCallback,
-                                new_program_ok_cb,
-                                new_program_data);
-                XtAddCallback(new_program_data->dialog.cancel_btn,
-                                XmNactivateCallback,
-                                new_program_cancel_cb,
-                                new_program_data->dialog.dialog_form);
-                XmStringFree(tmp_str);
-                manage_XteeGuiBasicFormDialog_fields(
-                                &new_program_data->dialog);
-                is_dialog_ready = true;
-        } else {
-                reset_XteeGuiBasicFormDialog_fields(&new_program_data->dialog);
-        }
-        XtManageChild(new_program_data->dialog.dialog_form);
-}
-
 static
 XTEE_XT_CALLBACK_FUNC(new_program_btn_cb)
 {
         (void)w;
         (void)client_data;
         (void)call_data;
-        show_new_program_dialog();
+        xtee_gui_new_program_show_dialog();
 }
 
 static int

@@ -93,7 +93,6 @@ typedef struct XteeGuiBasicFormDialog {
         size_t fields_n;
 } XteeGuiBasicFormDialog;
 
-void manage_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog);
 void free_XteeGuiFormField(XteeGuiFormField *field);
 /* Only use on LabelTextForm, LTPF and ComboBox fields. */
 char *get_XteeGuiFormField_string_value(XteeGuiFormField *field);

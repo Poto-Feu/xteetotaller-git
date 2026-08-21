@@ -265,8 +265,6 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 args_list_selection_cb,
                                 NULL);
                 set_program_args_widgets();
-                manage_XteeGuiBasicFormDialog_fields(
-                                dialog);
                 is_dialog_ready = true;
         }
         reset_XteeGuiBasicFormDialog_fields(dialog);

@@ -304,7 +304,6 @@ xtee_gui_gamescope_show_dialog(void)
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 gamescope_dialog_cancel_cb,
                                 NULL);
-                manage_XteeGuiBasicFormDialog_fields(dialog);
                 is_dialog_ready = true;
         }
         /* Set default values from config entries */

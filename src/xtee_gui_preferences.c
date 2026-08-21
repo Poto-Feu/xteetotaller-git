@@ -67,7 +67,6 @@ xtee_gui_preferences_show_dialog(void)
                                 XmNactivateCallback,
                                 prefs_dialog_cancel_cb,
                                 NULL);
-                manage_XteeGuiBasicFormDialog_fields(prefs_dialog);
                 is_dialog_ready = true;
         }
         show_hidden_files_field = prefs_dialog->fields
