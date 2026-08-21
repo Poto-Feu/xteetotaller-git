@@ -219,14 +219,6 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                 return;
         }
 
-        if (!xtee_system_is_wine_installed) {
-                gui_print_error_log_and_dialog("Wine is not installed "
-                                "on the system.",
-                                dialog->dialog_form);
-                free(prefix_id_str);
-                return;
-        }
-
         prefix_arch_str = arch_choices_str[arch_choice_i - 1];
         arch_enum_val = get_prefix_arch_from_str(prefix_arch_str);
         if (arch_enum_val == XTEE_PREFIX_ARCH_WRONG) {
@@ -312,7 +304,16 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                 free(prefix_id_str);
                 free(prefix_dir_str);
                 return;
+        } else if(strlen(prefix_dir_str) > XTEE_PREFIX_DIR_PATH_MAX_LEN) {
+                gui_print_error_log_and_dialog("Prefix directory path is "
+                                "too long.",
+                                dialog->dialog_form);
+                free(wine_version_charstr);
+                free(prefix_id_str);
+                free(prefix_dir_str);
+                return;
         }
+
         dir_status = xtee_get_dir_status(prefix_dir_str);
         switch (dir_status) {
                 case XTEE_DIR_STATUS_EMPTY:

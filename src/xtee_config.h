@@ -8,7 +8,7 @@
 /* Variable name and value length is limited.
  * Since we are in early stages of development, this is OK for now. */
 #define XTEE_VAR_NAME_MAX_LEN 256
-#define XTEE_VAR_VALUE_MAX_LEN 500
+#define XTEE_VAR_VALUE_MAX_LEN 4097
 
 typedef struct XteeConfigurationVariable {
         XteeConstString name;

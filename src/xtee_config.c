@@ -205,7 +205,8 @@ static int
 xtee_config_read_file(void)
 {
         FILE *config_file;
-        char var_name[256], var_value[500];
+        char var_name[XTEE_VAR_NAME_MAX_LEN];
+        char *var_value;
         int is_end = 0;
         int rtrn_val = -1;
 
@@ -219,9 +220,11 @@ xtee_config_read_file(void)
                 }
         }
 
+        var_value = malloc_or_exit(XTEE_VAR_VALUE_MAX_LEN);
         while (!is_end) {
                 if (xtee_config_read_file_value(var_name, var_value,
                                         config_file) != 0) {
+                        free(var_value);
                         goto error_rtrn;
                 }
 
@@ -230,6 +233,7 @@ xtee_config_read_file(void)
                 }
         }
 
+        free(var_value);
         rtrn_val = 0;
 error_rtrn:
         fclose(config_file);

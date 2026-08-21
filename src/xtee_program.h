@@ -1,12 +1,15 @@
 #ifndef XTEE_PROGRAM_H
 #define XTEE_PROGRAM_H
 
+#include "xtee_config.h"
 #include "xtee_date.h"
 #include "xtee_dll.h"
 #include "xtee_string.h"
 #include "xtee_utils.h"
 
 #define XTEE_PROGRAM_ID_MAX_LEN XTEE_MAX_ID_LEN
+
+#define XTEE_PROGRAM_EXE_PATH_MAX_LEN (XTEE_VAR_VALUE_MAX_LEN - 1)
 
 typedef struct XteeProgram {
         XteeString id;

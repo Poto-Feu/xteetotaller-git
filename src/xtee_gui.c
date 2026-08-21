@@ -808,9 +808,17 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                 XtFree(exe_path_str);
                 return;
         }
-
         exe_path_xteestr.s = exe_path_str;
         exe_path_xteestr.n = strlen(exe_path_str);
+        if (exe_path_xteestr.n > XTEE_PROGRAM_EXE_PATH_MAX_LEN) {
+                gui_print_error_log_and_dialog("Program executable path is "
+                                "too long.",
+                                dialog->dialog_form);
+                XtFree(id_str);
+                XtFree(exe_path_str);
+                return;
+        }
+
         if (!xtee_is_file_msi(exe_path_xteestr)) {
                 enum XteeExecutableType exe_type;
 

@@ -1,3 +1,8 @@
+2026-08-21
+* Use a larger maximum string length for config entries values
+* Remove system wine check in New Prefix dialog when using non-system wine
+* Add prefix directory path and executable path length check
+
 2026-08-20
 * Add Fullscreen checkbox in Start Gamescope dialog
 * Center main window at launch
