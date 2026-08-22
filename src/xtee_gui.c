@@ -1641,9 +1641,6 @@ xtee_gui_exec(char *pathname, char **args, size_t args_n,
         }
         r = execv(pathname, exec_args);
         free(exec_args);
-        for (size_t i = 0; i < env_data_n; ++i) {
-                unsetenv(env_data[i].name);
-        }
         return r;
 }
 

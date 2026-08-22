@@ -1,5 +1,7 @@
 2026-08-22
 * Remove new_program_data struct member from XteeGuiMainData
+* Replace XmVaCreateTextField with XtVaCreateManagedWidget
+* Remove useless unsetenv calls in child process
 
 2026-08-21
 * Use a larger maximum string length for config entries values

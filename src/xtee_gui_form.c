@@ -36,7 +36,8 @@ create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
                         XmNleftAttachment, XmATTACH_FORM,
                         NULL);
         XmStringFree(tmp_str);
-        form_data->text = XmVaCreateTextField(form_data->form, text_name,
+        form_data->text = XtVaCreateManagedWidget(text_name,
+                        xmTextFieldWidgetClass, form_data->form,
                         XmNrenderTable, xtee_gui_render_table,
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNleftAttachment, XmATTACH_WIDGET,
@@ -161,7 +162,8 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                         (XtPointer)form_data->browse_dialog);
         XtAddCallback(form_data->browse_dialog,
                         XmNmapCallback, ltpf_browse_dialog_map_cb, NULL);
-        form_data->text = XmVaCreateTextField(form_data->form, text_name,
+        form_data->text = XtVaCreateManagedWidget(text_name,
+                        xmTextFieldWidgetClass, form_data->form,
                         XmNrenderTable, xtee_gui_render_table,
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNleftAttachment, XmATTACH_WIDGET,
