@@ -171,3 +171,9 @@ xtee_gui_new_program_show_dialog(void)
         }
         XtManageChild(new_program_dialog.dialog_form);
 }
+
+void
+xtee_gui_new_program_free(void)
+{
+        free_XteeGuiBasicFormDialog(&new_program_dialog);
+}

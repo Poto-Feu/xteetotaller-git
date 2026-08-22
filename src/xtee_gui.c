@@ -79,7 +79,6 @@ typedef struct XteeGuiNewProgramData {
 typedef struct XteeGuiMainData {
         XteeWorkAreaStruct work_area_struct;
         XteeGuiBasicFormDialog prefs_dialog;
-        XteeGuiNewProgramData new_program_data;
         XteeGuiPlaceholderDialog prefix_options_dialog;
         XtAppContext app_context;
         Widget toplevel;
@@ -1612,7 +1611,7 @@ xtee_gui_free(void)
         xtee_gui_new_prefix_free();
         xtee_gui_prefix_options_free();
         xtee_gui_program_options_free();
-        free_XteeGuiBasicFormDialog(&main_gui_data.new_program_data.dialog);
+        xtee_gui_new_program_free();
         XtDestroyWidget(main_gui_data.toplevel);
         XmRenderTableFree(xtee_gui_render_table);
 }

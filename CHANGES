@@ -1,3 +1,6 @@
+2026-08-22
+* Remove new_program_data struct member from XteeGuiMainData
+
 2026-08-21
 * Use a larger maximum string length for config entries values
 * Remove system wine check in New Prefix dialog when using non-system wine
