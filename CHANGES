@@ -3,6 +3,8 @@
 * Remove gamescope code
 * Remove gamescope config entries
 * Add dummy and disabled Prefix menu
+* Remove unused wine.default_version configuration entry
+* Move some prefix buttons to Prefix menu
 
 2026-08-23
 * Add case-insensitive support for MSI files extension

@@ -54,10 +54,6 @@ typedef struct XteeWorkAreaStruct {
         Widget prefix_frame_title;
         Widget prefix_form;
         Widget prefix_btns_row;
-        Widget reload_prefix_btn;
-        Widget prefix_options_btn;
-        Widget new_program_btn;
-        Widget run_exec_in_prefix_btn;
         Widget winecfg_btn;
         Widget winetricks_btn;
         Widget prefix_info_label;
@@ -89,6 +85,8 @@ typedef struct XteeGuiMainData {
         Widget message_area_label;
 } XteeGuiMainData;
 
+static const char *prefix_button_id = "button_2";
+
 XmRenderTable xtee_gui_render_table;
 
 static struct XteeGuiMainData main_gui_data = { 0 };
@@ -104,14 +102,6 @@ static int start_program_btn_i = 0;
 static int program_options_btn_i = 1;
 
 static XteePushButtonData prefix_btns_data[] = {
-        { "reload_prefix_btn", "Reload prefix",
-                &main_gui_data.work_area_struct.reload_prefix_btn },
-        { "prefix_options_btn", "Prefix options",
-                &main_gui_data.work_area_struct.prefix_options_btn },
-        { "new_program_btn", "New program",
-                &main_gui_data.work_area_struct.new_program_btn },
-        { "run_exec_in_prefix_btn", "Run executable in prefix",
-                &main_gui_data.work_area_struct.run_exec_in_prefix_btn },
         { "winecfg_btn", "Winecfg",
                 &main_gui_data.work_area_struct.winecfg_btn },
         { "winetricks_btn", "Winetricks",
@@ -483,12 +473,18 @@ reset_main_win_state(void)
 static void
 refresh_prefix_gui(void)
 {
-        if (refresh_program_list() != 0) {
-                return;
-        }
+        Widget tmp_w;
+
+        /* Enable Prefix menu */
+        tmp_w = XtNameToWidget(main_gui_data.menubar, prefix_button_id);
+        XtSetSensitive(tmp_w, True);
+
         enable_prefix_btns();
         disable_programs_btns();
         update_prefix_info_label();
+        if (refresh_program_list() != 0) {
+                return;
+        }
 }
 
 static
@@ -700,49 +696,6 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
         XtManageChild(wa_struct->programs_frame);
 }
 
-
-static
-XTEE_XT_CALLBACK_FUNC(reload_prefix_btn_cb)
-{
-        XteePrefix *current_prefix;
-        (void)w;
-        (void)client_data;
-        (void)call_data;
-
-        current_prefix = xtee_state_get_loaded_prefix();
-        reset_main_win_state();
-
-        if (xtee_gui_load_prefix(current_prefix->id.s, main_gui_data.main_win)
-                        != 0) {
-                return;
-        }
-        xtee_gui_set_message_area_string("Prefix reloaded.");
-}
-
-static void
-show_prefix_options_dialog(void)
-{
-        xtee_gui_show_prefix_options_dialog(main_gui_data.main_win);
-}
-
-static
-XTEE_XT_CALLBACK_FUNC(prefix_options_btn_cb)
-{
-        (void)w;
-        (void)client_data;
-        (void)call_data;
-        show_prefix_options_dialog();
-}
-
-static
-XTEE_XT_CALLBACK_FUNC(new_program_btn_cb)
-{
-        (void)w;
-        (void)client_data;
-        (void)call_data;
-        xtee_gui_new_program_show_dialog();
-}
-
 static int
 fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
 {
@@ -764,138 +717,6 @@ fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
                         env_data, XTEE_ARRAY_LEN(env_data));
         unsetenv("WINEDLLOVERRIDES");
         return r;
-}
-
-static
-XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
-{
-        XmFileSelectionBoxCallbackStruct *cbs;
-        XteeString val_xteestr;
-        char *val_str;
-        XteePrefix *loaded_prefix;
-        XteeWineVersionData *version_data;
-        enum XteeExecutableType exe_type;
-        int r;
-        bool is_file_msi = false;
-
-        (void)client_data;
-        cbs = (XmFileSelectionBoxCallbackStruct *)call_data;
-        if (cbs->reason == XmCR_CANCEL) {
-                XtUnmanageChild(w);
-                return;
-        } else if (cbs->reason != XmCR_OK) {
-                return;
-        }
-        loaded_prefix = xtee_state_get_loaded_prefix();
-        version_data = xtee_wine_get_version_data(
-                        loaded_prefix->wine_version.s);
-        if (!version_data) {
-                gui_print_error_log_and_dialog(
-                                "Prefix wine version does not exist.",
-                                main_gui_data.main_win);
-                return;
-        }
-        val_str = XmString_to_char_str(&cbs->value);
-        if (!val_str) {
-                XtUnmanageChild(w);
-                return;
-        }
-        XtUnmanageChild(w);
-        val_xteestr.s = val_str;
-        val_xteestr.n = strlen(val_str);
-        is_file_msi = xtee_is_file_msi(
-                        XteeString_to_XteeConstString(val_xteestr));
-        if (xtee_get_executable_type(&exe_type,
-                                XteeString_to_XteeConstString(val_xteestr))
-                        != 0
-                        && !is_file_msi) {
-                gui_print_error_log_and_dialog(
-                                "Executable type is incorrect.",
-                                main_gui_data.main_win);
-                free(val_str);
-                return;
-        }
-        if (exe_type == XTEE_EXECUTABLE_PE32PLUS
-                        && loaded_prefix->arch == XTEE_PREFIX_ARCH_WIN32) {
-                gui_print_error_log_and_dialog(
-                                "PE32+ programs cannot be run in Win32 prefix",
-                                main_gui_data.main_win);
-                free(val_str);
-                return;
-        } else if(exe_type != XTEE_EXECUTABLE_PE32
-                        && exe_type != XTEE_EXECUTABLE_PE32PLUS
-                        && !is_file_msi) {
-                gui_print_error_log_and_dialog(
-                                "Executable is not compatible with Wine "
-                                "prefix.",
-                                main_gui_data.main_win);
-                free(val_str);
-                return;
-        }
-
-        set_and_show_main_working_dialog("Running program",
-                        "Program is running...");
-        r = fork_exec_run_executable(loaded_prefix, val_xteestr);
-        free(val_str);
-        hide_main_working_dialog();
-        if (r != 0) {
-                gui_print_error_log_and_dialog(
-                                "Error while running executable in Wine "
-                                "prefix.\n"
-                                "This can also happen if you use the Cancel "
-                                "button on an installer.",
-                                main_gui_data.main_win);
-        } else {
-                xtee_gui_set_message_area_string("Program run successfully.");
-        }
-}
-
-static
-XTEE_XT_CALLBACK_FUNC(run_exec_in_prefix_btn_cb)
-{
-        char *gui_show_hidden_files_val;
-
-        (void)w;
-        (void)client_data;
-        (void)call_data;
-
-        if (!run_exec_browse_dialog) {
-                Arg args[10];
-                Cardinal n = 0;
-                XmString dialog_title;
-
-                dialog_title = XmStringCreateLocalized("Run executable...");
-                XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
-                XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
-                XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
-                XtSetArg(args[n], XmNwidth, XTEE_FILESELECTIONBOX_WIDTH); n++;
-                XtSetArg(args[n], XmNheight,
-                                XTEE_FILESELECTIONBOX_HEIGHT); n++;
-                run_exec_browse_dialog = XmCreateFileSelectionDialog(
-                                main_gui_data.main_win,
-                                "run_exec_browse_dialog", args, n);
-                XmStringFree(dialog_title);
-                XtAddCallback(run_exec_browse_dialog, XmNokCallback,
-                                run_exec_browse_dialog_btns_cb,
-                                NULL);
-                XtAddCallback(run_exec_browse_dialog, XmNcancelCallback,
-                                run_exec_browse_dialog_btns_cb,
-                                NULL);
-        }
-        gui_show_hidden_files_val = xtee_config_get_entry_value(
-                        "gui.show_hidden_files");
-        if (!gui_show_hidden_files_val
-                        || !xtee_string_to_bool(
-                                gui_show_hidden_files_val)) {
-                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
-                                XmFILTER_HIDDEN_FILES,
-                                NULL);
-        } else {
-                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
-                                XmFILTER_NONE,
-                                NULL);
-        }
-        XtManageChild(run_exec_browse_dialog);
 }
 
 static
@@ -1020,14 +841,6 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                                 NULL);
                 XmStringFree(btn_str);
         }
-        XtAddCallback(main_gui_data.work_area_struct.reload_prefix_btn,
-                        XmNactivateCallback, reload_prefix_btn_cb, NULL);
-        XtAddCallback(main_gui_data.work_area_struct.prefix_options_btn,
-                        XmNactivateCallback, prefix_options_btn_cb, NULL);
-        XtAddCallback(main_gui_data.work_area_struct.new_program_btn,
-                        XmNactivateCallback, new_program_btn_cb, NULL);
-        XtAddCallback(main_gui_data.work_area_struct.run_exec_in_prefix_btn,
-                        XmNactivateCallback, run_exec_in_prefix_btn_cb, NULL);
         XtAddCallback(main_gui_data.work_area_struct.winecfg_btn,
                         XmNactivateCallback, winecfg_btn_cb, NULL);
         XtAddCallback(main_gui_data.work_area_struct.winetricks_btn,
@@ -1338,11 +1151,169 @@ create_about_dialog(void)
 }
 
 static
+XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
+{
+        XmFileSelectionBoxCallbackStruct *cbs;
+        XteeString val_xteestr;
+        char *val_str;
+        XteePrefix *loaded_prefix;
+        XteeWineVersionData *version_data;
+        enum XteeExecutableType exe_type;
+        int r;
+        bool is_file_msi = false;
+
+        (void)client_data;
+        cbs = (XmFileSelectionBoxCallbackStruct *)call_data;
+        if (cbs->reason == XmCR_CANCEL) {
+                XtUnmanageChild(w);
+                return;
+        } else if (cbs->reason != XmCR_OK) {
+                return;
+        }
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        version_data = xtee_wine_get_version_data(
+                        loaded_prefix->wine_version.s);
+        if (!version_data) {
+                gui_print_error_log_and_dialog(
+                                "Prefix wine version does not exist.",
+                                main_gui_data.main_win);
+                return;
+        }
+        val_str = XmString_to_char_str(&cbs->value);
+        if (!val_str) {
+                XtUnmanageChild(w);
+                return;
+        }
+        XtUnmanageChild(w);
+        val_xteestr.s = val_str;
+        val_xteestr.n = strlen(val_str);
+        is_file_msi = xtee_is_file_msi(
+                        XteeString_to_XteeConstString(val_xteestr));
+        if (xtee_get_executable_type(&exe_type,
+                                XteeString_to_XteeConstString(val_xteestr))
+                        != 0
+                        && !is_file_msi) {
+                gui_print_error_log_and_dialog(
+                                "Executable type is incorrect.",
+                                main_gui_data.main_win);
+                free(val_str);
+                return;
+        }
+        if (exe_type == XTEE_EXECUTABLE_PE32PLUS
+                        && loaded_prefix->arch == XTEE_PREFIX_ARCH_WIN32) {
+                gui_print_error_log_and_dialog(
+                                "PE32+ programs cannot be run in Win32 prefix",
+                                main_gui_data.main_win);
+                free(val_str);
+                return;
+        } else if(exe_type != XTEE_EXECUTABLE_PE32
+                        && exe_type != XTEE_EXECUTABLE_PE32PLUS
+                        && !is_file_msi) {
+                gui_print_error_log_and_dialog(
+                                "Executable is not compatible with Wine "
+                                "prefix.",
+                                main_gui_data.main_win);
+                free(val_str);
+                return;
+        }
+
+        set_and_show_main_working_dialog("Running program",
+                        "Program is running...");
+        r = fork_exec_run_executable(loaded_prefix, val_xteestr);
+        free(val_str);
+        hide_main_working_dialog();
+        if (r != 0) {
+                gui_print_error_log_and_dialog(
+                                "Error while running executable in Wine "
+                                "prefix.\n"
+                                "This can also happen if you use the Cancel "
+                                "button on an installer.",
+                                main_gui_data.main_win);
+        } else {
+                xtee_gui_set_message_area_string("Program run successfully.");
+        }
+}
+
+static void
+xtee_gui_run_executable_in_prefix(void)
+{
+        char *gui_show_hidden_files_val;
+
+        if (!run_exec_browse_dialog) {
+                Arg args[10];
+                Cardinal n = 0;
+                XmString dialog_title;
+
+                dialog_title = XmStringCreateLocalized("Run executable...");
+                XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
+                XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
+                XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
+                XtSetArg(args[n], XmNwidth, XTEE_FILESELECTIONBOX_WIDTH); n++;
+                XtSetArg(args[n], XmNheight,
+                                XTEE_FILESELECTIONBOX_HEIGHT); n++;
+                run_exec_browse_dialog = XmCreateFileSelectionDialog(
+                                main_gui_data.main_win,
+                                "run_exec_browse_dialog", args, n);
+                XmStringFree(dialog_title);
+                XtAddCallback(run_exec_browse_dialog, XmNokCallback,
+                                run_exec_browse_dialog_btns_cb,
+                                NULL);
+                XtAddCallback(run_exec_browse_dialog, XmNcancelCallback,
+                                run_exec_browse_dialog_btns_cb,
+                                NULL);
+        }
+        gui_show_hidden_files_val = xtee_config_get_entry_value(
+                        "gui.show_hidden_files");
+        if (!gui_show_hidden_files_val
+                        || !xtee_string_to_bool(
+                                gui_show_hidden_files_val)) {
+                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
+                                XmFILTER_HIDDEN_FILES,
+                                NULL);
+        } else {
+                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
+                                XmFILTER_NONE,
+                                NULL);
+        }
+        XtManageChild(run_exec_browse_dialog);
+}
+
+static
 XTEE_XT_CALLBACK_FUNC(prefix_menu_cb)
 {
+        const int reload_prefix_i = 0;
+        const int prefix_options_i = 1;
+        const int new_program_i = 2;
+        const int run_executable_i = 3;
+        int item_i;
+
         (void)w;
         (void)call_data;
-        (void)client_data;
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+        item_i = (int)client_data;
+#pragma GCC diagnostic pop
+
+        if (item_i == reload_prefix_i) {
+                XteePrefix *current_prefix;
+                (void)w;
+                (void)client_data;
+                (void)call_data;
+
+                current_prefix = xtee_state_get_loaded_prefix();
+                reset_main_win_state();
+
+                if (xtee_gui_load_prefix(current_prefix->id.s,
+                                        main_gui_data.main_win) != 0) {
+                        return;
+                }
+                xtee_gui_set_message_area_string("Prefix reloaded.");
+        } else if (item_i == prefix_options_i) {
+                xtee_gui_show_prefix_options_dialog(main_gui_data.main_win);
+        } else if (item_i == new_program_i) {
+                xtee_gui_new_program_show_dialog();
+        } else if (item_i == run_executable_i) {
+                xtee_gui_run_executable_in_prefix();
+        }
 }
 
 static
@@ -1373,9 +1344,10 @@ gui_create_menubar(void)
         XmString file_str, edit_str, prefix_str, help_str;
         XmString new_prefix_str;
         XmString open_prefix_str, exit_str;
+        XmString reload_prefix_str, prefix_options_str, new_program_str,
+                 run_executable_str;
         XmString preferences_str;
         XmString about_str;
-        const char *prefix_button_id = "button_2";
         const char *help_button_id = "button_3";
         const int file_button_i = 0;
         const int edit_button_i = 1;
@@ -1408,8 +1380,6 @@ gui_create_menubar(void)
         new_prefix_str = XmStringCreateLocalized("New Prefix");
         open_prefix_str = XmStringCreateLocalized("Open prefix");
         exit_str = XmStringCreateLocalized("Exit");
-        preferences_str = XmStringCreateLocalized("Preferences");
-        about_str = XmStringCreateLocalized("About XTeetotaller");
         main_gui_data.file_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "file_menu", file_button_i,
                         file_menu_cb,
@@ -1418,24 +1388,39 @@ gui_create_menubar(void)
                         XmVaSEPARATOR,
                         XmVaPUSHBUTTON, exit_str, 'x', NULL, NULL,
                         NULL);
+        XmStringFree(new_prefix_str);
+        XmStringFree(open_prefix_str);
+        XmStringFree(exit_str);
+        preferences_str = XmStringCreateLocalized("Preferences");
         main_gui_data.edit_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "edit_menu", edit_button_i,
                         edit_menu_cb,
                         XmVaPUSHBUTTON, preferences_str, 'e', NULL, NULL,
                         NULL);
+        XmStringFree(preferences_str);
+        reload_prefix_str = XmStringCreateLocalized("Reload prefix");
+        prefix_options_str = XmStringCreateLocalized("Options");
+        new_program_str = XmStringCreateLocalized("New program");
+        run_executable_str = XmStringCreateLocalized(
+                        "Run executable in prefix");
         main_gui_data.prefix_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "prefix_menu", prefix_button_i,
                         prefix_menu_cb,
+                        XmVaPUSHBUTTON, reload_prefix_str, 'R', NULL, NULL,
+                        XmVaPUSHBUTTON, prefix_options_str, 'O', NULL, NULL,
+                        XmVaPUSHBUTTON, new_program_str, 'N', NULL, NULL,
+                        XmVaPUSHBUTTON, run_executable_str, 'e', NULL, NULL,
                         NULL);
+        XmStringFree(reload_prefix_str);
+        XmStringFree(prefix_options_str);
+        XmStringFree(new_program_str);
+        XmStringFree(run_executable_str);
+        about_str = XmStringCreateLocalized("About XTeetotaller");
         main_gui_data.help_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "help_menu", help_button_i,
                         help_menu_cb,
                         XmVaPUSHBUTTON, about_str, 'A', NULL, NULL,
                         NULL);
-        XmStringFree(new_prefix_str);
-        XmStringFree(open_prefix_str);
-        XmStringFree(exit_str);
-        XmStringFree(preferences_str);
         XmStringFree(about_str);
 
         XtManageChild(main_gui_data.menubar);
