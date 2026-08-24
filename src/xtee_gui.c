@@ -32,8 +32,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#define XTEE_GUI_START_WIDTH 800
-#define XTEE_GUI_START_HEIGHT 600
+#define XTEE_GUI_START_WIDTH 750
+#define XTEE_GUI_START_HEIGHT 525
 
 typedef struct XteePushButtonData {
         const char *id;
@@ -722,10 +722,12 @@ fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
 static
 XTEE_XT_CALLBACK_FUNC(winecfg_btn_cb)
 {
+        char *exec_args[2];
         XteeEnvData env_data[1];
         XteeWineVersionData *wine_version;
         XteePrefix *loaded_prefix;
         int r;
+        size_t args_n = XTEE_ARRAY_LEN(exec_args);
 
         (void)w;
         (void)client_data;
@@ -735,11 +737,13 @@ XTEE_XT_CALLBACK_FUNC(winecfg_btn_cb)
                         loaded_prefix->wine_version.s);
         set_and_show_main_working_dialog("Running winecfg",
                         "Running winecfg");
+        exec_args[0] = "start";
+        exec_args[1] = "winecfg";
         env_data[0].name = "WINEPREFIX";
         env_data[0].value = loaded_prefix->wineprefix_dir.s;
         xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
-        r = xtee_gui_fork_exec((char *)wine_version->winecfg_path.s, NULL, 0,
-                                env_data, XTEE_ARRAY_LEN(env_data));
+        r = xtee_gui_fork_exec(wine_version->wine_path.s, exec_args, args_n,
+                        env_data, XTEE_ARRAY_LEN(env_data));
         unsetenv("WINEDLLOVERRIDES");
         hide_main_working_dialog();
         if (r != 0) {
