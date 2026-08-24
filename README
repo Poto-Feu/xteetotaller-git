@@ -11,8 +11,6 @@ Third-party libraries licenses are present in the licenses subdirectory.
 
 Known issues
 ============
-* Gamescope may silently fail to start.
-When this happens, try to start the program with gamescope again.
 * It is not possible to copy and paste with ^C and ^V yet.
 However, it is possible to copy and paste with middle click like all X11
 programs do.
@@ -41,8 +39,8 @@ prefixes directories when xteetotaller is closed.
 Since xteetotaller is not a critical part of the operating system and does not
 use the network interfaces in any way, this should not cause an issue with
 almost all users.
-* The only places where wine, winetricks and gamescope executable path are
-searched are /usr/bin and /usr/local/bin.
+* The only places where wine, winetricks executable path are searched are
+/usr/bin and /usr/local/bin.
 However, almost no user will encounter any problem as system-wide installation
 of programs should not be in other locations.
 Moreover, these programs should not be installed in /bin or /sbin as these

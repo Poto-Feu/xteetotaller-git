@@ -1,3 +1,10 @@
+2026-08-24
+* Fix crash due to non-installed winetricks or gamescope
+* Remove gamescope code
+
+2026-08-23
+* Add case-insensitive support for MSI files extension
+
 2026-08-22
 * Remove new_program_data struct member from XteeGuiMainData
 * Replace XmVaCreateTextField with XtVaCreateManagedWidget

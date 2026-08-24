@@ -15,14 +15,12 @@
 
 bool xtee_system_is_wine_installed = false;
 bool xtee_system_is_winetricks_installed = false;
-bool xtee_system_is_gamescope_installed = false;
 XteeConstString xtee_system_wine_path = { 0 };
 XteeConstString xtee_system_wine_lib_path = { 0 };
 XteeConstString xtee_system_wineboot_path = { 0 };
 XteeConstString xtee_system_winecfg_path = { 0 };
 XteeConstString xtee_system_wineserver_path = { 0 };
 XteeConstString xtee_system_winetricks_path = { 0 };
-XteeConstString xtee_system_gamescope_path = { 0 };
 
 static bool xtee_system_is_wine_lib_present = false;
 static bool xtee_system_is_prefix_usr_local = false;
@@ -124,7 +122,7 @@ set_winetricks_path(void)
                 "/usr/local/bin/winetricks",
         };
 
-        for (size_t i = 0; XTEE_ARRAY_LEN(winetricks_paths)
+        for (size_t i = 0; i < XTEE_ARRAY_LEN(winetricks_paths)
                         && !xtee_system_is_winetricks_installed; ++i) {
                 struct stat buf;
 
@@ -139,38 +137,6 @@ set_winetricks_path(void)
 
         if (!xtee_system_is_winetricks_installed) {
                 print_warning("Winetricks not installed on system.");
-        }
-}
-
-static void
-set_gamescope_path(void)
-{
-        const char *gamescope_paths[] = {
-                "/usr/bin/gamescope",
-                "/usr/local/bin/gamescope",
-        };
-        for (size_t i = 0; XTEE_ARRAY_LEN(gamescope_paths)
-                        && !xtee_system_is_gamescope_installed; ++i) {
-                struct stat buf;
-
-                if (stat(gamescope_paths[i], &buf) == 0
-                                && S_ISREG(buf.st_mode)) {
-                        xtee_system_gamescope_path.s = gamescope_paths[i];
-                        xtee_system_gamescope_path.n = strlen(
-                                        gamescope_paths[i]);
-                        xtee_system_is_gamescope_installed = true;
-                }
-        }
-
-        if (!xtee_system_is_gamescope_installed) {
-                print_warning("Gamescope not installed on system.");
-        } else {
-                const char *info_strs[3] =  {
-                        "Gamescope found at ",
-                        xtee_system_gamescope_path.s,
-                        NULL,
-                };
-                print_info_strs(info_strs);
         }
 }
 
@@ -206,7 +172,6 @@ xtee_system_init(void)
                 set_wine_lib_directory();
         }
         set_winetricks_path();
-        set_gamescope_path();
 }
 
 bool

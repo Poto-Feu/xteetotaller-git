@@ -24,8 +24,6 @@ xteetotaller_SOURCES =  src/xteetotaller.c \
                         src/xtee_gui_common.h \
                         src/xtee_gui_form.c \
                         src/xtee_gui_form.h \
-                        src/xtee_gui_gamescope.c \
-                        src/xtee_gui_gamescope.h \
                         src/xtee_gui_new_prefix.c \
                         src/xtee_gui_new_prefix.h \
                         src/xtee_gui_new_program.c \

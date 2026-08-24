@@ -148,9 +148,10 @@ xtee_is_file_msi(const XteeConstString cstr)
                 return false;
         }
 
-        if (cstr.s[cstr.n - 1] != 'i'
-                        || cstr.s[cstr.n - 2] != 's'
-                        || cstr.s[cstr.n - 3] != 'm'
+        /* Check for extension case */
+        if (tolower(cstr.s[cstr.n - 1]) != 'i'
+                        || tolower(cstr.s[cstr.n - 2]) != 's'
+                        || tolower(cstr.s[cstr.n - 3]) != 'm'
                         || cstr.s[cstr.n - 4] != '.'
                         || xtee_is_windows_illegal_character(
                                 cstr.s[cstr.n - 5])) {
