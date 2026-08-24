@@ -1,6 +1,8 @@
 2026-08-24
 * Fix crash due to non-installed winetricks or gamescope
 * Remove gamescope code
+* Remove gamescope config entries
+* Add dummy and disabled Prefix menu
 
 2026-08-23
 * Add case-insensitive support for MSI files extension

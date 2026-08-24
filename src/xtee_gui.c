@@ -84,6 +84,7 @@ typedef struct XteeGuiMainData {
         Widget menubar;
         Widget file_menu;
         Widget edit_menu;
+        Widget prefix_menu;
         Widget help_menu;
         Widget message_area_label;
 } XteeGuiMainData;
@@ -1337,6 +1338,14 @@ create_about_dialog(void)
 }
 
 static
+XTEE_XT_CALLBACK_FUNC(prefix_menu_cb)
+{
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+}
+
+static
 XTEE_XT_CALLBACK_FUNC(help_menu_cb)
 {
         static Widget about_dialog = NULL;
@@ -1361,34 +1370,40 @@ static void
 gui_create_menubar(void)
 {
         Widget tmp_w;
-        XmString file_str, edit_str, help_str;
+        XmString file_str, edit_str, prefix_str, help_str;
         XmString new_prefix_str;
         XmString open_prefix_str, exit_str;
         XmString preferences_str;
         XmString about_str;
-        const char *help_button_id = "button_2";
+        const char *prefix_button_id = "button_2";
+        const char *help_button_id = "button_3";
         const int file_button_i = 0;
         const int edit_button_i = 1;
-        const int help_button_i = 2;
+        const int prefix_button_i = 2;
+        const int help_button_i = 3;
 
         file_str = XmStringCreateLocalized("File");
         edit_str = XmStringCreateLocalized("Edit");
+        prefix_str = XmStringCreateLocalized("Prefix");
         help_str = XmStringCreateLocalized("Help");
         main_gui_data.menubar = XmVaCreateSimpleMenuBar(main_gui_data.main_win,
                         "menubar",
                         XmVaCASCADEBUTTON, file_str, 'F',
                         XmVaCASCADEBUTTON, edit_str, 'E',
+                        XmVaCASCADEBUTTON, prefix_str, 'P',
                         XmVaCASCADEBUTTON, help_str, 'H',
                         NULL);
         XmStringFree(file_str);
         XmStringFree(edit_str);
+        XmStringFree(prefix_str);
         XmStringFree(help_str);
 
-        if ((tmp_w = XtNameToWidget(main_gui_data.menubar, help_button_id))
-                        != (Widget)0) {
-                XtVaSetValues(main_gui_data.menubar, XmNmenuHelpWidget, tmp_w,
-                                NULL);
-        }
+        /* Set Help menu */
+        tmp_w = XtNameToWidget(main_gui_data.menubar, help_button_id);
+        XtVaSetValues(main_gui_data.menubar, XmNmenuHelpWidget, tmp_w, NULL);
+        /* Disable Prefix menu at launch as no prefix is loaded. */
+        tmp_w = XtNameToWidget(main_gui_data.menubar, prefix_button_id);
+        XtSetSensitive(tmp_w, False);
 
         new_prefix_str = XmStringCreateLocalized("New Prefix");
         open_prefix_str = XmStringCreateLocalized("Open prefix");
@@ -1407,6 +1422,10 @@ gui_create_menubar(void)
                         main_gui_data.menubar, "edit_menu", edit_button_i,
                         edit_menu_cb,
                         XmVaPUSHBUTTON, preferences_str, 'e', NULL, NULL,
+                        NULL);
+        main_gui_data.prefix_menu = XmVaCreateSimplePulldownMenu(
+                        main_gui_data.menubar, "prefix_menu", prefix_button_i,
+                        prefix_menu_cb,
                         NULL);
         main_gui_data.help_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "help_menu", help_button_i,

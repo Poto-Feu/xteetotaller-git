@@ -4,11 +4,6 @@
 
 #include <errno.h>
 
-#define XTEE_GAMESCOPE_DEFAULT_INTERNAL_WIDTH "800"
-#define XTEE_GAMESCOPE_DEFAULT_INTERNAL_HEIGHT "600"
-#define XTEE_GAMESCOPE_DEFAULT_WINDOW_WIDTH "1024"
-#define XTEE_GAMESCOPE_DEFAULT_WINDOW_HEIGHT "768"
-
 static struct XteeConfigurationVariable config_vars[] = {
         { XTEE_CONSTSTRING_STATIC_INIT("wine.default_version"),
                 XTEE_CONSTSTRING_STATIC_INIT("System") },
@@ -16,18 +11,6 @@ static struct XteeConfigurationVariable config_vars[] = {
                 XTEE_CONSTSTRING_STATIC_INIT("true") },
         { XTEE_CONSTSTRING_STATIC_INIT("gui.show_hidden_files"),
                 XTEE_CONSTSTRING_STATIC_INIT("true") },
-        { XTEE_CONSTSTRING_STATIC_INIT("gamescope.default_internal_width"),
-                XTEE_CONSTSTRING_STATIC_INIT(
-                                XTEE_GAMESCOPE_DEFAULT_INTERNAL_WIDTH) },
-        { XTEE_CONSTSTRING_STATIC_INIT("gamescope.default_internal_height"),
-                XTEE_CONSTSTRING_STATIC_INIT(
-                                XTEE_GAMESCOPE_DEFAULT_INTERNAL_HEIGHT) },
-        { XTEE_CONSTSTRING_STATIC_INIT("gamescope.default_window_width"),
-                XTEE_CONSTSTRING_STATIC_INIT(
-                                XTEE_GAMESCOPE_DEFAULT_WINDOW_WIDTH) },
-        { XTEE_CONSTSTRING_STATIC_INIT("gamescope.default_window_height"),
-                XTEE_CONSTSTRING_STATIC_INIT(
-                                XTEE_GAMESCOPE_DEFAULT_WINDOW_HEIGHT) },
 };
 
 size_t config_vars_len = XTEE_ARRAY_LEN(config_vars);
