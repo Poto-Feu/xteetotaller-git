@@ -113,8 +113,6 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                                 xtee_gui_get_main_win());
         }
         refresh_program_list();
-        /* TODO: finish this */
-
 }
 
 static

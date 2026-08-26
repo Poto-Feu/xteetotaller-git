@@ -507,7 +507,7 @@ XTEE_XT_CALLBACK_FUNC(programs_list_cb)
 static
 XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
 {
-        XteeEnvData env_data[1];
+        XteeEnvData env_data[2];
         XteeString program_str;
         char *args_regular[3];
         char **args_multiple = NULL;
@@ -516,12 +516,16 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         XteeProgram *program_data;
         XteeWineVersionData *version_data;
         const char *info_strs[3];
+        char *x11_display_str = NULL;
         unsigned int *list_positions;
         size_t args_n;
+        size_t env_data_n = XTEE_ARRAY_LEN(env_data) - 1;
+        size_t display_env_i = 1;
+        Widget programs_list;
         enum XteeGetProgramDataStatus status;
         int list_positions_n;
         int r;
-        Widget programs_list;
+        bool is_x11_display_set = false;
 
         (void)w;
         (void)call_data;
@@ -565,15 +569,27 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         info_strs[1] = args_ptr[2];
         info_strs[2] = NULL;
         print_info_strs(info_strs);
-        xtee_free_program(program_data);
-        free(program_data);
         env_data[0].name = "WINEPREFIX";
         env_data[0].value = loaded_prefix->wineprefix_dir.s;
+
+        /* Set X11 DISPLAY if requested by user in program options */
+        is_x11_display_set = program_data->is_x11_display_set;
+        if (is_x11_display_set) {
+                x11_display_str = xtee_strdup_or_exit(
+                                program_data->x11_display_str.s);
+                env_data[display_env_i].name = "DISPLAY";
+                env_data[display_env_i].value = x11_display_str;
+                ++env_data_n;
+        }
+        xtee_free_program(program_data);
+        free(program_data);
         xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
         r = xtee_gui_fork_exec(version_data->wine_path.s,
                         args_ptr, args_n,
-                        env_data, XTEE_ARRAY_LEN(env_data));
+                        env_data, env_data_n);
         free(args_ptr[2]);
+        free(x11_display_str);
+
         if (args_multiple) {
                 for (size_t i = 0; i < args_n - 3; ++i) {
                         free(args_multiple[i + 3]);
@@ -1621,6 +1637,14 @@ xtee_gui_exec(char *pathname, char **args, size_t args_n,
         }
 
         for (size_t i = 0; i < env_data_n; ++i) {
+                const char *env_info_strs[5];
+
+                env_info_strs[0] = "Setting ";
+                env_info_strs[1] = env_data[i].name;
+                env_info_strs[2] = " environment variable to ";
+                env_info_strs[3] = env_data[i].value;
+                env_info_strs[4] = NULL;
+                print_info_strs(env_info_strs);
                 setenv(env_data[i].name, env_data[i].value, 1);
         }
         r = execv(pathname, exec_args);

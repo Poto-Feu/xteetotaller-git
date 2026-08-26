@@ -1,3 +1,6 @@
+2026-08-26
+* Implement X11 display program setting
+
 2026-08-24
 * Fix crash due to non-installed winetricks or gamescope
 * Remove gamescope code

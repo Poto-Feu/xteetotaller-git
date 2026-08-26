@@ -14,10 +14,12 @@
 typedef struct XteeProgram {
         XteeString id;
         XteeString exe_path;
+        XteeString x11_display_str;
         XteeDate creation_date;
         XteeDllOverride *overrides;
         size_t overrides_n;
         XteeStringList args_list;
+        bool is_x11_display_set;
 } XteeProgram;
 
 void xtee_init_program(XteeProgram *program,

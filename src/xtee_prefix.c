@@ -752,6 +752,15 @@ write_program_config_file(XteeProgram *program,
                 }
         }
 
+        if (program->is_x11_display_set) {
+                XteeConfigurationEntry conf_entry = {
+                        "x11_display", program->x11_display_str.s
+                };
+                if (xtee_write_config_entry(f, conf_entry) != 0) {
+                        return -1;
+                }
+        }
+
         return 0;
 }
 
@@ -962,6 +971,7 @@ read_program_config_file(XteeProgram *restrict program,
         bool is_creation_day_set = false;
         bool is_creation_date_set = false;
         bool is_exe_path_set = false;
+        bool is_x11_display_set = false;
         int r;
 
         if (!(f = fopen(program_config_path, "r"))) {
@@ -1052,6 +1062,20 @@ read_program_config_file(XteeProgram *restrict program,
                         }
                 } else if (xtee_strcmp_bool(var_name, "cmd_line_arg")) {
                         xtee_program_add_argument(program, var_value);
+                } else if (xtee_strcmp_bool(var_name, "x11_display")) {
+                        if (is_x11_display_set) {
+                                XteeString_free(program->x11_display_str);
+                        }
+
+                        if (*var_value == '\0') {
+                                is_x11_display_set = false;
+                                program->is_x11_display_set = false;
+                                continue;
+                        }
+                        is_x11_display_set = true;
+                        program->x11_display_str =
+                                XteeString_create_from_charstring(var_value);
+                        program->is_x11_display_set = true;
                 } else {
                         print_warning("Unknown var name in program "
                                         "configuration file.");

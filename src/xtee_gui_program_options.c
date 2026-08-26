@@ -15,6 +15,8 @@ static const size_t args_field_i = 0;
 static const size_t add_arg_btn_i = 0;
 static const size_t remove_arg_btn_i = 1;
 
+static const size_t x11_display_field_i = 1;
+
 static
 XTEE_XT_CALLBACK_FUNC(program_options_unmap_cb)
 {
@@ -27,9 +29,39 @@ XTEE_XT_CALLBACK_FUNC(program_options_unmap_cb)
 static
 XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
 {
+        char *x11_display_string;
+        char *tmp_ptr;
+        XteeGuiBasicFormDialog *dialog;
+        XteeProgram *program;
+        XteeGuiFormField *x11_display_field;
+
         (void)w;
         (void)client_data;
         (void)call_data;
+        program = xtee_state_get_loaded_program();
+
+        dialog = &xtee_gui_program_options_dialog;
+        x11_display_field = dialog->fields + x11_display_field_i;
+        x11_display_string = get_XteeGuiFormField_string_value(
+                        x11_display_field);
+        tmp_ptr = x11_display_string;
+        while (isspace(*tmp_ptr)) {
+                ++tmp_ptr;
+        }
+
+        if (program->is_x11_display_set) {
+                XteeString_free(program->x11_display_str);
+        }
+
+        if (*tmp_ptr != '\0') {
+                program->x11_display_str = XteeString_create_from_charstring(
+                                tmp_ptr);
+                program->is_x11_display_set = true;
+        } else {
+                program->is_x11_display_set = false;
+        }
+        free(x11_display_string);
+
         if (xtee_state_save_loaded_program() != 0) {
                 gui_print_error_log_and_dialog("Cannot save program data.",
                                 xtee_gui_program_options_dialog.dialog_form);
@@ -223,6 +255,8 @@ xtee_gui_show_program_options_dialog(Widget main_win)
         XteeString program_str;
         static bool is_dialog_ready = false;
         XteeGuiBasicFormDialog *dialog;
+        XteeGuiFormField *x11_display_field;
+        XteeProgram *loaded_program;
         enum XteeGetProgramDataStatus status;
 
         dialog = &xtee_gui_program_options_dialog;
@@ -265,6 +299,10 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 args_list_selection_cb,
                                 NULL);
                 set_program_args_widgets();
+                add_simple_form_field_to_XteeGuiBasicFormDialog(dialog,
+                                XTEE_GUI_FORM_FIELD_LABELTEXT,
+                                "x11_display_text",
+                                "X11 Display (leave empty for default)");
                 is_dialog_ready = true;
         }
         reset_XteeGuiBasicFormDialog_fields(dialog);
@@ -278,6 +316,15 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 return;
         }
         reload_program_cmd_line_args_list(dialog);
+        loaded_program = xtee_state_get_loaded_program();
+
+        /* Set x11_display_field if set */
+        if (loaded_program->is_x11_display_set) {
+                x11_display_field = dialog->fields + x11_display_field_i;
+                XmTextFieldSetString(x11_display_field->data.ltf.text,
+                                loaded_program->x11_display_str.s);
+        }
+
         XtManageChild(dialog->dialog_form);
 }
 
