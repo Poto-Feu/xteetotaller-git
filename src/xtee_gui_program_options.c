@@ -229,16 +229,13 @@ XTEE_XT_CALLBACK_FUNC(remove_arg_btn_cb)
 }
 
 static void
-set_program_args_widgets(void)
+set_program_args_widgets(XteeGuiFormField *args_field)
 {
         XteeGuiListButtonsForm *listbuttons_form;
-        XteeGuiFormField *last_field;
         Widget add_arg_btn;
         Widget remove_arg_btn;
 
-        last_field = get_last_XteeGuiFormField_data(
-                        &xtee_gui_program_options_dialog);
-        listbuttons_form = &last_field->data.listbuttons_form;
+        listbuttons_form = &args_field->data.listbuttons_form;
         add_arg_btn = listbuttons_form->buttons[add_arg_btn_i];
         remove_arg_btn = listbuttons_form->buttons[remove_arg_btn_i];
         XtAddCallback(add_arg_btn, XmNactivateCallback, add_arg_btn_cb, NULL);
@@ -273,7 +270,7 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                         "Add argument",
                         "Remove argument",
                 };
-                XteeGuiFormField *last_field;
+                XteeGuiFormField *args_field;
 
                 create_XteeGuiBasicFormDialog(dialog,
                                 main_win,
@@ -293,12 +290,13 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 cmd_line_btns_names,
                                 cmd_line_btns_strs,
                                 true);
-                last_field = get_last_XteeGuiFormField_data(dialog);
-                XtAddCallback(last_field->data.listbuttons_form.list,
+                args_field = XteeGuiBasicFormDialog_get_field(dialog,
+                                args_field_i);
+                XtAddCallback(args_field->data.listbuttons_form.list,
                                 XmNsingleSelectionCallback,
                                 args_list_selection_cb,
                                 NULL);
-                set_program_args_widgets();
+                set_program_args_widgets(args_field);
                 add_simple_form_field_to_XteeGuiBasicFormDialog(dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,
                                 "x11_display_text",

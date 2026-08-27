@@ -373,6 +373,15 @@ get_last_XteeGuiFormField_widget(XteeGuiBasicFormDialog *dialog)
                         &dialog->fields[dialog->fields_n - 1]);
 }
 
+XteeGuiFormField *
+XteeGuiBasicFormDialog_get_field(XteeGuiBasicFormDialog *dialog, size_t i)
+{
+        if (i >= dialog->fields_n) {
+                return NULL;
+        }
+        return dialog->fields + i;
+}
+
 static void
 set_form_attach_resources(Widget new_w, Widget prev_w)
 {
@@ -659,6 +668,8 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         form_data->list = XmCreateScrolledList(form_data->child_form,
                         "form_field_list", args, n);
         list_parent = XtParent(form_data->list);
+        /* Add offset to bottom attachment to make it look less cramped with
+         * the new widget. */
         XtVaSetValues(list_parent,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, form_data->label,
@@ -667,6 +678,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                         XmNrightPosition, 3,
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNbottomAttachment, XmATTACH_FORM,
+                        XmNbottomOffset, 5,
                         NULL);
         XtManageChild(form_data->list);
         form_data->row_column = XmVaCreateRowColumn(

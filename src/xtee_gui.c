@@ -1271,6 +1271,8 @@ xtee_gui_run_executable_in_prefix(void)
                 XtSetArg(args[n], XmNwidth, XTEE_FILESELECTIONBOX_WIDTH); n++;
                 XtSetArg(args[n], XmNheight,
                                 XTEE_FILESELECTIONBOX_HEIGHT); n++;
+                XtSetArg(args[n], XmNdialogStyle,
+                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
                 run_exec_browse_dialog = XmCreateFileSelectionDialog(
                                 main_gui_data.main_win,
                                 "run_exec_browse_dialog", args, n);
@@ -1428,6 +1430,7 @@ gui_create_menubar(void)
                         prefix_menu_cb,
                         XmVaPUSHBUTTON, reload_prefix_str, 'R', NULL, NULL,
                         XmVaPUSHBUTTON, prefix_options_str, 'O', NULL, NULL,
+                        XmVaSEPARATOR,
                         XmVaPUSHBUTTON, new_program_str, 'N', NULL, NULL,
                         XmVaPUSHBUTTON, run_executable_str, 'e', NULL, NULL,
                         NULL);

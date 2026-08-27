@@ -1,5 +1,8 @@
 2026-08-27
 * Remove "DO NOT DISTRIBUTE" mentions as the program is largely working now
+* Implement XteeGuiBasicFormDialog_get_field
+* Some visual changes in Program Options dialog and Prefix menu
+* Make "Run executable in prefix" dialog modal
 
 2026-08-26
 * Implement X11 display program setting

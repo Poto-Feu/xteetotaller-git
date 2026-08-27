@@ -101,9 +101,12 @@ void reset_XteeGuiFormField(XteeGuiFormField *field);
 void create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 Widget parent, char *name, char *title);
 void free_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog);
+
 XteeGuiFormField *get_last_XteeGuiFormField_data(
                 XteeGuiBasicFormDialog *dialog);
 Widget get_last_XteeGuiFormField_widget(XteeGuiBasicFormDialog *dialog);
+XteeGuiFormField *XteeGuiBasicFormDialog_get_field(
+                XteeGuiBasicFormDialog *dialog, size_t i);
 
 /* Can only add LabelTextForm, LTPF and Toggle fields */
 void add_simple_form_field_to_XteeGuiBasicFormDialog(
