@@ -263,7 +263,7 @@ xtee_gui_set_message_area_string(char *s)
 }
 
 #define XTEE_UNFINISHED_APP_CONTENT \
-"For testing purposes only. DO NOT DISTRIBUTE.\n\
+"This is an alpha version of xteetotaller.\n\
 You may encounter bugs or unimplemented features.\n\n\
 Please note that xteetotaller is vulnerable to TOCTOU race conditions.\n\
 Do not try to rename or modify configurations files during filesystem \
@@ -1135,11 +1135,11 @@ XTEE_XT_CALLBACK_FUNC(edit_menu_cb)
 }
 
 #define ABOUT_DIALOG_TEXT_CONTENT \
-"XTeetotaller, a Wine prefixes and programs manager for UNIX and UNIX-like \
+"XTeetotaller, Alpha version.\n\
+A Wine prefixes and programs manager for UNIX and UNIX-like \
 operating systems.\n\
 \n\
-Created by Adrien Saad.\n\n\
-For testing purposes only. DO NOT DISTRIBUTE."
+Copyright 2026 Adrien Saad. All Rights Reserved.\n\n"
 
 static Widget
 create_about_dialog(void)
