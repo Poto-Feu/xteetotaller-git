@@ -7,6 +7,7 @@
 #include "xtee_gui_preferences.h"
 #include "xtee_gui_prefix_options.h"
 #include "xtee_gui_program_options.h"
+#include "xtee_paths.h"
 #include "xtee_state.h"
 #include "xtee_system.h"
 #include "xtee_utils.h"
@@ -50,6 +51,7 @@ typedef struct XteeWorkAreaStruct {
         Widget programs_buttons;
         Widget start_program_btn;
         Widget program_options_btn;
+        Widget remove_program_btn;
         Widget prefix_frame;
         Widget prefix_frame_title;
         Widget prefix_form;
@@ -96,10 +98,13 @@ static XteePushButtonData programs_btns_data[] = {
                 &main_gui_data.work_area_struct.start_program_btn },
         { "program_options_btn", "Program options",
                 &main_gui_data.work_area_struct.program_options_btn },
+        { "remove_program_btn", "Remove program",
+                &main_gui_data.work_area_struct.remove_program_btn },
 };
 
 static int start_program_btn_i = 0;
 static int program_options_btn_i = 1;
+static int remove_program_btn_i = 2;
 
 static XteePushButtonData prefix_btns_data[] = {
         { "winecfg_btn", "Winecfg",
@@ -198,7 +203,8 @@ gui_print_message_dialog(char *msg, Widget parent, unsigned char type)
 
         if (type != XmDIALOG_MESSAGE
                         && type != XmDIALOG_ERROR
-                        && type != XmDIALOG_WARNING) {
+                        && type != XmDIALOG_WARNING
+                        && type != XmDIALOG_INFORMATION) {
                 type = XmDIALOG_MESSAGE;
         }
 
@@ -209,8 +215,11 @@ gui_print_message_dialog(char *msg, Widget parent, unsigned char type)
                 case XmDIALOG_WARNING:
                         dialog_title = XmStringCreateLocalized("Warning");
                         break;
-                default:
+                case XmDIALOG_INFORMATION:
                         dialog_title = XmStringCreateLocalized("Information");
+                        break;
+                default:
+                        dialog_title = XmStringCreateLocalized("Message");
                         break;
         }
         dialog_text = XmStringCreateLocalized(msg);
@@ -223,6 +232,10 @@ gui_print_message_dialog(char *msg, Widget parent, unsigned char type)
                 case XmDIALOG_WARNING:
                         dialog = XmCreateWarningDialog(parent,
                                         "warning_dialog", args, n);
+                        break;
+                case XmDIALOG_INFORMATION:
+                        dialog = XmCreateInformationDialog(parent,
+                                        "information_dialog", args, n);
                         break;
                 default:
                         dialog = XmCreateMessageDialog(parent,
@@ -254,6 +267,12 @@ void
 gui_print_warning_dialog(char *msg, Widget parent)
 {
         gui_print_message_dialog(msg, parent, XmDIALOG_WARNING);
+}
+
+void
+gui_print_info_dialog(char *msg, Widget parent)
+{
+        gui_print_message_dialog(msg, parent, XmDIALOG_INFORMATION);
 }
 
 void
@@ -616,6 +635,103 @@ XTEE_XT_CALLBACK_FUNC(program_options_btn_cb)
         xtee_gui_show_program_options_dialog(main_gui_data.main_win);
 }
 
+static
+XTEE_XT_CALLBACK_FUNC(remove_program_yes_cb)
+{
+        const char *charstrs_block[6];
+        const char *info_strs[3];
+        XteeConstString data_path;
+        XteeString program_name;
+        char *full_program_path;
+        XteePrefix *loaded_prefix;
+
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+
+        if (xtee_gui_get_selected_program_string(&program_name) != 0) {
+                gui_print_error_dialog("No program selected, cannot remove "
+                                "program entry", xtee_gui_get_main_win());
+        }
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        data_path = get_xteetotaller_dir_path();
+        charstrs_block[0] = data_path.s;
+        charstrs_block[1] = "/prefixes/";
+        charstrs_block[2] = loaded_prefix->id.s;
+        charstrs_block[3] = "/programs/";
+        charstrs_block[4] = program_name.s;
+        charstrs_block[5] = NULL;
+        full_program_path = xtee_string_merge_char_strings_block(
+                        charstrs_block);
+        info_strs[0] = "Deleting program: ";
+        info_strs[1] = full_program_path;
+        info_strs[2] = NULL;
+        print_info_strs(info_strs);
+        /* We use unlink since we are deleting only files.
+         * This means that even if there is a bug, no directory will be
+         * removed. */
+        if (unlink(full_program_path) != 0) {
+                gui_print_error_log_and_dialog("unlink failed, cannot remove "
+                                "program entry",
+                                xtee_gui_get_main_win());
+                xtee_gui_set_message_area_string("Program entry removal "
+                                "failed.");
+        } else {
+                xtee_prefix_reload_programs_list(
+                                xtee_state_get_loaded_prefix());
+                refresh_program_list();
+                disable_programs_btns();
+                gui_print_info_dialog("Program entry sucessfully removed.",
+                                xtee_gui_get_main_win());
+                xtee_gui_set_message_area_string("Program entry removed.");
+        }
+        free(full_program_path);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(remove_program_btn_cb)
+{
+        static Widget remove_program_confirm_dialog = NULL;
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+
+        if (!remove_program_confirm_dialog) {
+                Arg args[10];
+                Cardinal i = 0;
+                XmString dialog_title, dialog_text;
+                XmString yes_string, no_string;
+
+                dialog_title = XmStringCreateLocalized("Remove program");
+                dialog_text = XmStringCreateLocalized("Do you want to "
+                                "remove this program entry?\n"
+                                "Please note that the actual executable "
+                                "file will be untouched.");
+                set_message_dialog_args(args, &i, dialog_title,
+                                dialog_text);
+                remove_program_confirm_dialog = XmCreateQuestionDialog(
+                                xtee_gui_get_main_win(),
+                                "remove_program_confirm_dialog", args, i);
+                XmStringFree(dialog_title);
+                XmStringFree(dialog_text);
+                xtee_gui_disable_dialog_help_button(
+                                remove_program_confirm_dialog);
+                yes_string = XmStringCreateLocalized("Yes");
+                no_string = XmStringCreateLocalized("No");
+                /* No need for Cancel callback as the dialog is already
+                 * unmanaged by default. */
+                XtVaSetValues(remove_program_confirm_dialog,
+                                XmNokLabelString, yes_string,
+                                XmNcancelLabelString, no_string,
+                                NULL);
+                XmStringFree(yes_string);
+                XmStringFree(no_string);
+                XtAddCallback(remove_program_confirm_dialog, XmNokCallback,
+                                remove_program_yes_cb, NULL);
+        }
+        XtManageChild(remove_program_confirm_dialog);
+}
+
 static void
 create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
 {
@@ -706,6 +822,9 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         NULL);
         XtAddCallback(*programs_btns_data[program_options_btn_i].w,
                         XmNactivateCallback, program_options_btn_cb,
+                        NULL);
+        XtAddCallback(*programs_btns_data[remove_program_btn_i].w,
+                        XmNactivateCallback, remove_program_btn_cb,
                         NULL);
         XtManageChild(wa_struct->programs_buttons);
         XtManageChild(wa_struct->programs_form);

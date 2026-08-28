@@ -1,3 +1,6 @@
+2026-08-28
+* Add Remove program feature
+
 2026-08-27
 * Remove "DO NOT DISTRIBUTE" mentions as the program is largely working now
 * Implement XteeGuiBasicFormDialog_get_field
