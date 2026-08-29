@@ -252,7 +252,6 @@ xtee_gui_show_program_options_dialog(Widget main_win)
         XteeString program_str;
         static bool is_dialog_ready = false;
         XteeGuiBasicFormDialog *dialog;
-        XteeGuiFormField *x11_display_field;
         XteeProgram *loaded_program;
         enum XteeGetProgramDataStatus status;
 
@@ -318,6 +317,8 @@ xtee_gui_show_program_options_dialog(Widget main_win)
 
         /* Set x11_display_field if set */
         if (loaded_program->is_x11_display_set) {
+                XteeGuiFormField *x11_display_field;
+
                 x11_display_field = dialog->fields + x11_display_field_i;
                 XmTextFieldSetString(x11_display_field->data.ltf.text,
                                 loaded_program->x11_display_str.s);

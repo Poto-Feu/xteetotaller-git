@@ -61,7 +61,7 @@ XteeString XteeString_merge_XteeConstString_charstring(
                 const XteeConstString cstr, const char *charstr);
 XteeString XteeString_merge_XteeConstStrings(
                 const XteeConstString cstr1, const XteeConstString cstr2);
-char *xtee_string_merge_char_strings(const char *s1, const char *s2);
+
 /* Merge all char strings in block until NULL is encountered. */
 char *xtee_string_merge_char_strings_block(const char **strs);
 

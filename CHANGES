@@ -1,3 +1,8 @@
+2026-08-29
+* Move Wine buttons into separate menu
+* Reduce display_env_i and x11_display_field variables scope
+* Remove unused function xtee_string_merge_char_strings
+
 2026-08-28
 * Add Remove program feature
 

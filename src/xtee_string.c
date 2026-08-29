@@ -65,20 +65,6 @@ XteeString_merge_char_strings(const char *s1, const char *s2)
 }
 
 char *
-xtee_string_merge_char_strings(const char *s1, const char *s2)
-{
-        char *rtrn_str;
-        size_t total_len;
-
-        total_len = strlen(s1) + strlen(s2);
-        rtrn_str = malloc_or_exit(total_len + 1);
-        rtrn_str[0] = '\0';
-        strcat(rtrn_str, s1);
-        strcat(rtrn_str, s2);
-        return rtrn_str;
-}
-
-char *
 xtee_string_merge_char_strings_block(const char **strs)
 {
         const char **strs_count_ptr;

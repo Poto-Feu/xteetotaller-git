@@ -55,7 +55,6 @@ typedef struct XteeWorkAreaStruct {
         Widget prefix_frame;
         Widget prefix_frame_title;
         Widget prefix_form;
-        Widget prefix_btns_row;
         Widget winecfg_btn;
         Widget winetricks_btn;
         Widget prefix_info_label;
@@ -83,11 +82,13 @@ typedef struct XteeGuiMainData {
         Widget file_menu;
         Widget edit_menu;
         Widget prefix_menu;
+        Widget wine_menu;
         Widget help_menu;
         Widget message_area_label;
 } XteeGuiMainData;
 
 static const char *prefix_button_id = "button_2";
+static const char *wine_button_id = "button_3";
 
 XmRenderTable xtee_gui_render_table;
 
@@ -105,13 +106,6 @@ static XteePushButtonData programs_btns_data[] = {
 static int start_program_btn_i = 0;
 static int program_options_btn_i = 1;
 static int remove_program_btn_i = 2;
-
-static XteePushButtonData prefix_btns_data[] = {
-        { "winecfg_btn", "Winecfg",
-                &main_gui_data.work_area_struct.winecfg_btn },
-        { "winetricks_btn", "Winetricks",
-                &main_gui_data.work_area_struct.winetricks_btn },
-};
 
 static Widget run_exec_browse_dialog = NULL;
 static Widget main_working_dialog = NULL;
@@ -379,22 +373,6 @@ reset_prefix_info_label(void)
 }
 
 static void
-disable_prefix_btns(void)
-{
-        for (size_t i = 0; i < XTEE_ARRAY_LEN(prefix_btns_data); ++i) {
-                XtSetSensitive(*(prefix_btns_data[i].w), False);
-        }
-}
-
-static void
-enable_prefix_btns(void)
-{
-        for (size_t i = 0; i < XTEE_ARRAY_LEN(prefix_btns_data); ++i) {
-                XtSetSensitive(*(prefix_btns_data[i].w), True);
-        }
-}
-
-static void
 update_prefix_info_label(void)
 {
         char id_field_str[] = "Id: ";
@@ -484,7 +462,13 @@ refresh_program_list(void)
 static void
 reset_main_win_state(void)
 {
-        disable_prefix_btns();
+        Widget tmp_w;
+
+        /* Disable Prefix and Wine menu */
+        tmp_w = XtNameToWidget(main_gui_data.menubar, prefix_button_id);
+        XtSetSensitive(tmp_w, False);
+        tmp_w = XtNameToWidget(main_gui_data.menubar, wine_button_id);
+        XtSetSensitive(tmp_w, False);
         disable_programs_btns();
         reset_prefix_info_label();
 }
@@ -494,11 +478,12 @@ refresh_prefix_gui(void)
 {
         Widget tmp_w;
 
-        /* Enable Prefix menu */
+        /* Enable Prefix and Wine menu */
         tmp_w = XtNameToWidget(main_gui_data.menubar, prefix_button_id);
         XtSetSensitive(tmp_w, True);
+        tmp_w = XtNameToWidget(main_gui_data.menubar, wine_button_id);
+        XtSetSensitive(tmp_w, True);
 
-        enable_prefix_btns();
         disable_programs_btns();
         update_prefix_info_label();
         if (refresh_program_list() != 0) {
@@ -539,7 +524,6 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         unsigned int *list_positions;
         size_t args_n;
         size_t env_data_n = XTEE_ARRAY_LEN(env_data) - 1;
-        size_t display_env_i = 1;
         Widget programs_list;
         enum XteeGetProgramDataStatus status;
         int list_positions_n;
@@ -594,6 +578,8 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         /* Set X11 DISPLAY if requested by user in program options */
         is_x11_display_set = program_data->is_x11_display_set;
         if (is_x11_display_set) {
+                const size_t display_env_i = 1;
+
                 x11_display_str = xtee_strdup_or_exit(
                                 program_data->x11_display_str.s);
                 env_data[display_env_i].name = "DISPLAY";
@@ -854,81 +840,6 @@ fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
         return r;
 }
 
-static
-XTEE_XT_CALLBACK_FUNC(winecfg_btn_cb)
-{
-        char *exec_args[2];
-        XteeEnvData env_data[1];
-        XteeWineVersionData *wine_version;
-        XteePrefix *loaded_prefix;
-        int r;
-        size_t args_n = XTEE_ARRAY_LEN(exec_args);
-
-        (void)w;
-        (void)client_data;
-        (void)call_data;
-        loaded_prefix = xtee_state_get_loaded_prefix();
-        wine_version = xtee_wine_get_version_data(
-                        loaded_prefix->wine_version.s);
-        set_and_show_main_working_dialog("Running winecfg",
-                        "Running winecfg");
-        exec_args[0] = "start";
-        exec_args[1] = "winecfg";
-        env_data[0].name = "WINEPREFIX";
-        env_data[0].value = loaded_prefix->wineprefix_dir.s;
-        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
-        r = xtee_gui_fork_exec(wine_version->wine_path.s, exec_args, args_n,
-                        env_data, XTEE_ARRAY_LEN(env_data));
-        unsetenv("WINEDLLOVERRIDES");
-        hide_main_working_dialog();
-        if (r != 0) {
-                gui_print_error_log_and_dialog("Cannot run winecfg.",
-                                main_gui_data.main_win);
-        }
-
-}
-
-static
-XTEE_XT_CALLBACK_FUNC(winetricks_btn_cb)
-{
-        XteeEnvData env_data[3];
-        XteePrefix *loaded_prefix;
-        XteeWineVersionData *version_data;
-        int r;
-
-        (void)w;
-        (void)client_data;
-        (void)call_data;
-
-        if (!xtee_system_is_winetricks_installed) {
-                gui_print_error_log_and_dialog("Winetricks is not installed.",
-                                main_gui_data.main_win);
-                return;
-        }
-
-        loaded_prefix = xtee_state_get_loaded_prefix();
-        version_data = xtee_wine_get_version_data(
-                        loaded_prefix->wine_version.s);
-        set_and_show_main_working_dialog("Running winetricks",
-                        "Running winetricks");
-        env_data[0].name = "WINE";
-        env_data[0].value = version_data->wine_path.s;
-        env_data[1].name = "WINESERVER";
-        env_data[1].value = version_data->wineserver_path.s;
-        env_data[2].name = "WINEPREFIX";
-        env_data[2].value = loaded_prefix->wineprefix_dir.s;
-
-        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
-        r = xtee_gui_fork_exec((char *)xtee_system_winetricks_path.s, NULL, 0,
-                                env_data, XTEE_ARRAY_LEN(env_data));
-        unsetenv("WINEDLLOVERRIDES");
-        hide_main_working_dialog();
-        if (r != 0) {
-                gui_print_error_log_and_dialog("Cannot run winetricks.",
-                                main_gui_data.main_win);
-        }
-}
-
 static void
 create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
 {
@@ -958,38 +869,11 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         xmFormWidgetClass,
                         wa_struct->prefix_frame,
                         NULL, 0);
-        wa_struct->prefix_btns_row = XtVaCreateWidget(
-                        "prefix_btns_row",
-                        xmRowColumnWidgetClass,
-                        wa_struct->prefix_form,
-                        XmNorientation, XmHORIZONTAL,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        XmNrightAttachment, XmATTACH_FORM,
-                        NULL);
-        for (size_t i = 0; i < XTEE_ARRAY_LEN(prefix_btns_data); ++i) {
-                XmString btn_str;
-
-                btn_str = XmStringCreateLocalized(prefix_btns_data[i].label);
-                *(prefix_btns_data[i].w) = XtVaCreateManagedWidget(
-                                prefix_btns_data[i].id,
-                                xmPushButtonWidgetClass,
-                                wa_struct->prefix_btns_row,
-                                XmNlabelString, btn_str,
-                                XmNmarginLeft, button_lr_margin,
-                                XmNmarginRight, button_lr_margin,
-                                NULL);
-                XmStringFree(btn_str);
-        }
-        XtAddCallback(main_gui_data.work_area_struct.winecfg_btn,
-                        XmNactivateCallback, winecfg_btn_cb, NULL);
-        XtAddCallback(main_gui_data.work_area_struct.winetricks_btn,
-                        XmNactivateCallback, winetricks_btn_cb, NULL);
         wa_struct->prefix_info_label = XtVaCreateManagedWidget(
                         "prefix_info_label", xmLabelGadgetClass,
                         wa_struct->prefix_form,
                         XmNalignment, XmALIGNMENT_BEGINNING,
-                        XmNtopAttachment, XmATTACH_WIDGET,
-                        XmNtopWidget, wa_struct->prefix_btns_row,
+                        XmNtopAttachment, XmATTACH_FORM,
                         XmNbottomAttachment, XmATTACH_FORM,
                         XmNbottomOffset, 5,
                         XmNleftAttachment, XmATTACH_FORM,
@@ -997,7 +881,6 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         NULL);
         reset_prefix_info_label();
 
-        XtManageChild(wa_struct->prefix_btns_row);
         XtManageChild(wa_struct->prefix_form);
         XtManageChild(wa_struct->prefix_frame);
 }
@@ -1457,6 +1340,93 @@ XTEE_XT_CALLBACK_FUNC(prefix_menu_cb)
         }
 }
 
+static void
+xtee_gui_run_winecfg(void)
+{
+        char *exec_args[2];
+        XteeEnvData env_data[1];
+        XteeWineVersionData *wine_version;
+        XteePrefix *loaded_prefix;
+        int r;
+        size_t args_n = XTEE_ARRAY_LEN(exec_args);
+
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        wine_version = xtee_wine_get_version_data(
+                        loaded_prefix->wine_version.s);
+        set_and_show_main_working_dialog("Running winecfg",
+                        "Running winecfg");
+        exec_args[0] = "start";
+        exec_args[1] = "winecfg";
+        env_data[0].name = "WINEPREFIX";
+        env_data[0].value = loaded_prefix->wineprefix_dir.s;
+        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
+        r = xtee_gui_fork_exec(wine_version->wine_path.s, exec_args, args_n,
+                        env_data, XTEE_ARRAY_LEN(env_data));
+        unsetenv("WINEDLLOVERRIDES");
+        hide_main_working_dialog();
+        if (r != 0) {
+                gui_print_error_log_and_dialog("Cannot run winecfg.",
+                                main_gui_data.main_win);
+        }
+
+}
+
+static void
+xtee_gui_run_winetricks(void)
+{
+        XteeEnvData env_data[3];
+        XteePrefix *loaded_prefix;
+        XteeWineVersionData *version_data;
+        int r;
+
+        if (!xtee_system_is_winetricks_installed) {
+                gui_print_error_log_and_dialog("Winetricks is not installed.",
+                                main_gui_data.main_win);
+                return;
+        }
+
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        version_data = xtee_wine_get_version_data(
+                        loaded_prefix->wine_version.s);
+        set_and_show_main_working_dialog("Running winetricks",
+                        "Running winetricks");
+        env_data[0].name = "WINE";
+        env_data[0].value = version_data->wine_path.s;
+        env_data[1].name = "WINESERVER";
+        env_data[1].value = version_data->wineserver_path.s;
+        env_data[2].name = "WINEPREFIX";
+        env_data[2].value = loaded_prefix->wineprefix_dir.s;
+
+        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
+        r = xtee_gui_fork_exec((char *)xtee_system_winetricks_path.s, NULL, 0,
+                                env_data, XTEE_ARRAY_LEN(env_data));
+        unsetenv("WINEDLLOVERRIDES");
+        hide_main_working_dialog();
+        if (r != 0) {
+                gui_print_error_log_and_dialog("Cannot run winetricks.",
+                                main_gui_data.main_win);
+        }
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
+{
+        const int winecfg_i = 0;
+        const int winetricks_i = 1;
+        int item_i;
+
+        (void)w;
+        (void)call_data;
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+        item_i = (int)client_data;
+#pragma GCC diagnostic pop
+        if (item_i == winecfg_i) {
+                xtee_gui_run_winecfg();
+        } else if (item_i == winetricks_i) {
+                xtee_gui_run_winetricks();
+        }
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(help_menu_cb)
 {
@@ -1482,33 +1452,38 @@ static void
 gui_create_menubar(void)
 {
         Widget tmp_w;
-        XmString file_str, edit_str, prefix_str, help_str;
+        XmString file_str, edit_str, prefix_str, wine_str, help_str;
         XmString new_prefix_str;
         XmString open_prefix_str, exit_str;
+        XmString preferences_str;
         XmString reload_prefix_str, prefix_options_str, new_program_str,
                  run_executable_str;
-        XmString preferences_str;
+        XmString winecfg_str, winetricks_str;
         XmString about_str;
-        const char *help_button_id = "button_3";
+        const char *help_button_id = "button_4";
         const int file_button_i = 0;
         const int edit_button_i = 1;
         const int prefix_button_i = 2;
-        const int help_button_i = 3;
+        const int wine_button_i = 3;
+        const int help_button_i = 4;
 
         file_str = XmStringCreateLocalized("File");
         edit_str = XmStringCreateLocalized("Edit");
         prefix_str = XmStringCreateLocalized("Prefix");
+        wine_str = XmStringCreateLocalized("Wine");
         help_str = XmStringCreateLocalized("Help");
         main_gui_data.menubar = XmVaCreateSimpleMenuBar(main_gui_data.main_win,
                         "menubar",
                         XmVaCASCADEBUTTON, file_str, 'F',
                         XmVaCASCADEBUTTON, edit_str, 'E',
                         XmVaCASCADEBUTTON, prefix_str, 'P',
+                        XmVaCASCADEBUTTON, wine_str, 'W',
                         XmVaCASCADEBUTTON, help_str, 'H',
                         NULL);
         XmStringFree(file_str);
         XmStringFree(edit_str);
         XmStringFree(prefix_str);
+        XmStringFree(wine_str);
         XmStringFree(help_str);
 
         /* Set Help menu */
@@ -1516,6 +1491,8 @@ gui_create_menubar(void)
         XtVaSetValues(main_gui_data.menubar, XmNmenuHelpWidget, tmp_w, NULL);
         /* Disable Prefix menu at launch as no prefix is loaded. */
         tmp_w = XtNameToWidget(main_gui_data.menubar, prefix_button_id);
+        XtSetSensitive(tmp_w, False);
+        tmp_w = XtNameToWidget(main_gui_data.menubar, wine_button_id);
         XtSetSensitive(tmp_w, False);
 
         new_prefix_str = XmStringCreateLocalized("New Prefix");
@@ -1557,6 +1534,16 @@ gui_create_menubar(void)
         XmStringFree(prefix_options_str);
         XmStringFree(new_program_str);
         XmStringFree(run_executable_str);
+        winecfg_str = XmStringCreateLocalized("Winecfg");
+        winetricks_str = XmStringCreateLocalized("Winetricks");
+        main_gui_data.wine_menu = XmVaCreateSimplePulldownMenu(
+                        main_gui_data.menubar, "wine_menu", wine_button_i,
+                        wine_menu_cb,
+                        XmVaPUSHBUTTON, winecfg_str, 'c', NULL, NULL,
+                        XmVaPUSHBUTTON, winetricks_str, 't', NULL, NULL,
+                        NULL);
+        XmStringFree(winecfg_str);
+        XmStringFree(winetricks_str);
         about_str = XmStringCreateLocalized("About XTeetotaller");
         main_gui_data.help_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "help_menu", help_button_i,
@@ -1604,7 +1591,6 @@ gui_create_main_application(void)
                         NULL);
         XtManageChild(main_gui_data.main_win);
         disable_programs_btns();
-        disable_prefix_btns();
 }
 
 static
