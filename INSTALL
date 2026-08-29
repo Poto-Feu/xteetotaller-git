@@ -12,6 +12,31 @@ This program is linked with the following libraries:
 Licensing information for these libraries is available in the licenses
 directory.
 
+Portability concerns
+====================
+I took great length to avoid the common portability pitfalls by avoiding
+non-standard features.
+Hence, xteetotaller should build with a toolchain conforming to the Single Unix
+Specification, Version 3 (also known as POSIX.1-2001).
+However, if you encounter any build issues on an UNIX-like system, please file
+a bug report:
+- On Github, by opening an issue
+
+For reference, this is the setup which I used to compile xteetotaller:
+- Slackware64-15.0 with and multilib testing repositories enabled
+- Motif 2.3.8
+- GCC 15.2.0 from the testing repository
+- glibc 2.42 from the testing repository
+- autoconf 2.69
+- automake 1.16.2
+- Mesa 25.0.7 from the testng repository
+- bmake 20260714 (port of the NetBSD make tool)
+- AMD Ryzen 5 2600X with MSI B450M PRO-VDH MAX motherboard
+- XFX AMD RX 570 4GB
+
+bmake is used to check if the Makefile generated with the autoconf configure
+script does not use GNU Make extensions
+
 Basic instructions
 ==================
 To build and install xteetotaller, simply use the following commands in the

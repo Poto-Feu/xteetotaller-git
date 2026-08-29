@@ -640,7 +640,7 @@ XTEE_XT_CALLBACK_FUNC(remove_program_yes_cb)
         loaded_prefix = xtee_state_get_loaded_prefix();
         data_path = get_xteetotaller_dir_path();
         charstrs_block[0] = data_path.s;
-        charstrs_block[1] = "/prefixes/";
+        charstrs_block[1] = "prefixes/";
         charstrs_block[2] = loaded_prefix->id.s;
         charstrs_block[3] = "/programs/";
         charstrs_block[4] = program_name.s;

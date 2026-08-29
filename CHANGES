@@ -4,6 +4,8 @@
 * Remove unused function xtee_string_merge_char_strings
 * Move most xtee_gui_run_winecfg logic into xtee_gui_run_wine_utility
 * Add more wine utilities to Wine menu
+* Add portability notes and own setup information in INSTALL
+* Add note regarding trailing slash character in get_xteetotaller_dir_path
 
 2026-08-28
 * Add Remove program feature
