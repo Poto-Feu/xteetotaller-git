@@ -1,3 +1,6 @@
+2026-08-30
+* Hide Help button in Remove program confirmation dialog
+
 2026-08-29
 * Move Wine buttons into separate menu
 * Reduce display_env_i and x11_display_field variables scope

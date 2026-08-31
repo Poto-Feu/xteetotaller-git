@@ -698,7 +698,7 @@ XTEE_XT_CALLBACK_FUNC(remove_program_btn_cb)
                                 "remove_program_confirm_dialog", args, i);
                 XmStringFree(dialog_title);
                 XmStringFree(dialog_text);
-                xtee_gui_disable_dialog_help_button(
+                xtee_gui_hide_dialog_help_button(
                                 remove_program_confirm_dialog);
                 yes_string = XmStringCreateLocalized("Yes");
                 no_string = XmStringCreateLocalized("No");
