@@ -34,11 +34,6 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                                 dialog_w);
                 XtFree(id_str);
                 return;
-        } else if (strlen(id_str) > XTEE_PROGRAM_ID_MAX_LEN) {
-                XtFree(id_str);
-                gui_print_error_log_and_dialog("Program id is too long.",
-                                dialog_w);
-                return;
         }
 
         exe_path_field = new_program_dialog.fields + exe_path_field_i;
@@ -129,9 +124,11 @@ xtee_gui_new_program_show_dialog(void)
         static bool is_dialog_ready = false;
 
         if (!is_dialog_ready) {
+                const size_t program_id_field_i = 0;
                 const size_t exe_path_field_i = 1;
                 XmString tmp_str;
-                XteeGuiFormField *dir_form_field;
+                XteeGuiFormField *program_id_form_field, *dir_form_field;
+                XteeGuiLabelTextForm *program_id_form;
                 XteeGuiLTPF *dir_form;
 
                 create_XteeGuiBasicFormDialog(&new_program_dialog,
@@ -147,6 +144,14 @@ xtee_gui_new_program_show_dialog(void)
                                 XTEE_GUI_FORM_FIELD_LTPF,
                                 "program_exepath_form",
                                 "Executable path: ");
+                /* Set maximum length for program id */
+                program_id_form_field = XteeGuiBasicFormDialog_get_field(
+                                &new_program_dialog, program_id_field_i);
+                program_id_form = &program_id_form_field->data.ltf;
+                XtVaSetValues(program_id_form->text,
+                                XmNmaxLength, XTEE_PROGRAM_ID_MAX_LEN,
+                                NULL);
+
                 dir_form_field = new_program_dialog.fields + exe_path_field_i;
                 dir_form = &dir_form_field->data.ltpf;
                 tmp_str = XmStringCreateLocalized("Program file selection");

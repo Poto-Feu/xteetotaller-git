@@ -1,5 +1,6 @@
 2026-08-30
 * Hide Help button in Remove program confirmation dialog
+* Set max length of New Prefix and New Program id Text widgets contents
 
 2026-08-29
 * Move Wine buttons into separate menu

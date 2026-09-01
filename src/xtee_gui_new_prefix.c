@@ -200,11 +200,6 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                                 dialog->dialog_form);
                 free(prefix_id_str);
                 return;
-        } else if (strlen(prefix_id_str) > XTEE_PREFIX_ID_MAX_LEN) {
-                gui_print_error_log_and_dialog("Prefix id is too long.",
-                                dialog->dialog_form);
-                free(prefix_id_str);
-                return;
         } else if (arch_choice_i == 0) {
                 gui_print_error_log_and_dialog("No prefix architecture "
                                 "selected.",
@@ -468,7 +463,9 @@ show_new_prefix_dialog(void)
         if (!is_dialog_ready) {
                 const int prefix_dir_field_i = XTEE_NEW_PREFIX_DIR_FIELD_I;
                 XmString tmp_str;
+                XteeGuiFormField *prefix_id_form_field;
                 XteeGuiLTPF *dir_form;
+                XteeGuiLabelTextForm *prefix_id_form;
 
                 create_XteeGuiBasicFormDialog(dialog,
                                 xtee_gui_get_main_win(),
@@ -486,6 +483,14 @@ show_new_prefix_dialog(void)
                                 dialog,
                                 XTEE_GUI_FORM_FIELD_TOGGLE,
                                 "isolate_home_toggle", "Isolate home");
+                /* Set maximum length for prefix id */
+                prefix_id_form_field = XteeGuiBasicFormDialog_get_field(dialog,
+                                XTEE_NEW_PREFIX_ID_FIELD_I);
+                prefix_id_form = &prefix_id_form_field->data.ltf;
+                XtVaSetValues(prefix_id_form->text,
+                                XmNmaxLength, XTEE_PREFIX_ID_MAX_LEN,
+                                NULL);
+
                 dir_form = &dialog->fields[prefix_dir_field_i].data.ltpf;
                 tmp_str = XmStringCreateLocalized("Prefix directory "
                                 "selection");
