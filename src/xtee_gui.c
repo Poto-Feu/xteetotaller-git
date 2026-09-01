@@ -1544,6 +1544,7 @@ gui_create_menubar(void)
                         XmVaPUSHBUTTON, prefix_options_str, 'O', NULL, NULL,
                         XmVaSEPARATOR,
                         XmVaPUSHBUTTON, new_program_str, 'N', NULL, NULL,
+                        XmVaSEPARATOR,
                         XmVaPUSHBUTTON, run_executable_str, 'e', NULL, NULL,
                         NULL);
         XmStringFree(reload_prefix_str);
