@@ -21,6 +21,10 @@ Display *xtee_gui_get_display(void);
 Widget xtee_gui_get_textfield_child_widget(Widget);
 char *xtee_gui_get_textfield_child_string(Widget);
 
+XTEE_XT_CALLBACK_FUNC(xtee_gui_reset_message_area_string);
+#define xtee_gui_reset_message_area_string_CALL \
+        xtee_gui_reset_message_area_string(NULL, NULL, NULL)
+
 inline void
 xtee_gui_hide_dialog_cancel_button(Widget w)
 {

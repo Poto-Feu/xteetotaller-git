@@ -1,3 +1,7 @@
+2026-09-02
+* Reset main window message area string when closing some dialogs
+* Add kill wine processes feature in Wine menu
+
 2026-09-01
 * Set max length of New Prefix and New Program id Text widgets contents
 * Add separator in Prefix menu

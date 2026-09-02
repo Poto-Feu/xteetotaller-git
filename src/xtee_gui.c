@@ -1407,6 +1407,76 @@ xtee_gui_run_winetricks(void)
         }
 }
 
+XTEE_XT_CALLBACK_FUNC(kill_wine_confirm_dialog_ok_cb)
+{
+        XteeEnvData env_data[1];
+        XteePrefix *loaded_prefix;
+        XteeWineVersionData *wine_version;
+        char *args[] = { "-k" };
+        int r;
+
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        wine_version = xtee_state_get_loaded_prefix_wine_version_data();
+        env_data[0].name = "WINEPREFIX";
+        env_data[0].value = loaded_prefix->wineprefix_dir.s;
+
+        print_info("Running wineserver -k");
+        set_and_show_main_working_dialog("Killing wine processes",
+                        "Killing wine processes.");
+        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
+        r = xtee_gui_fork_exec((char *)wine_version->wineserver_path.s,
+                        args, XTEE_ARRAY_LEN(args),
+                        env_data, XTEE_ARRAY_LEN(env_data));
+        unsetenv("WINEDLLOVERRIDES");
+        hide_main_working_dialog();
+        if (r != 0) {
+                gui_print_error_log_and_dialog("Cannot kill wine processes.",
+                                main_gui_data.main_win);
+                xtee_gui_set_message_area_string("wineserver -k failed");
+        } else {
+                xtee_gui_set_message_area_string("Wine processes killed");
+        }
+}
+
+static void
+show_kill_wine_confirm_dialog(void)
+{
+        static Widget confirm_dialog = NULL;
+
+        if (!confirm_dialog) {
+                Arg args[10];
+                Cardinal i = 0;
+                XmString dialog_title, dialog_text;
+                XmString yes_string, no_string;
+
+                dialog_title = XmStringCreateLocalized("Kill wine processes");
+                dialog_text = XmStringCreateLocalized("Do you want to kill "
+                                "prefix wine processes?");
+                set_message_dialog_args(args, &i, dialog_title,
+                                dialog_text);
+                confirm_dialog = XmCreateQuestionDialog(
+                                xtee_gui_get_main_win(),
+                                "kill_wine_confirm_dialog", args, i);
+                XmStringFree(dialog_title);
+                XmStringFree(dialog_text);
+                xtee_gui_hide_dialog_help_button(confirm_dialog);
+                yes_string = XmStringCreateLocalized("Yes");
+                no_string = XmStringCreateLocalized("No");
+                XtVaSetValues(confirm_dialog,
+                                XmNokLabelString, yes_string,
+                                XmNcancelLabelString, no_string,
+                                NULL);
+                XmStringFree(yes_string);
+                XmStringFree(no_string);
+                XtAddCallback(confirm_dialog, XmNokCallback,
+                                kill_wine_confirm_dialog_ok_cb, NULL);
+        }
+        XtManageChild(confirm_dialog);
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
 {
@@ -1415,6 +1485,7 @@ XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
         const int explorer_i = 2;
         const int regedit_i = 3;
         const int winetricks_i = 4;
+        const int kill_wine_i = 5;
         int item_i;
 
         (void)w;
@@ -1439,6 +1510,8 @@ XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
                                 "Running Wine regedit");
         } else if (item_i == winetricks_i) {
                 xtee_gui_run_winetricks();
+        } else if (item_i == kill_wine_i) {
+                show_kill_wine_confirm_dialog();
         }
 }
 
@@ -1474,7 +1547,7 @@ gui_create_menubar(void)
         XmString reload_prefix_str, prefix_options_str, new_program_str,
                  run_executable_str;
         XmString winecfg_str, uninstaller_str, explorer_str, regedit_str,
-                 winetricks_str;
+                 winetricks_str, kill_wine_str;
         XmString about_str;
         const char *help_button_id = "button_4";
         const int file_button_i = 0;
@@ -1556,6 +1629,7 @@ gui_create_menubar(void)
         explorer_str = XmStringCreateLocalized("explorer");
         regedit_str = XmStringCreateLocalized("regedit");
         winetricks_str = XmStringCreateLocalized("winetricks");
+        kill_wine_str = XmStringCreateLocalized("Kill wine processes");
         main_gui_data.wine_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "wine_menu", wine_button_i,
                         wine_menu_cb,
@@ -1565,6 +1639,8 @@ gui_create_menubar(void)
                         XmVaPUSHBUTTON, regedit_str, 'r', NULL, NULL,
                         XmVaSEPARATOR,
                         XmVaPUSHBUTTON, winetricks_str, 't', NULL, NULL,
+                        XmVaSEPARATOR,
+                        XmVaPUSHBUTTON, kill_wine_str, 'K', NULL, NULL,
                         NULL);
         XmStringFree(winecfg_str);
         XmStringFree(uninstaller_str);

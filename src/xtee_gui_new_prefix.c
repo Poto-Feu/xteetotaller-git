@@ -37,6 +37,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_cancel_cb)
 {
         (void)w;
         (void)call_data;
+        xtee_gui_reset_message_area_string_CALL;
         XtUnmanageChild((Widget)client_data);
 }
 

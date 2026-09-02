@@ -78,3 +78,9 @@ xtee_state_save_loaded_program(void)
         print_info("Saving loaded program");
         return xtee_prefix_save_program(&loaded_prefix, loaded_program);
 }
+
+XteeWineVersionData *
+xtee_state_get_loaded_prefix_wine_version_data(void)
+{
+        return xtee_wine_get_version_data(loaded_prefix.wine_version.s);
+}

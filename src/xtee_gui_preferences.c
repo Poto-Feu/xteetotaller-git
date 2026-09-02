@@ -36,6 +36,7 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_cancel_cb)
         (void)w;
         (void)call_data;
         (void)client_data;
+        xtee_gui_reset_message_area_string_CALL;
         XtUnmanageChild(xtee_gui_preferences_dialog.dialog_form);
 }
 

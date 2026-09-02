@@ -33,3 +33,11 @@ xtee_gui_get_textfield_child_string(Widget w)
 {
         return XmTextFieldGetString(xtee_gui_get_textfield_child_widget(w));
 }
+
+XTEE_XT_CALLBACK_FUNC(xtee_gui_reset_message_area_string)
+{
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+        xtee_gui_set_message_area_string("Ready");
+}
