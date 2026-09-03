@@ -1,3 +1,6 @@
+2026-09-03
+* Make xtee_gui_form FileSelectionBox modal
+
 2026-09-02
 * Reset main window message area string when closing some dialogs
 * Add kill wine processes feature in Wine menu
