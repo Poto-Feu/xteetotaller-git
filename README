@@ -11,9 +11,11 @@ Third-party libraries licenses are present in the licenses subdirectory.
 
 Known issues
 ============
-* It is not possible to copy and paste with ^C and ^V yet.
+* It is not possible to copy and paste with Ctrl+C and Ctrl+V yet.
 However, it is possible to copy and paste with middle click like all X11
 programs do.
+IBM Common User Access keyboard shortcuts for Cut/Copy/Paste such as Shift+Ins
+are also supported.
 * Some parts of the program could have their number of memory allocations
 reduced.
 A lot of allocations are made in a naive way, where blocks are resized by one
