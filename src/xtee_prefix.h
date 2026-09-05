@@ -119,7 +119,8 @@ int xtee_prefix_reload_programs_list(XteePrefix *prefix);
 
 enum XteePrefixArch get_prefix_arch_from_str(const char *s);
 
-void xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix);
+/* Returned string must be freed */
+char *xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix);
 
 int xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program);
 

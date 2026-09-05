@@ -866,18 +866,16 @@ get_prefix_arch_from_str(const char *s)
         return XTEE_PREFIX_ARCH_WRONG;
 }
 
-void
-xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
+char *
+xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix)
 {
         XteeStringList dlls_list = { 0 };
-        const char *info_strs[3];
         char *winedlloverrides_str;
         size_t env_str_len = 0;
 
         if (prefix->disable_winemenubuilder) {
                 winedlloverrides_str = strdup("winemenubuilder.exe=");
                 env_str_len = sizeof("winemenubuilder.exe=") - 1;
-                setenv("WINEDLLOVERRIDES", "winemenubuilder.exe=", 1);
         } else {
                 winedlloverrides_str = malloc(1);
                 winedlloverrides_str[0] = '\0';
@@ -885,11 +883,10 @@ xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
 
         if (!prefix->is_dxvk_installed) {
                 if (prefix->disable_winemenubuilder) {
-                        print_info("Setting WINEDLLOVERRIDES to "
-                                        "\"winemenubuilder.exe=\"");
+                        return winedlloverrides_str;
                 }
                 free(winedlloverrides_str);
-                return;
+                return NULL;
         }
 
         for (size_t i = 0; i < prefix->dxvk_x32_dlls.n; ++i) {
@@ -949,12 +946,7 @@ xtee_prefix_set_WINEDLLOVERRIDES_env(const XteePrefix *prefix)
                 strcat(winedlloverrides_str, "=n,b");
         }
         XteeStringList_free(dlls_list);
-        setenv("WINEDLLOVERRIDES", winedlloverrides_str, 1);
-        info_strs[0] = "Setting WINEDLLOVERRIDES to ";
-        info_strs[1] = winedlloverrides_str;
-        info_strs[2] = NULL;
-        print_info_strs(info_strs);
-        free(winedlloverrides_str);
+        return winedlloverrides_str;
 }
 
 static int

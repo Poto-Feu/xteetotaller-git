@@ -506,10 +506,55 @@ XTEE_XT_CALLBACK_FUNC(programs_list_cb)
         }
 }
 
+/* If program is NULL, then environment variables related to programs will not
+ * be set.
+ * This is mainly for use with wine utilities such as winecfg. */
+static XteeEnvDataHandler
+xtee_gui_set_env_data_handler(const XteePrefix *prefix, XteeProgram *program,
+                bool is_winetricks)
+{
+        XteeEnvDataHandler env_data_handler = { 0 };
+
+        xtee_env_data_add_var_to_handler(&env_data_handler, "WINEPREFIX",
+                        prefix->wineprefix_dir.s);
+        if (is_winetricks) {
+                XteeWineVersionData *wine_version;
+
+                wine_version =
+                        xtee_state_get_loaded_prefix_wine_version_data();
+                xtee_env_data_add_var_to_handler(&env_data_handler,
+                                "WINE",
+                                wine_version->wine_path.s);
+                xtee_env_data_add_var_to_handler(&env_data_handler,
+                                "WINESERVER",
+                                wine_version->wineserver_path.s);
+        }
+
+        env_data_handler.winedlloverrides_str =
+                xtee_prefix_get_WINEDLLOVERRIDES_env_value(prefix);
+        if (env_data_handler.winedlloverrides_str
+                        && *env_data_handler.winedlloverrides_str != '\0') {
+                xtee_env_data_add_var_to_handler(&env_data_handler,
+                                "WINEDLLOVERRIDES",
+                                env_data_handler.winedlloverrides_str);
+        }
+
+        /* Set X11 DISPLAY if requested by user in program options */
+        if (program && program->is_x11_display_set) {
+                env_data_handler.x11_display_str = xtee_strdup_or_exit(
+                                program->x11_display_str.s);
+                xtee_env_data_add_var_to_handler(&env_data_handler,
+                                "DISPLAY",
+                                env_data_handler.x11_display_str);
+        }
+
+        return env_data_handler;
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
 {
-        XteeEnvData env_data[2];
+        XteeEnvDataHandler env_data_handler;
         XteeString program_str;
         char *args_regular[3];
         char **args_multiple = NULL;
@@ -518,15 +563,12 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         XteeProgram *program_data;
         XteeWineVersionData *version_data;
         const char *info_strs[3];
-        char *x11_display_str = NULL;
         unsigned int *list_positions;
         size_t args_n;
-        size_t env_data_n = XTEE_ARRAY_LEN(env_data) - 1;
         Widget programs_list;
         enum XteeGetProgramDataStatus status;
         int list_positions_n;
         int r;
-        bool is_x11_display_set = false;
 
         (void)w;
         (void)call_data;
@@ -570,28 +612,15 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         info_strs[1] = args_ptr[2];
         info_strs[2] = NULL;
         print_info_strs(info_strs);
-        env_data[0].name = "WINEPREFIX";
-        env_data[0].value = loaded_prefix->wineprefix_dir.s;
-
-        /* Set X11 DISPLAY if requested by user in program options */
-        is_x11_display_set = program_data->is_x11_display_set;
-        if (is_x11_display_set) {
-                const size_t display_env_i = 1;
-
-                x11_display_str = xtee_strdup_or_exit(
-                                program_data->x11_display_str.s);
-                env_data[display_env_i].name = "DISPLAY";
-                env_data[display_env_i].value = x11_display_str;
-                ++env_data_n;
-        }
+        env_data_handler = xtee_gui_set_env_data_handler(loaded_prefix,
+                        program_data, false);
         xtee_free_program(program_data);
         free(program_data);
-        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
         r = xtee_gui_fork_exec(version_data->wine_path.s,
                         args_ptr, args_n,
-                        env_data, env_data_n);
+                        env_data_handler.block, env_data_handler.n);
         free(args_ptr[2]);
-        free(x11_display_str);
+        xtee_env_data_free_handler(&env_data_handler);
 
         if (args_multiple) {
                 for (size_t i = 0; i < args_n - 3; ++i) {
@@ -606,7 +635,6 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
                                 "button on an installer.",
                                 main_gui_data.main_win);
         }
-        unsetenv("WINEDLLOVERRIDES");
         hide_main_working_dialog();
 }
 
@@ -818,7 +846,7 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
 static int
 fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
 {
-        XteeEnvData env_data[1];
+        XteeEnvDataHandler env_data_handler;
         char *args[3];
         XteeWineVersionData *version_data;
         const size_t args_n = XTEE_ARRAY_LEN(args);
@@ -828,13 +856,12 @@ fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
         args[0] = "start";
         args[1] = "/unix";
         args[2] = path_str.s;
-        env_data->name = "WINEPREFIX";
-        env_data->value = prefix->wineprefix_dir.s;
-        xtee_prefix_set_WINEDLLOVERRIDES_env(prefix);
+        env_data_handler = xtee_gui_set_env_data_handler(prefix,
+                        NULL, false);
         print_info("Running executable in Wine prefix.");
         r = xtee_gui_fork_exec(version_data->wine_path.s, args, args_n,
-                        env_data, XTEE_ARRAY_LEN(env_data));
-        unsetenv("WINEDLLOVERRIDES");
+                        env_data_handler.block, env_data_handler.n);
+        xtee_env_data_free_handler(&env_data_handler);
         return r;
 }
 
@@ -1344,7 +1371,7 @@ xtee_gui_run_wine_utility(char *tool_exe_name,
                 char *working_dialog_text)
 {
         char *exec_args[2];
-        XteeEnvData env_data[1];
+        XteeEnvDataHandler env_data_handler;
         XteeWineVersionData *wine_version;
         XteePrefix *loaded_prefix;
         int r;
@@ -1357,12 +1384,11 @@ xtee_gui_run_wine_utility(char *tool_exe_name,
                         working_dialog_text);
         exec_args[0] = "start";
         exec_args[1] = tool_exe_name;
-        env_data[0].name = "WINEPREFIX";
-        env_data[0].value = loaded_prefix->wineprefix_dir.s;
-        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
+        env_data_handler = xtee_gui_set_env_data_handler(loaded_prefix,
+                        NULL, false);
         r = xtee_gui_fork_exec(wine_version->wine_path.s, exec_args, args_n,
-                        env_data, XTEE_ARRAY_LEN(env_data));
-        unsetenv("WINEDLLOVERRIDES");
+                        env_data_handler.block, env_data_handler.n);
+        xtee_env_data_free_handler(&env_data_handler);
         hide_main_working_dialog();
         if (r != 0) {
                 gui_print_error_log_and_dialog("Cannot run wine utility.",
@@ -1373,9 +1399,8 @@ xtee_gui_run_wine_utility(char *tool_exe_name,
 static void
 xtee_gui_run_winetricks(void)
 {
-        XteeEnvData env_data[3];
+        XteeEnvDataHandler env_data_handler;
         XteePrefix *loaded_prefix;
-        XteeWineVersionData *version_data;
         int r;
 
         if (!xtee_system_is_winetricks_installed) {
@@ -1385,21 +1410,15 @@ xtee_gui_run_winetricks(void)
         }
 
         loaded_prefix = xtee_state_get_loaded_prefix();
-        version_data = xtee_wine_get_version_data(
-                        loaded_prefix->wine_version.s);
         set_and_show_main_working_dialog("Running winetricks",
                         "Running winetricks");
-        env_data[0].name = "WINE";
-        env_data[0].value = version_data->wine_path.s;
-        env_data[1].name = "WINESERVER";
-        env_data[1].value = version_data->wineserver_path.s;
-        env_data[2].name = "WINEPREFIX";
-        env_data[2].value = loaded_prefix->wineprefix_dir.s;
+        env_data_handler = xtee_gui_set_env_data_handler(loaded_prefix,
+                        NULL, true);
 
-        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
         r = xtee_gui_fork_exec((char *)xtee_system_winetricks_path.s, NULL, 0,
-                                env_data, XTEE_ARRAY_LEN(env_data));
-        unsetenv("WINEDLLOVERRIDES");
+                                env_data_handler.block,
+                                env_data_handler.n);
+        xtee_env_data_free_handler(&env_data_handler);
         hide_main_working_dialog();
         if (r != 0) {
                 gui_print_error_log_and_dialog("Cannot run winetricks.",
@@ -1409,7 +1428,7 @@ xtee_gui_run_winetricks(void)
 
 XTEE_XT_CALLBACK_FUNC(kill_wine_confirm_dialog_ok_cb)
 {
-        XteeEnvData env_data[1];
+        XteeEnvDataHandler env_data_handler;
         XteePrefix *loaded_prefix;
         XteeWineVersionData *wine_version;
         char *args[] = { "-k" };
@@ -1420,17 +1439,16 @@ XTEE_XT_CALLBACK_FUNC(kill_wine_confirm_dialog_ok_cb)
         (void)client_data;
         loaded_prefix = xtee_state_get_loaded_prefix();
         wine_version = xtee_state_get_loaded_prefix_wine_version_data();
-        env_data[0].name = "WINEPREFIX";
-        env_data[0].value = loaded_prefix->wineprefix_dir.s;
+        env_data_handler = xtee_gui_set_env_data_handler(loaded_prefix,
+                        NULL, false);
 
         print_info("Running wineserver -k");
         set_and_show_main_working_dialog("Killing wine processes",
                         "Killing wine processes.");
-        xtee_prefix_set_WINEDLLOVERRIDES_env(loaded_prefix);
         r = xtee_gui_fork_exec((char *)wine_version->wineserver_path.s,
                         args, XTEE_ARRAY_LEN(args),
-                        env_data, XTEE_ARRAY_LEN(env_data));
-        unsetenv("WINEDLLOVERRIDES");
+                        env_data_handler.block, env_data_handler.n);
+        xtee_env_data_free_handler(&env_data_handler);
         hide_main_working_dialog();
         if (r != 0) {
                 gui_print_error_log_and_dialog("Cannot kill wine processes.",

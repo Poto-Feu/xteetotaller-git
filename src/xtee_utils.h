@@ -37,6 +37,13 @@ typedef struct XteeEnvData {
         const char *value;
 } XteeEnvData;
 
+typedef struct XteeEnvDataHandler {
+        XteeEnvData *block;
+        size_t n;
+        char *winedlloverrides_str;
+        char *x11_display_str;
+} XteeEnvDataHandler;
+
 inline char *
 xtee_bool_to_string(bool x)
 {
@@ -55,5 +62,11 @@ xtee_is_char_ascii_alphanum(char c)
         return ((c > 47 && c < 58) || (c > 64 && c < 91)
                         || (c > 96 && c < 123));
 }
+
+/* Make sure that all env_data_handler members are initialized to zero when
+ * calling this function for the first time. */
+void xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler, char *name,
+                char *value);
+void xtee_env_data_free_handler(XteeEnvDataHandler *);
 
 #endif
