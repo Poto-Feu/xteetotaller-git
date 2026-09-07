@@ -119,7 +119,7 @@ xtee_wine_version_set_paths(XteeWineVersionData *data,
 static void
 xtee_wine_add_installed(void)
 {
-        const char *wine_components_suffix = "/components/wine/";
+        const char *wine_components_suffix = "components/wine/";
         XteeStringList files_list = { 0 };
         XteeConstString xtee_dir_path = { 0 };
         XteeString wine_comp_path = { 0 };

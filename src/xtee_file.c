@@ -225,12 +225,13 @@ xtee_file_get_dir_files_list(XteeConstString dir_path,
         list->n = 0;
 
         if (!(dir = opendir(dir_path.s))) {
-                print_error_strs(
-                                (const char *[]){
-                                "Cannot read directory: ",
-                                dir_path.s,
-                                NULL
-                                });
+                const char *error_strs[] = {
+                        "Cannot read directory: ",
+                        dir_path.s,
+                        NULL,
+                };
+
+                print_error_strs(error_strs);
                 return -1;
         }
 
@@ -260,12 +261,13 @@ xtee_file_get_dir_files_list(XteeConstString dir_path,
 
         closedir(dir);
         if (prev_errno != errno) {
-                print_error_strs(
-                                (const char *[]){
-                                 "Cannot read directory files: ",
-                                dir_path.s,
-                                NULL
-                                });
+                const char *error_strs[] = {
+                        "Cannot read directory files: ",
+                        dir_path.s,
+                        NULL,
+                };
+
+                print_error_strs(error_strs);
                 return -1;
         }
 

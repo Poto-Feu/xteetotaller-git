@@ -102,6 +102,8 @@ void create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 Widget parent, char *name, char *title);
 void free_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog);
 
+/* The pointers returned by these functions may be invalid after another
+ * field is added to the dialog. */
 XteeGuiFormField *get_last_XteeGuiFormField_data(
                 XteeGuiBasicFormDialog *dialog);
 Widget get_last_XteeGuiFormField_widget(XteeGuiBasicFormDialog *dialog);

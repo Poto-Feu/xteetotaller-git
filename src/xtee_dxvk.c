@@ -68,7 +68,7 @@ free_dxvk_version_data(XteeDxvkVersionData *dxvk_version)
 void
 xtee_dxvk_init(void)
 {
-        const char *dxvk_components_suffix = "/components/dxvk/";
+        const char *dxvk_components_suffix = "components/dxvk/";
         XteeStringList files_list = { 0 };
         XteeConstString xtee_dir_path = { 0 };
         XteeString dxvk_comp_path = { 0 };

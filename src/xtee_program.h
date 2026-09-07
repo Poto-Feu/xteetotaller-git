@@ -29,4 +29,9 @@ void xtee_program_add_argument(XteeProgram *restrict program,
                 const char *restrict arg_str);
 void xtee_program_remove_argument(XteeProgram *program, size_t i);
 
+/* On success, 0 is returned and error_str is left untouched.
+ * Else, error_str will be set to point to a string with the error message. */
+int xtee_program_set_executable_path(XteeProgram *program,
+                const char *exe_path, char **error_str);
+
 #endif

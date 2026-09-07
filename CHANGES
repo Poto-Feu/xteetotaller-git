@@ -1,5 +1,8 @@
 2026-09-07
 * Allocate block in XteeEnvDataHandler instead of growing by one for each value
+* Remove use of compound literals with print_error_strs
+* Allow editing program executable path after creation
+* Remove redundant directory separators in Wine and DXVK paths
 
 2026-09-05
 * Rewrite WINE environment variables handling

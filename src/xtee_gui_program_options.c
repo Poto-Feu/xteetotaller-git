@@ -11,11 +11,13 @@
 static XteeGuiBasicFormDialog xtee_gui_program_options_dialog = { 0 };
 static Widget new_arg_dialog = NULL;
 
-static const size_t args_field_i = 0;
+static const size_t exe_path_field_i = 0;
+
+static const size_t args_field_i = 1;
 static const size_t add_arg_btn_i = 0;
 static const size_t remove_arg_btn_i = 1;
 
-static const size_t x11_display_field_i = 1;
+static const size_t x11_display_field_i = 2;
 
 static
 XTEE_XT_CALLBACK_FUNC(program_options_unmap_cb)
@@ -30,10 +32,12 @@ static
 XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
 {
         char *x11_display_string;
+        char *exe_path_error_str;
+        char *exe_path_str;
         char *tmp_ptr;
         XteeGuiBasicFormDialog *dialog;
         XteeProgram *program;
-        XteeGuiFormField *x11_display_field;
+        XteeGuiFormField *exe_path_field, *x11_display_field;
 
         (void)w;
         (void)client_data;
@@ -41,7 +45,21 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
         program = xtee_state_get_loaded_program();
 
         dialog = &xtee_gui_program_options_dialog;
-        x11_display_field = dialog->fields + x11_display_field_i;
+
+        exe_path_field = XteeGuiBasicFormDialog_get_field(dialog,
+                        exe_path_field_i);
+        exe_path_str = XmTextFieldGetString(exe_path_field->data.ltf.text);
+        if (xtee_program_set_executable_path(program, exe_path_str,
+                                &exe_path_error_str) != 0) {
+                free(exe_path_str);
+                gui_print_error_log_and_dialog(exe_path_error_str,
+                                xtee_gui_program_options_dialog.dialog_form);
+                return;
+        }
+        free(exe_path_str);
+
+        x11_display_field = XteeGuiBasicFormDialog_get_field(dialog,
+                        x11_display_field_i);
         x11_display_string = get_XteeGuiFormField_string_value(
                         x11_display_field);
         tmp_ptr = x11_display_string;
@@ -248,6 +266,18 @@ set_program_args_widgets(XteeGuiFormField *args_field)
 }
 
 void
+set_program_exe_path_field(XteeProgram *program)
+{
+        XteeGuiFormField *exe_path_field;
+
+        exe_path_field = XteeGuiBasicFormDialog_get_field(
+                        &xtee_gui_program_options_dialog,
+                        exe_path_field_i);
+        XmTextFieldSetString(exe_path_field->data.ltf.text,
+                        program->exe_path.s);
+}
+
+void
 xtee_gui_show_program_options_dialog(Widget main_win)
 {
         XteeString program_str;
@@ -284,6 +314,10 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 program_options_dialog_cancel_cb,
                                 NULL);
+                add_simple_form_field_to_XteeGuiBasicFormDialog(dialog,
+                                XTEE_GUI_FORM_FIELD_LABELTEXT,
+                                "exe_path_form",
+                                "Executable path: ");
                 add_list_buttons_field_to_XteeGuiBasicFormDialog(dialog,
                                 "cmd_line_args_form",
                                 "Command line arguments: ",
@@ -313,8 +347,10 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 xtee_gui_print_get_program_data_error(status);
                 return;
         }
-        reload_program_cmd_line_args_list(dialog);
+
         loaded_program = xtee_state_get_loaded_program();
+        set_program_exe_path_field(loaded_program);
+        reload_program_cmd_line_args_list(dialog);
 
         /* Set x11_display_field if set */
         if (loaded_program->is_x11_display_set) {

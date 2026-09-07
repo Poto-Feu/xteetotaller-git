@@ -1,4 +1,5 @@
 #include "xtee_program.h"
+#include "xtee_file.h"
 #include "xtee_prefix.h"
 #include "xtee_utils.h"
 
@@ -41,4 +42,43 @@ xtee_program_remove_argument(XteeProgram *program, size_t i)
 {
         print_info("Removing program command line argument.");
         xtee_remove_string_in_XteeStringList(&program->args_list, i);
+}
+
+int
+xtee_program_set_executable_path(XteeProgram *program,
+                const char *exe_path, char **error_str)
+{
+        XteeString exe_path_xteestr = { 0 };
+        XteeConstString exe_path_conststr = { 0 };
+
+        if (!exe_path || exe_path[0] == '\0') {
+                *error_str = "Program executable path is empty.";
+                return -1;
+        }
+        exe_path_conststr.s = exe_path;
+        exe_path_conststr.n = strlen(exe_path);
+
+        if (exe_path_conststr.n > XTEE_PROGRAM_EXE_PATH_MAX_LEN) {
+                *error_str = "Program executable path is too long.";
+                return -1;
+        }
+
+        if (!xtee_is_file_msi(exe_path_conststr)) {
+                enum XteeExecutableType exe_type;
+
+                if (xtee_get_executable_type(&exe_type, exe_path_conststr)
+                                != 0) {
+                        *error_str = "Cannot read executable file.";
+                        return -1;
+                } else if (exe_type == XTEE_EXECUTABLE_UNKNOWN) {
+                        *error_str = "Incorrect executable format.";
+                        return -1;
+                }
+        }
+        exe_path_xteestr.s = xtee_strdup_or_exit(exe_path);
+        exe_path_xteestr.n = exe_path_conststr.n;
+
+        XteeString_free(program->exe_path);
+        program->exe_path = exe_path_xteestr;
+        return 0;
 }
