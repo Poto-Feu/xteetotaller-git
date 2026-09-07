@@ -1,3 +1,6 @@
+2026-09-07
+* Allocate block in XteeEnvDataHandler instead of growing by one for each value
+
 2026-09-05
 * Rewrite WINE environment variables handling
 

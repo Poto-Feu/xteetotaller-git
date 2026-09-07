@@ -40,6 +40,7 @@ typedef struct XteeEnvData {
 typedef struct XteeEnvDataHandler {
         XteeEnvData *block;
         size_t n;
+        size_t block_size;
         char *winedlloverrides_str;
         char *x11_display_str;
 } XteeEnvDataHandler;
