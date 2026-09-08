@@ -4,7 +4,6 @@
 #include "xtee_gui.h"
 #include "xtee_state.h"
 #include "xtee_system.h"
-#include "xtee_wine.h"
 
 #include <Xm/MessageB.h>
 #include <Xm/ToggleBG.h>

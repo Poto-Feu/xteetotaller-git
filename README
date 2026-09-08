@@ -8,6 +8,7 @@ xteetotaller is meant to be used on an x86 CPU.
 Using this program on a big-endian CPU may cause issues.
 
 Third-party libraries licenses are present in the licenses subdirectory.
+Building and installation information are available in the INSTALL file.
 
 Known issues
 ============

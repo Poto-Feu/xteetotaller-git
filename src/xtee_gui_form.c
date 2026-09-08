@@ -13,8 +13,6 @@
 #include <Xm/TextF.h>
 #include <Xm/ToggleBG.h>
 
-#include <stdbool.h>
-
 extern inline void reset_XteeGuiBasicFormDialog_fields(
                 XteeGuiBasicFormDialog *dialog);
 
@@ -411,12 +409,24 @@ set_form_attach_resources(Widget new_w, Widget prev_w)
         }
 }
 
+/* In the future, fields allocation will not grow by one for each field added
+ * but will allocate multiple slots at the same time to reduce calls to
+ * realloc. */
+static void
+grow_dialog_fields_block_if_needed(XteeGuiBasicFormDialog *dialog)
+{
+        XteeGuiFormField *tmp_ptr;
+
+        tmp_ptr = realloc_or_exit(dialog->fields,
+                        (dialog->fields_n + 1) * sizeof(XteeGuiFormField));
+        dialog->fields = tmp_ptr;
+}
+
 void
 add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 enum XteeGuiFormFieldType type, char *w_name,
                 char *label_str)
 {
-        XteeGuiFormField *tmp_ptr;
         bool is_first_field;
         size_t field_i;
         Widget new_w = NULL;
@@ -432,10 +442,8 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 prev_w = get_last_XteeGuiFormField_widget(dialog);
         }
 
-
-        tmp_ptr = realloc_or_exit(dialog->fields,
-                        ++dialog->fields_n * sizeof(XteeGuiFormField));
-        dialog->fields = tmp_ptr;
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
 
         if (type == XTEE_GUI_FORM_FIELD_LABELTEXT) {
@@ -466,7 +474,6 @@ add_ltpf_field_to_XteeGuiBasicFormDialog(
                 Arg *text_args, unsigned int text_args_n,
                 Arg *filesel_args, unsigned int filesel_args_n)
 {
-        XteeGuiFormField *tmp_ptr;
         XteeGuiLTPF *form_data;
         Widget prev_w = NULL, new_w = NULL;
         size_t field_i;
@@ -477,9 +484,8 @@ add_ltpf_field_to_XteeGuiBasicFormDialog(
                 prev_w = get_last_XteeGuiFormField_widget(dialog);
         }
 
-        tmp_ptr = realloc_or_exit(dialog->fields,
-                        ++dialog->fields_n * sizeof(XteeGuiFormField));
-        dialog->fields = tmp_ptr;
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
         form_data = &dialog->fields[field_i].data.ltpf;
         create_gui_ltpf(form_data,
@@ -506,7 +512,6 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 char **choices_str, unsigned int choices_n)
 {
         const int radiobox_w_margin = 10;
-        XteeGuiFormField *tmp_ptr;
         XteeGuiRadioBoxForm *form_data;
         Widget prev_w = NULL;
         XmString tmp_str;
@@ -518,9 +523,8 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 prev_w = get_last_XteeGuiFormField_widget(dialog);
         }
 
-        tmp_ptr = realloc_or_exit(dialog->fields,
-                        ++dialog->fields_n * sizeof(XteeGuiFormField));
-        dialog->fields = tmp_ptr;
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
 
         form_data = &dialog->fields[field_i].data.radiobox_form;
@@ -569,7 +573,6 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
         Arg args[10];
         Cardinal n = 0;
         XmStringTable items_table = NULL;
-        XteeGuiFormField *tmp_ptr;
         XteeGuiDropDownListForm *form_data;
         Widget prev_w = NULL;
         XmString tmp_str;
@@ -581,9 +584,8 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
                 prev_w = get_last_XteeGuiFormField_widget(dialog);
         }
 
-        tmp_ptr = realloc_or_exit(dialog->fields,
-                        ++dialog->fields_n * sizeof(XteeGuiFormField));
-        dialog->fields = tmp_ptr;
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
 
         form_data = &dialog->fields[field_i].data.dropdownlist_form;
@@ -655,7 +657,6 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         Arg args[5];
         Cardinal n = 0;
         const int list_w_margin = 10;
-        XteeGuiFormField *tmp_ptr;
         XteeGuiListButtonsForm *form_data;
         Widget prev_w = NULL;
         Widget list_parent;
@@ -667,9 +668,8 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         if (!is_first_field) {
                 prev_w = get_last_XteeGuiFormField_widget(dialog);
         }
-        tmp_ptr = realloc_or_exit(dialog->fields,
-                        ++dialog->fields_n * sizeof(XteeGuiFormField));
-        dialog->fields = tmp_ptr;
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
         form_data = &dialog->fields[field_i].data.listbuttons_form;
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
@@ -762,7 +762,6 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                 XTEE_XT_CALLBACK_FUNC_PTR(button_cb))
 {
         const int string_w_margin = 10;
-        XteeGuiFormField *tmp_ptr;
         XteeGuiStringAndButtonForm *form_data;
         Widget prev_w = NULL;
         XmString tmp_str;
@@ -773,9 +772,8 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
         if (!is_first_field) {
                 prev_w = get_last_XteeGuiFormField_widget(dialog);
         }
-        tmp_ptr = realloc_or_exit(dialog->fields,
-                        ++dialog->fields_n * sizeof(XteeGuiFormField));
-        dialog->fields = tmp_ptr;
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
         form_data = &dialog->fields[field_i].data.stringandbutton_form;
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,

@@ -1,6 +1,9 @@
 2026-09-08
 * Provide a more configurable XteeGuiLTPF creation routine
 * Use XteeGuiLTPF for program options executable path field
+* Remove a few redundant header includes
+* Replace calls to realloc in xtee_gui_form with utility function
+* Add notice about INSTALL file in README
 
 2026-09-07
 * Allocate block in XteeEnvDataHandler instead of growing by one for each value
