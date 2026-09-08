@@ -110,10 +110,18 @@ Widget get_last_XteeGuiFormField_widget(XteeGuiBasicFormDialog *dialog);
 XteeGuiFormField *XteeGuiBasicFormDialog_get_field(
                 XteeGuiBasicFormDialog *dialog, size_t i);
 
-/* Can only add LabelTextForm, LTPF and Toggle fields */
+/* Can only add LabelTextForm and Toggle fields */
 void add_simple_form_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 enum XteeGuiFormFieldType type, char *w_name, char *label_str);
+/* Can be used instead of add_simple_form_field_to_XteeGuiBasicFormDialog
+ * to set Text and Browse dialog values. */
+void add_ltpf_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog,
+                char *w_name, char *label_str,
+                Arg *text_args, unsigned int text_args_n,
+                Arg *filesel_args, unsigned int filesel_args_n);
+
 void add_radiobox_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 char *w_name, char *label_str,

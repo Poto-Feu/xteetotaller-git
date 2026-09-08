@@ -18,6 +18,8 @@
 #define XTEE_NEW_PREFIX_ISOLATE_HOME_FIELD_I 2
 #define XTEE_NEW_PREFIX_WINE_VERSION_FIELD_I 4
 
+static const int prefix_dir_field_i = XTEE_NEW_PREFIX_DIR_FIELD_I;
+
 static char *arch_choices_str[3] = { "win32", "win64", "wow64" };
 static const unsigned int arch_choices_n = XTEE_ARRAY_LEN(arch_choices_str);
 
@@ -167,7 +169,6 @@ static
 XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
 {
         const int prefix_id_field_i = XTEE_NEW_PREFIX_ID_FIELD_I;
-        const int prefix_dir_field_i = XTEE_NEW_PREFIX_DIR_FIELD_I;
         const int isolate_home_field_i = XTEE_NEW_PREFIX_ISOLATE_HOME_FIELD_I;
         char *wine_version_charstr = NULL;
         XteeWineVersionData *wine_version_data;
@@ -462,12 +463,22 @@ show_new_prefix_dialog(void)
         }
 
         if (!is_dialog_ready) {
-                const int prefix_dir_field_i = XTEE_NEW_PREFIX_DIR_FIELD_I;
+                Arg text_args[4];
+                Arg filesel_args[4];
                 XmString tmp_str;
-                XteeGuiFormField *prefix_id_form_field;
-                XteeGuiLTPF *dir_form;
                 XteeGuiLabelTextForm *prefix_id_form;
+                XteeGuiFormField *prefix_id_form_field;
+                unsigned int text_args_n = 0;
+                unsigned int filesel_args_n = 0;
 
+                tmp_str = XmStringCreateLocalized("Prefix directory "
+                                "selection");
+                XtSetArg(text_args[text_args_n], XmNmaxLength,
+                                XTEE_MAX_FILE_PATH_LEN); text_args_n++;
+                XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
+                                XmFILE_DIRECTORY); filesel_args_n++;
+                XtSetArg(filesel_args[filesel_args_n], XmNdialogTitle,
+                                tmp_str); filesel_args_n++;
                 create_XteeGuiBasicFormDialog(dialog,
                                 xtee_gui_get_main_win(),
                                 "new_prefix_dialog",
@@ -476,10 +487,11 @@ show_new_prefix_dialog(void)
                                 dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,
                                 "new_prefix_id_form", "Id: ");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                dialog,
-                                XTEE_GUI_FORM_FIELD_LTPF,
-                                "prefix_dir_form", "Prefix directory: ");
+                add_ltpf_field_to_XteeGuiBasicFormDialog(dialog,
+                                "prefix_dir_form", "Prefix directory: ",
+                                text_args, text_args_n,
+                                filesel_args, filesel_args_n);
+                XmStringFree(tmp_str);
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
                                 dialog,
                                 XTEE_GUI_FORM_FIELD_TOGGLE,
@@ -492,14 +504,6 @@ show_new_prefix_dialog(void)
                                 XmNmaxLength, XTEE_PREFIX_ID_MAX_LEN,
                                 NULL);
 
-                dir_form = &dialog->fields[prefix_dir_field_i].data.ltpf;
-                tmp_str = XmStringCreateLocalized("Prefix directory "
-                                "selection");
-                XtVaSetValues(dir_form->browse_dialog,
-                                XmNfileTypeMask, XmFILE_DIRECTORY,
-                                XmNdialogTitle, tmp_str,
-                                NULL);
-                XmStringFree(tmp_str);
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,
                                 new_prefix_dialog_ok_cb,
                                 (XtPointer)dialog);

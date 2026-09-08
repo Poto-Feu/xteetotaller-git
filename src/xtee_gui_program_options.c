@@ -300,7 +300,20 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                         "Add argument",
                         "Remove argument",
                 };
+                Arg text_args[4];
+                Arg filesel_args[4];
+                XmString tmp_str;
                 XteeGuiFormField *args_field;
+                unsigned text_args_n = 0;
+                unsigned filesel_args_n = 0;
+
+                tmp_str = XmStringCreateLocalized("Program file selection");
+                XtSetArg(text_args[text_args_n], XmNmaxLength,
+                                XTEE_MAX_FILE_PATH_LEN); text_args_n++;
+                XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
+                                XmFILE_REGULAR); filesel_args_n++;
+                XtSetArg(filesel_args[filesel_args_n],
+                                XmNdialogTitle, tmp_str); filesel_args_n++;
 
                 create_XteeGuiBasicFormDialog(dialog,
                                 main_win,
@@ -314,10 +327,12 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 program_options_dialog_cancel_cb,
                                 NULL);
-                add_simple_form_field_to_XteeGuiBasicFormDialog(dialog,
-                                XTEE_GUI_FORM_FIELD_LABELTEXT,
+                add_ltpf_field_to_XteeGuiBasicFormDialog(dialog,
                                 "exe_path_form",
-                                "Executable path: ");
+                                "Executable path: ",
+                                text_args, text_args_n,
+                                filesel_args, filesel_args_n);
+                XmStringFree(tmp_str);
                 add_list_buttons_field_to_XteeGuiBasicFormDialog(dialog,
                                 "cmd_line_args_form",
                                 "Command line arguments: ",

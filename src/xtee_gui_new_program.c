@@ -4,13 +4,13 @@
 #include "xtee_gui_form.h"
 #include "xtee_state.h"
 
+static const size_t exe_path_field_i = 1;
 static XteeGuiBasicFormDialog new_program_dialog = { 0 };
 
 static
 XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
 {
         const size_t id_field_i = 0;
-        const size_t exe_path_field_i = 1;
         XteePrefix *current_prefix;
         XteeProgram program;
         XteeConstString exe_path_xteestr;
@@ -126,11 +126,21 @@ xtee_gui_new_program_show_dialog(void)
 
         if (!is_dialog_ready) {
                 const size_t program_id_field_i = 0;
-                const size_t exe_path_field_i = 1;
+                Arg text_args[4];
+                Arg filesel_args[4];
                 XmString tmp_str;
-                XteeGuiFormField *program_id_form_field, *dir_form_field;
                 XteeGuiLabelTextForm *program_id_form;
-                XteeGuiLTPF *dir_form;
+                XteeGuiFormField *program_id_form_field;
+                unsigned int text_args_n = 0;
+                unsigned int filesel_args_n = 0;
+
+                tmp_str = XmStringCreateLocalized("Program file selection");
+                XtSetArg(text_args[text_args_n], XmNmaxLength,
+                                XTEE_MAX_FILE_PATH_LEN); text_args_n++;
+                XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
+                                XmFILE_REGULAR); filesel_args_n++;
+                XtSetArg(filesel_args[filesel_args_n],
+                                XmNdialogTitle, tmp_str); filesel_args_n++;
 
                 create_XteeGuiBasicFormDialog(&new_program_dialog,
                                 xtee_gui_get_main_win(),
@@ -140,11 +150,12 @@ xtee_gui_new_program_show_dialog(void)
                                 &new_program_dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,
                                 "program_id_form", "Id: ");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
+                add_ltpf_field_to_XteeGuiBasicFormDialog(
                                 &new_program_dialog,
-                                XTEE_GUI_FORM_FIELD_LTPF,
-                                "program_exepath_form",
-                                "Executable path: ");
+                                "program_exe_path", "Executable path: ",
+                                text_args, text_args_n,
+                                filesel_args, filesel_args_n);
+                XmStringFree(tmp_str);
                 /* Set maximum length for program id */
                 program_id_form_field = XteeGuiBasicFormDialog_get_field(
                                 &new_program_dialog, program_id_field_i);
@@ -153,13 +164,6 @@ xtee_gui_new_program_show_dialog(void)
                                 XmNmaxLength, XTEE_PROGRAM_ID_MAX_LEN,
                                 NULL);
 
-                dir_form_field = new_program_dialog.fields + exe_path_field_i;
-                dir_form = &dir_form_field->data.ltpf;
-                tmp_str = XmStringCreateLocalized("Program file selection");
-                XtVaSetValues(dir_form->browse_dialog,
-                                XmNfileTypeMask, XmFILE_REGULAR,
-                                XmNdialogTitle, tmp_str,
-                                NULL);
                 XtAddCallback(new_program_dialog.ok_btn,
                                 XmNactivateCallback,
                                 new_program_ok_cb,
@@ -168,7 +172,6 @@ xtee_gui_new_program_show_dialog(void)
                                 XmNactivateCallback,
                                 new_program_cancel_cb,
                                 new_program_dialog.dialog_form);
-                XmStringFree(tmp_str);
                 is_dialog_ready = true;
         } else {
                 reset_XteeGuiBasicFormDialog_fields(&new_program_dialog);

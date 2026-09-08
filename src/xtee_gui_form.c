@@ -18,6 +18,8 @@
 extern inline void reset_XteeGuiBasicFormDialog_fields(
                 XteeGuiBasicFormDialog *dialog);
 
+static const int text_w_margin = 10;
+
 static void
 create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
                 char *form_name,
@@ -414,7 +416,6 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 enum XteeGuiFormFieldType type, char *w_name,
                 char *label_str)
 {
-        const int text_w_margin = 10;
         XteeGuiFormField *tmp_ptr;
         bool is_first_field;
         size_t field_i;
@@ -422,7 +423,6 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
         Widget prev_w = NULL;
 
         if (type != XTEE_GUI_FORM_FIELD_LABELTEXT
-                        && type != XTEE_GUI_FORM_FIELD_LTPF
                         && type != XTEE_GUI_FORM_FIELD_TOGGLE) {
                 type = XTEE_GUI_FORM_FIELD_LABELTEXT;
         }
@@ -446,13 +446,6 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                                 "form_label", label_str,
                                 "form_text", text_w_margin);
                 new_w = dialog->fields[field_i].data.ltf.form;
-        } else if (type == XTEE_GUI_FORM_FIELD_LTPF) {
-                create_gui_ltpf(&dialog->fields[field_i].data.ltpf,
-                                dialog->dialog_form,
-                                w_name,
-                                "form_label", label_str,
-                                "form_text", text_w_margin);
-                new_w = dialog->fields[field_i].data.ltpf.form;
         } else if (type == XTEE_GUI_FORM_FIELD_TOGGLE) {
                 create_gui_toggle_field(&dialog->fields[field_i].data.toggle_g,
                                 dialog->dialog_form,
@@ -463,6 +456,47 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 fatal_error("Unknown form field type.");
         }
         dialog->fields[field_i].type = type;
+        set_form_attach_resources(new_w, prev_w);
+}
+
+void
+add_ltpf_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog,
+                char *w_name, char *label_str,
+                Arg *text_args, unsigned int text_args_n,
+                Arg *filesel_args, unsigned int filesel_args_n)
+{
+        XteeGuiFormField *tmp_ptr;
+        XteeGuiLTPF *form_data;
+        Widget prev_w = NULL, new_w = NULL;
+        size_t field_i;
+        bool is_first_field;
+
+        is_first_field = dialog->fields_n ? false : true;
+        if (!is_first_field) {
+                prev_w = get_last_XteeGuiFormField_widget(dialog);
+        }
+
+        tmp_ptr = realloc_or_exit(dialog->fields,
+                        ++dialog->fields_n * sizeof(XteeGuiFormField));
+        dialog->fields = tmp_ptr;
+        field_i = dialog->fields_n - 1;
+        form_data = &dialog->fields[field_i].data.ltpf;
+        create_gui_ltpf(form_data,
+                        dialog->dialog_form,
+                        w_name,
+                        "form_label", label_str,
+                        "form_text", text_w_margin);
+        if (text_args && text_args_n) {
+                XtSetValues(form_data->text, text_args, text_args_n);
+        }
+
+        if (filesel_args && filesel_args_n) {
+                XtSetValues(form_data->browse_dialog, filesel_args,
+                                filesel_args_n);
+        }
+        dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LTPF;
+        new_w = form_data->form;
         set_form_attach_resources(new_w, prev_w);
 }
 
