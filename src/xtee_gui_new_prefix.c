@@ -17,8 +17,6 @@
 #define XTEE_NEW_PREFIX_ISOLATE_HOME_FIELD_I 2
 #define XTEE_NEW_PREFIX_WINE_VERSION_FIELD_I 4
 
-static const int prefix_dir_field_i = XTEE_NEW_PREFIX_DIR_FIELD_I;
-
 static char *arch_choices_str[3] = { "win32", "win64", "wow64" };
 static const unsigned int arch_choices_n = XTEE_ARRAY_LEN(arch_choices_str);
 
@@ -289,7 +287,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         /* prefix_dir_str is the directory where Wine initialize the prefix,
          * not where xteetotaller store the prefix data. */
         prefix_dir_str = get_XteeGuiFormField_string_value(
-                        &dialog->fields[prefix_dir_field_i]);
+                        &dialog->fields[XTEE_NEW_PREFIX_DIR_FIELD_I]);
         if (!prefix_dir_str) {
                 fatal_error("prefix_dir_str is NULL (alloc error?)");
         } else if (prefix_dir_str[0] == '\0') {

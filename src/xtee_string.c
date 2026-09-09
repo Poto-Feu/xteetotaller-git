@@ -195,9 +195,3 @@ XteeStringList_is_charstring_present(const XteeStringList *restrict list,
         }
         return false;
 }
-
-void
-XteeConstStringList_free(XteeConstStringList list)
-{
-        free(list.data);
-}

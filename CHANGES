@@ -1,3 +1,7 @@
+2026-09-09
+* Remove unused XteeConstStringList type
+* Remove redundant prefix_dir_field_i variable
+
 2026-09-08
 * Provide a more configurable XteeGuiLTPF creation routine
 * Use XteeGuiLTPF for program options executable path field
