@@ -16,16 +16,17 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
         XteeConstString exe_path_xteestr;
         XteeGuiFormField *id_field, *exe_path_field;
         char *id_str, *exe_path_str;
+        XteeGuiBasicFormDialog *dialog;
         Widget dialog_w;
         enum XteeAddProgramStatus status;
 
         (void)w;
         (void)call_data;
-        (void)client_data;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         current_prefix = xtee_state_get_loaded_prefix();
-        dialog_w = new_program_dialog.dialog_form;
+        dialog_w = dialog->dialog_form;
 
-        id_field = new_program_dialog.fields + id_field_i;
+        id_field = dialog->fields + id_field_i;
         id_str = get_XteeGuiFormField_string_value(id_field);
         if (!id_str) {
                 fatal_error("program id_str is NULL (alloc error?)");
@@ -36,7 +37,7 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                 return;
         }
 
-        exe_path_field = new_program_dialog.fields + exe_path_field_i;
+        exe_path_field = dialog->fields + exe_path_field_i;
         exe_path_str = get_XteeGuiFormField_string_value(exe_path_field);
         if (!exe_path_str) {
                 fatal_error("exe_path_str is NULL (alloc error?)");
@@ -167,7 +168,7 @@ xtee_gui_new_program_show_dialog(void)
                 XtAddCallback(new_program_dialog.ok_btn,
                                 XmNactivateCallback,
                                 new_program_ok_cb,
-                                NULL);
+                                &new_program_dialog);
                 XtAddCallback(new_program_dialog.cancel_btn,
                                 XmNactivateCallback,
                                 new_program_cancel_cb,

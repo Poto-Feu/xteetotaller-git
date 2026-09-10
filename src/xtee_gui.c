@@ -572,11 +572,10 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
 
         (void)w;
         (void)call_data;
-        (void)client_data;
+        programs_list = (Widget)client_data;
         loaded_prefix = xtee_state_get_loaded_prefix();
         version_data = xtee_wine_get_version_data(
                         loaded_prefix->wine_version.s);
-        programs_list = main_gui_data.work_area_struct.programs_list;
 
         XtVaGetValues(programs_list,
                         XmNselectedPositionCount, &list_positions_n,
@@ -831,7 +830,7 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
         }
         XtAddCallback(*programs_btns_data[start_program_btn_i].w,
                         XmNactivateCallback, start_program_btn_cb,
-                        NULL);
+                        main_gui_data.work_area_struct.programs_list);
         XtAddCallback(*programs_btns_data[program_options_btn_i].w,
                         XmNactivateCallback, program_options_btn_cb,
                         NULL);

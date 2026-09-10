@@ -15,10 +15,9 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_ok_cb)
         Boolean show_hidden_files_bool;
         const char *show_hidden_files_str;
 
-        prefs_dialog = &xtee_gui_preferences_dialog;
         (void)w;
         (void)call_data;
-        (void)client_data;
+        prefs_dialog = (XteeGuiBasicFormDialog *)client_data;;
         show_hidden_files_field = prefs_dialog->fields
                 + show_hidden_files_field_i;
         show_hidden_files_bool = !!(XmToggleButtonGadgetGetState(
@@ -33,11 +32,13 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_ok_cb)
 static
 XTEE_XT_CALLBACK_FUNC(prefs_dialog_cancel_cb)
 {
+        XteeGuiBasicFormDialog *dialog;
+
         (void)w;
         (void)call_data;
-        (void)client_data;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         xtee_gui_reset_message_area_string_CALL;
-        XtUnmanageChild(xtee_gui_preferences_dialog.dialog_form);
+        XtUnmanageChild(dialog->dialog_form);
 }
 
 void
@@ -63,11 +64,11 @@ xtee_gui_preferences_show_dialog(void)
                 XtAddCallback(prefs_dialog->ok_btn,
                                 XmNactivateCallback,
                                 prefs_dialog_ok_cb,
-                                NULL);
+                                &xtee_gui_preferences_dialog);
                 XtAddCallback(prefs_dialog->cancel_btn,
                                 XmNactivateCallback,
                                 prefs_dialog_cancel_cb,
-                                NULL);
+                                &xtee_gui_preferences_dialog);
                 is_dialog_ready = true;
         }
         show_hidden_files_field = prefs_dialog->fields

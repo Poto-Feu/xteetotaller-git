@@ -1,3 +1,6 @@
+2026-09-10
+* Pass some values through Xt callback client_data parameter
+
 2026-09-09
 * Remove unused XteeConstStringList type
 * Remove redundant prefix_dir_field_i variable

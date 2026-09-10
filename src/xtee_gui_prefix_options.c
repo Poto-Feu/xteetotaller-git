@@ -37,9 +37,8 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_ok_cb)
         bool disable_winemenubuilder;
 
         (void)w;
-        (void)client_data;
         (void)call_data;
-        dialog = &xtee_gui_prefix_options_dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         loaded_prefix = xtee_state_get_loaded_prefix();
         disable_winemenubuilder_field = dialog->fields
                 + disable_winemenubuilder_i;
@@ -182,7 +181,6 @@ XTEE_XT_CALLBACK_FUNC(dxvk_version_selection_box_cb)
         XmSelectionBoxCallbackStruct *cbs;
         char *dxvk_str;
 
-        (void)client_data;
         cbs = (XmSelectionBoxCallbackStruct *)call_data;
         switch (cbs->reason) {
                 case XmCR_OK:
@@ -199,7 +197,7 @@ XTEE_XT_CALLBACK_FUNC(dxvk_version_selection_box_cb)
                 default:
                         return;
         }
-        dialog = &xtee_gui_prefix_options_dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         loaded_prefix = xtee_state_get_loaded_prefix();
         dxvk_str = XmString_to_char_str(&cbs->value);
         if (xtee_gui_install_dxvk(loaded_prefix, dxvk_str) != 0) {
@@ -284,13 +282,13 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
                 XteeStringList_free(dxvk_versions_list);
                 XtAddCallback(dxvk_version_selection_box, XmNokCallback,
                                 dxvk_version_selection_box_cb,
-                                NULL);
+                                &xtee_gui_prefix_options_dialog);
                 XtAddCallback(dxvk_version_selection_box, XmNcancelCallback,
                                 dxvk_version_selection_box_cb,
-                                NULL);
+                                &xtee_gui_prefix_options_dialog);
                 XtAddCallback(dxvk_version_selection_box, XmNnoMatchCallback,
                                 dxvk_version_selection_box_cb,
-                                NULL);
+                                &xtee_gui_prefix_options_dialog);
         }
         XtManageChild(dxvk_version_selection_box);
 }
@@ -307,7 +305,6 @@ XTEE_XT_CALLBACK_FUNC(wine_version_selection_box_cb)
         char *new_wine_str;
         XmSelectionBoxCallbackStruct *cbs;
 
-        (void)client_data;
         cbs = (XmSelectionBoxCallbackStruct *)call_data;
         switch (cbs->reason) {
                 case XmCR_OK:
@@ -324,7 +321,7 @@ XTEE_XT_CALLBACK_FUNC(wine_version_selection_box_cb)
                 default:
                         return;
         }
-        dialog = &xtee_gui_prefix_options_dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         change_wine_field = dialog->fields + change_wine_version_i;
         form_data = &change_wine_field->data.stringandbutton_form;
         loaded_prefix = xtee_state_get_loaded_prefix();
@@ -388,13 +385,13 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
                 XteeStringList_free(wine_versions_list);
                 XtAddCallback(wine_version_selection_box, XmNokCallback,
                                 wine_version_selection_box_cb,
-                                NULL);
+                                &xtee_gui_prefix_options_dialog);
                 XtAddCallback(wine_version_selection_box, XmNcancelCallback,
                                 wine_version_selection_box_cb,
-                                NULL);
+                                &xtee_gui_prefix_options_dialog);
                 XtAddCallback(wine_version_selection_box, XmNnoMatchCallback,
                                 wine_version_selection_box_cb,
-                                NULL);
+                                &xtee_gui_prefix_options_dialog);
         }
         XtManageChild(wine_version_selection_box);
 }
@@ -436,7 +433,7 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                                 "Disable winemenubuilder");
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,
                                 prefix_options_dialog_ok_cb,
-                                NULL);
+                                &xtee_gui_prefix_options_dialog);
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 prefix_options_dialog_cancel_cb,
                                 (XtPointer)dialog->dialog_form);

@@ -40,11 +40,9 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
         XteeGuiFormField *exe_path_field, *x11_display_field;
 
         (void)w;
-        (void)client_data;
         (void)call_data;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         program = xtee_state_get_loaded_program();
-
-        dialog = &xtee_gui_program_options_dialog;
 
         exe_path_field = XteeGuiBasicFormDialog_get_field(dialog,
                         exe_path_field_i);
@@ -53,7 +51,7 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
                                 &exe_path_error_str) != 0) {
                 free(exe_path_str);
                 gui_print_error_log_and_dialog(exe_path_error_str,
-                                xtee_gui_program_options_dialog.dialog_form);
+                                dialog->dialog_form);
                 return;
         }
         free(exe_path_str);
@@ -82,10 +80,10 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
 
         if (xtee_state_save_loaded_program() != 0) {
                 gui_print_error_log_and_dialog("Cannot save program data.",
-                                xtee_gui_program_options_dialog.dialog_form);
+                                dialog->dialog_form);
         } else {
                 xtee_gui_set_message_area_string("Program data saved.");
-                XtUnmanageChild(xtee_gui_program_options_dialog.dialog_form);
+                XtUnmanageChild(dialog->dialog_form);
         }
 }
 
@@ -133,9 +131,8 @@ XTEE_XT_CALLBACK_FUNC(args_list_selection_cb)
         XteeGuiListButtonsForm *field;
 
         (void)w;
-        (void)client_data;
         cbs = (XmListCallbackStruct *)call_data;
-        dialog = &xtee_gui_program_options_dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         field = &dialog->fields[args_field_i].data.listbuttons_form;
         switch (cbs->reason) {
                 case XmCR_SINGLE_SELECT:
@@ -152,11 +149,12 @@ XTEE_XT_CALLBACK_FUNC(add_argument_dialog_cb)
 {
         XteeProgram *program;
         XmSelectionBoxCallbackStruct *cbs;
+        XteeGuiBasicFormDialog *dialog;
         char *textfield_str;
 
         (void)w;
-        (void)client_data;
         cbs = (XmSelectionBoxCallbackStruct *)call_data;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         switch (cbs->reason) {
                 case XmCR_OK:
                         print_info("Adding new argument.");
@@ -177,7 +175,7 @@ XTEE_XT_CALLBACK_FUNC(add_argument_dialog_cb)
         program = xtee_state_get_loaded_program();
         xtee_program_add_argument(program, textfield_str);
         XtFree(textfield_str);
-        reload_program_cmd_line_args_list(&xtee_gui_program_options_dialog);
+        reload_program_cmd_line_args_list(dialog);
         XtUnmanageChild(w);
 }
 
@@ -188,10 +186,9 @@ XTEE_XT_CALLBACK_FUNC(add_arg_btn_cb)
         Widget textfield_w;
 
         (void)w;
-        (void)client_data;
         (void)call_data;
         print_info("Opening Add argument dialog.");
-        dialog = &xtee_gui_program_options_dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
 
         if (!new_arg_dialog) {
                 Arg args[5];
@@ -206,9 +203,11 @@ XTEE_XT_CALLBACK_FUNC(add_arg_btn_cb)
                                 args,
                                 n);
                 XtAddCallback(new_arg_dialog, XmNokCallback,
-                                add_argument_dialog_cb, NULL);
+                                add_argument_dialog_cb,
+                                &xtee_gui_program_options_dialog);
                 XtAddCallback(new_arg_dialog, XmNcancelCallback,
-                                add_argument_dialog_cb, NULL);
+                                add_argument_dialog_cb,
+                                &xtee_gui_program_options_dialog);
                 xtee_gui_hide_dialog_help_button(new_arg_dialog);
         }
         textfield_w = xtee_gui_get_textfield_child_widget(new_arg_dialog);
@@ -227,10 +226,10 @@ XTEE_XT_CALLBACK_FUNC(remove_arg_btn_cb)
         Widget list_w;
 
         (void)w;
-        (void)client_data;
         print_info("Remove argument button clicked.");
-        dialog = &xtee_gui_program_options_dialog;
+
         cbs = (XmPushButtonCallbackStruct *)call_data;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         list_w = dialog->fields[args_field_i].data.listbuttons_form.list;
         if (cbs->reason != XmCR_ACTIVATE) {
                 return;
@@ -257,9 +256,10 @@ set_program_args_widgets(XteeGuiFormField *args_field)
         listbuttons_form = &args_field->data.listbuttons_form;
         add_arg_btn = listbuttons_form->buttons[add_arg_btn_i];
         remove_arg_btn = listbuttons_form->buttons[remove_arg_btn_i];
-        XtAddCallback(add_arg_btn, XmNactivateCallback, add_arg_btn_cb, NULL);
+        XtAddCallback(add_arg_btn, XmNactivateCallback, add_arg_btn_cb,
+                        &xtee_gui_program_options_dialog);
         XtAddCallback(remove_arg_btn, XmNactivateCallback, remove_arg_btn_cb,
-                        NULL);
+                        &xtee_gui_program_options_dialog);
         /* Disable "Remove argument" button as nothing is selected at first. */
         XteeGuiListButtonsForm_button_set_sensitive(listbuttons_form,
                         remove_arg_btn_i, False);
@@ -323,7 +323,7 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 program_options_unmap_cb, NULL);
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,
                                 program_options_dialog_ok_cb,
-                                NULL);
+                                &xtee_gui_program_options_dialog);
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 program_options_dialog_cancel_cb,
                                 NULL);
@@ -344,7 +344,7 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 XtAddCallback(args_field->data.listbuttons_form.list,
                                 XmNsingleSelectionCallback,
                                 args_list_selection_cb,
-                                NULL);
+                                &xtee_gui_program_options_dialog);
                 set_program_args_widgets(args_field);
                 add_simple_form_field_to_XteeGuiBasicFormDialog(dialog,
                                 XTEE_GUI_FORM_FIELD_LABELTEXT,
