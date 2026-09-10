@@ -110,12 +110,14 @@ Widget get_last_XteeGuiFormField_widget(XteeGuiBasicFormDialog *dialog);
 XteeGuiFormField *XteeGuiBasicFormDialog_get_field(
                 XteeGuiBasicFormDialog *dialog, size_t i);
 
-/* Can only add LabelTextForm and Toggle fields */
+/* Can only add Toggle fields */
 void add_simple_form_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 enum XteeGuiFormFieldType type, char *w_name, char *label_str);
-/* Can be used instead of add_simple_form_field_to_XteeGuiBasicFormDialog
- * to set Text and Browse dialog values. */
+void add_label_text_form_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog,
+                char *w_name, char *label_str,
+                Arg *text_args, unsigned int text_args_n);
 void add_ltpf_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 char *w_name, char *label_str,
@@ -138,7 +140,8 @@ void add_string_and_button_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
                 char *string_name, char *string_str,
                 char *button_name, char *button_str,
-                XTEE_XT_CALLBACK_FUNC_PTR(button_cb));
+                XTEE_XT_CALLBACK_FUNC_PTR(button_cb),
+                void *client_data);
 
 void XteeGuiLabelTextForm_set_text_string(XteeGuiLabelTextForm *form, char *s);
 

@@ -126,44 +126,37 @@ xtee_gui_new_program_show_dialog(void)
         static bool is_dialog_ready = false;
 
         if (!is_dialog_ready) {
-                const size_t program_id_field_i = 0;
                 Arg text_args[4];
                 Arg filesel_args[4];
                 XmString tmp_str;
-                XteeGuiLabelTextForm *program_id_form;
-                XteeGuiFormField *program_id_form_field;
                 unsigned int text_args_n = 0;
                 unsigned int filesel_args_n = 0;
 
                 tmp_str = XmStringCreateLocalized("Program file selection");
+
+                create_XteeGuiBasicFormDialog(&new_program_dialog,
+                                xtee_gui_get_main_win(),
+                                "new_program_dialog",
+                                "New Program");
+                XtSetArg(text_args[text_args_n], XmNmaxLength,
+                                XTEE_PROGRAM_ID_MAX_LEN); text_args_n++;
+                add_label_text_form_field_to_XteeGuiBasicFormDialog(
+                                &new_program_dialog,
+                                "program_id_form", "Id: ",
+                                text_args, text_args_n);
+                text_args_n = 0;
                 XtSetArg(text_args[text_args_n], XmNmaxLength,
                                 XTEE_MAX_FILE_PATH_LEN); text_args_n++;
                 XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
                                 XmFILE_REGULAR); filesel_args_n++;
                 XtSetArg(filesel_args[filesel_args_n],
                                 XmNdialogTitle, tmp_str); filesel_args_n++;
-
-                create_XteeGuiBasicFormDialog(&new_program_dialog,
-                                xtee_gui_get_main_win(),
-                                "new_program_dialog",
-                                "New Program");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                &new_program_dialog,
-                                XTEE_GUI_FORM_FIELD_LABELTEXT,
-                                "program_id_form", "Id: ");
                 add_ltpf_field_to_XteeGuiBasicFormDialog(
                                 &new_program_dialog,
                                 "program_exe_path", "Executable path: ",
                                 text_args, text_args_n,
                                 filesel_args, filesel_args_n);
                 XmStringFree(tmp_str);
-                /* Set maximum length for program id */
-                program_id_form_field = XteeGuiBasicFormDialog_get_field(
-                                &new_program_dialog, program_id_field_i);
-                program_id_form = &program_id_form_field->data.ltf;
-                XtVaSetValues(program_id_form->text,
-                                XmNmaxLength, XTEE_PROGRAM_ID_MAX_LEN,
-                                NULL);
 
                 XtAddCallback(new_program_dialog.ok_btn,
                                 XmNactivateCallback,

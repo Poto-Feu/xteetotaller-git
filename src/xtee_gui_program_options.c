@@ -346,10 +346,10 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 args_list_selection_cb,
                                 &xtee_gui_program_options_dialog);
                 set_program_args_widgets(args_field);
-                add_simple_form_field_to_XteeGuiBasicFormDialog(dialog,
-                                XTEE_GUI_FORM_FIELD_LABELTEXT,
+                add_label_text_form_field_to_XteeGuiBasicFormDialog(dialog,
                                 "x11_display_text",
-                                "X11 Display (leave empty for default)");
+                                "X11 Display (leave empty for default)",
+                                NULL, 0);
                 is_dialog_ready = true;
         }
         reset_XteeGuiBasicFormDialog_fields(dialog);

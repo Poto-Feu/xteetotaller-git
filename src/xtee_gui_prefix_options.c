@@ -228,8 +228,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
 
         (void)w;
         (void)call_data;
-        (void)client_data;
-        dialog = &xtee_gui_prefix_options_dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
 
         if (xtee_gui_is_dxvk_installed) {
                 set_and_show_install_dxvk_working_dialog("Removing DXVK",
@@ -349,8 +348,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
 
         (void)w;
         (void)call_data;
-        (void)client_data;
-        dialog = &xtee_gui_prefix_options_dialog;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
         if (!wine_version_selection_box) {
                 XteeStringList wine_versions_list;
                 Arg args[5];
@@ -442,12 +440,14 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                                 "wine_version_string_label",
                                 loaded_prefix->wine_version.s,
                                 "change_wine_button", "Change Wine version",
-                                prefix_options_change_wine_cb);
+                                prefix_options_change_wine_cb,
+                                &xtee_gui_prefix_options_dialog);
                 add_string_and_button_field_to_XteeGuiBasicFormDialog(dialog,
                                 "install_dxvk_form", "DXVK version: ",
                                 "dxvk_version_string_label", "Lorem ipsum",
                                 "install_dxvk_button", "Install DXVK",
-                                prefix_options_install_dxvk_cb);
+                                prefix_options_install_dxvk_cb,
+                                &xtee_gui_prefix_options_dialog);
                 is_dialog_ready = true;
         }
 

@@ -463,27 +463,29 @@ show_new_prefix_dialog(void)
                 Arg text_args[4];
                 Arg filesel_args[4];
                 XmString tmp_str;
-                XteeGuiLabelTextForm *prefix_id_form;
-                XteeGuiFormField *prefix_id_form_field;
                 unsigned int text_args_n = 0;
                 unsigned int filesel_args_n = 0;
 
                 tmp_str = XmStringCreateLocalized("Prefix directory "
                                 "selection");
+                create_XteeGuiBasicFormDialog(dialog,
+                                xtee_gui_get_main_win(),
+                                "new_prefix_dialog",
+                                "New Prefix");
+                /* Set maximum length for prefix id */
+                XtSetArg(text_args[text_args_n], XmNmaxLength,
+                                XTEE_PREFIX_ID_MAX_LEN); text_args_n++;
+                add_label_text_form_field_to_XteeGuiBasicFormDialog(
+                                dialog,
+                                "new_prefix_id_form", "Id: ",
+                                text_args, text_args_n);
+                text_args_n = 0;
                 XtSetArg(text_args[text_args_n], XmNmaxLength,
                                 XTEE_MAX_FILE_PATH_LEN); text_args_n++;
                 XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
                                 XmFILE_DIRECTORY); filesel_args_n++;
                 XtSetArg(filesel_args[filesel_args_n], XmNdialogTitle,
                                 tmp_str); filesel_args_n++;
-                create_XteeGuiBasicFormDialog(dialog,
-                                xtee_gui_get_main_win(),
-                                "new_prefix_dialog",
-                                "New Prefix");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
-                                dialog,
-                                XTEE_GUI_FORM_FIELD_LABELTEXT,
-                                "new_prefix_id_form", "Id: ");
                 add_ltpf_field_to_XteeGuiBasicFormDialog(dialog,
                                 "prefix_dir_form", "Prefix directory: ",
                                 text_args, text_args_n,
@@ -493,14 +495,6 @@ show_new_prefix_dialog(void)
                                 dialog,
                                 XTEE_GUI_FORM_FIELD_TOGGLE,
                                 "isolate_home_toggle", "Isolate home");
-                /* Set maximum length for prefix id */
-                prefix_id_form_field = XteeGuiBasicFormDialog_get_field(dialog,
-                                XTEE_NEW_PREFIX_ID_FIELD_I);
-                prefix_id_form = &prefix_id_form_field->data.ltf;
-                XtVaSetValues(prefix_id_form->text,
-                                XmNmaxLength, XTEE_PREFIX_ID_MAX_LEN,
-                                NULL);
-
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,
                                 new_prefix_dialog_ok_cb,
                                 (XtPointer)dialog);

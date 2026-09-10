@@ -432,9 +432,11 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
         Widget new_w = NULL;
         Widget prev_w = NULL;
 
-        if (type != XTEE_GUI_FORM_FIELD_LABELTEXT
-                        && type != XTEE_GUI_FORM_FIELD_TOGGLE) {
-                type = XTEE_GUI_FORM_FIELD_LABELTEXT;
+        if (type != XTEE_GUI_FORM_FIELD_TOGGLE) {
+                print_warning("Incorrect type for "
+                                "add_simple_form_field_to_"
+                                "XteeGuiBasicFormDialog");
+                type = XTEE_GUI_FORM_FIELD_TOGGLE;
         }
 
         is_first_field = dialog->fields_n ? false : true;
@@ -446,15 +448,7 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
         ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
 
-        if (type == XTEE_GUI_FORM_FIELD_LABELTEXT) {
-                create_gui_label_text_form(
-                                &dialog->fields[field_i].data.ltf,
-                                dialog->dialog_form,
-                                w_name,
-                                "form_label", label_str,
-                                "form_text", text_w_margin);
-                new_w = dialog->fields[field_i].data.ltf.form;
-        } else if (type == XTEE_GUI_FORM_FIELD_TOGGLE) {
+        if (type == XTEE_GUI_FORM_FIELD_TOGGLE) {
                 create_gui_toggle_field(&dialog->fields[field_i].data.toggle_g,
                                 dialog->dialog_form,
                                 w_name, label_str);
@@ -464,6 +458,40 @@ add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 fatal_error("Unknown form field type.");
         }
         dialog->fields[field_i].type = type;
+        set_form_attach_resources(new_w, prev_w);
+}
+
+void
+add_label_text_form_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog,
+                char *w_name, char *label_str,
+                Arg *text_args, unsigned int text_args_n)
+{
+        XteeGuiLabelTextForm *form_data;
+        Widget prev_w = NULL, new_w = NULL;
+        size_t field_i;
+        bool is_first_field;
+
+        is_first_field = dialog->fields_n ? false : true;
+        if (!is_first_field) {
+                prev_w = get_last_XteeGuiFormField_widget(dialog);
+        }
+
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
+        field_i = dialog->fields_n - 1;
+        form_data = &dialog->fields[field_i].data.ltf;
+        create_gui_label_text_form(form_data,
+                        dialog->dialog_form,
+                        w_name,
+                        "form_label", label_str,
+                        "form_text", text_w_margin);
+        new_w = form_data->form;
+        if (text_args && text_args_n) {
+                XtSetValues(form_data->text, text_args, text_args_n);
+        }
+        dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LABELTEXT;
+        new_w = form_data->form;
         set_form_attach_resources(new_w, prev_w);
 }
 
@@ -759,7 +787,8 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
                 char *string_name, char *string_str,
                 char *button_name, char *button_str,
-                XTEE_XT_CALLBACK_FUNC_PTR(button_cb))
+                XTEE_XT_CALLBACK_FUNC_PTR(button_cb),
+                void *client_data)
 {
         const int string_w_margin = 10;
         XteeGuiStringAndButtonForm *form_data;
@@ -801,7 +830,7 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                         XmNrightAttachment, XmATTACH_FORM,
                         NULL);
         XtAddCallback(form_data->button, XmNactivateCallback, button_cb,
-                        NULL);
+                        client_data);
         XmStringFree(tmp_str);
 
         tmp_str = XmStringCreateLocalized(string_str);

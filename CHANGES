@@ -1,5 +1,8 @@
 2026-09-10
 * Pass some values through Xt callback client_data parameter
+* Add client_data to add_string_and_button_field_to_XteeGuiBasicFormDialog
+* Implement add_label_text_form_field_to_XteeGuiBasicFormDialog
+* Fix program options X11 display form field
 
 2026-09-09
 * Remove unused XteeConstStringList type
