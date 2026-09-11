@@ -491,7 +491,6 @@ add_label_text_form_field_to_XteeGuiBasicFormDialog(
                 XtSetValues(form_data->text, text_args, text_args_n);
         }
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LABELTEXT;
-        new_w = form_data->form;
         set_form_attach_resources(new_w, prev_w);
 }
 

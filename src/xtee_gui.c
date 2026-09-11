@@ -1450,7 +1450,8 @@ XTEE_XT_CALLBACK_FUNC(kill_wine_confirm_dialog_ok_cb)
         xtee_env_data_free_handler(&env_data_handler);
         hide_main_working_dialog();
         if (r != 0) {
-                gui_print_error_log_and_dialog("Cannot kill wine processes.",
+                gui_print_error_log_and_dialog("Cannot kill wine processes.\n"
+                                "Check if any wine process is running.",
                                 main_gui_data.main_win);
                 xtee_gui_set_message_area_string("wineserver -k failed");
         } else {
@@ -1497,12 +1498,16 @@ show_kill_wine_confirm_dialog(void)
 static
 XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
 {
-        const int winecfg_i = 0;
-        const int uninstaller_i = 1;
-        const int explorer_i = 2;
-        const int regedit_i = 3;
-        const int winetricks_i = 4;
-        const int kill_wine_i = 5;
+        char *wine_menu_entries[][3] = {
+                { "winecfg", "Running winecfg", "Running winecfg" },
+                { "uninstaller", "Running uninstaller",
+                        "Running uninstaller" },
+                { "explorer", "Running explorer", "Running explorer" },
+                { "regedit", "Running regedit", "Running regedit" },
+                { "winefile", "Running winefile", "Running winefile" },
+        };
+        const int winetricks_i = (int)XTEE_ARRAY_LEN(wine_menu_entries);
+        const int kill_wine_i = (int)XTEE_ARRAY_LEN(wine_menu_entries) + 1;
         int item_i;
 
         (void)w;
@@ -1510,21 +1515,11 @@ XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
-        if (item_i == winecfg_i) {
-                xtee_gui_run_wine_utility("winecfg", "Running winecfg",
-                                "Running winecfg");
-        } else if (item_i == uninstaller_i) {
-                xtee_gui_run_wine_utility("uninstaller",
-                                "Running Wine uninstaller",
-                                "Running Wine uninstaller");
-        } else if (item_i == explorer_i) {
-                xtee_gui_run_wine_utility("explorer",
-                                "Running Wine explorer",
-                                "Running Wine explorer");
-        } else if (item_i == regedit_i) {
-                xtee_gui_run_wine_utility("regedit",
-                                "Running Wine regedit",
-                                "Running Wine regedit");
+
+        if (item_i < (int)XTEE_ARRAY_LEN(wine_menu_entries)) {
+                xtee_gui_run_wine_utility(wine_menu_entries[item_i][0],
+                                wine_menu_entries[item_i][1],
+                                wine_menu_entries[item_i][2]);
         } else if (item_i == winetricks_i) {
                 xtee_gui_run_winetricks();
         } else if (item_i == kill_wine_i) {
@@ -1564,7 +1559,7 @@ gui_create_menubar(void)
         XmString reload_prefix_str, prefix_options_str, new_program_str,
                  run_executable_str;
         XmString winecfg_str, uninstaller_str, explorer_str, regedit_str,
-                 winetricks_str, kill_wine_str;
+                 winefile_str, winetricks_str, kill_wine_str;
         XmString about_str;
         const char *help_button_id = "button_4";
         const int file_button_i = 0;
@@ -1645,6 +1640,7 @@ gui_create_menubar(void)
         uninstaller_str = XmStringCreateLocalized("uninstaller");
         explorer_str = XmStringCreateLocalized("explorer");
         regedit_str = XmStringCreateLocalized("regedit");
+        winefile_str = XmStringCreateLocalized("winefile");
         winetricks_str = XmStringCreateLocalized("winetricks");
         kill_wine_str = XmStringCreateLocalized("Kill wine processes");
         main_gui_data.wine_menu = XmVaCreateSimplePulldownMenu(
@@ -1654,6 +1650,7 @@ gui_create_menubar(void)
                         XmVaPUSHBUTTON, uninstaller_str, 'u', NULL, NULL,
                         XmVaPUSHBUTTON, explorer_str, 'x', NULL, NULL,
                         XmVaPUSHBUTTON, regedit_str, 'r', NULL, NULL,
+                        XmVaPUSHBUTTON, winefile_str, 'f', NULL, NULL,
                         XmVaSEPARATOR,
                         XmVaPUSHBUTTON, winetricks_str, 't', NULL, NULL,
                         XmVaSEPARATOR,
@@ -1663,6 +1660,7 @@ gui_create_menubar(void)
         XmStringFree(uninstaller_str);
         XmStringFree(explorer_str);
         XmStringFree(regedit_str);
+        XmStringFree(winefile_str);
         XmStringFree(winetricks_str);
         about_str = XmStringCreateLocalized("About XTeetotaller");
         main_gui_data.help_menu = XmVaCreateSimplePulldownMenu(
