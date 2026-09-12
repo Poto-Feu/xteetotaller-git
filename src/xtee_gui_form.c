@@ -499,7 +499,8 @@ add_ltpf_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 char *w_name, char *label_str,
                 Arg *text_args, unsigned int text_args_n,
-                Arg *filesel_args, unsigned int filesel_args_n)
+                Arg *filesel_args, unsigned int filesel_args_n,
+                unsigned char file_type_mask)
 {
         XteeGuiLTPF *form_data;
         Widget prev_w = NULL, new_w = NULL;
@@ -523,7 +524,8 @@ add_ltpf_field_to_XteeGuiBasicFormDialog(
         if (text_args && text_args_n) {
                 XtSetValues(form_data->text, text_args, text_args_n);
         }
-
+        XtVaSetValues(form_data->browse_dialog, XmNfileTypeMask,
+                        file_type_mask, NULL);
         if (filesel_args && filesel_args_n) {
                 XtSetValues(form_data->browse_dialog, filesel_args,
                                 filesel_args_n);
@@ -619,25 +621,6 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_DROPDOWNLIST;
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
                         dialog->dialog_form, NULL, 0);
-
-        XtVaSetValues(form_data->form,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        XmNleftOffset, XTEE_FORM_LR_MARGIN,
-                        XmNrightAttachment, XmATTACH_FORM,
-                        XmNrightOffset, XTEE_FORM_LR_MARGIN,
-                        NULL);
-        if (is_first_field) {
-                XtVaSetValues(form_data->form,
-                                XmNtopAttachment, XmATTACH_FORM,
-                                XmNtopOffset, 20,
-                                NULL);
-        } else {
-                XtVaSetValues(form_data->form,
-                                XmNtopAttachment, XmATTACH_WIDGET,
-                                XmNtopWidget, prev_w,
-                                XmNtopOffset, 5,
-                                NULL);
-        }
 
         tmp_str = XmStringCreateLocalized(label_str);
         form_data->label = XtVaCreateManagedWidget(

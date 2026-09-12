@@ -1,7 +1,12 @@
+2026-09-12
+* Remove redundant dropdown list field form attachment settings
+* Add accelerators to menubar
+
 2026-09-11
 * Replace if conditions with an array in wine_menu_cb
 * Remove redundant variable assignment for new_w in xtee_gui_form
 * Improve Kill wine processes error message
+* Add file_type_mask parameter to add_ltpf_field_to_XteeGuiBasicFormDialog
 
 2026-09-10
 * Pass some values through Xt callback client_data parameter

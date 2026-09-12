@@ -310,8 +310,6 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 tmp_str = XmStringCreateLocalized("Program file selection");
                 XtSetArg(text_args[text_args_n], XmNmaxLength,
                                 XTEE_MAX_FILE_PATH_LEN); text_args_n++;
-                XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
-                                XmFILE_REGULAR); filesel_args_n++;
                 XtSetArg(filesel_args[filesel_args_n],
                                 XmNdialogTitle, tmp_str); filesel_args_n++;
 
@@ -331,7 +329,7 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 "exe_path_form",
                                 "Executable path: ",
                                 text_args, text_args_n,
-                                filesel_args, filesel_args_n);
+                                filesel_args, filesel_args_n, XmFILE_REGULAR);
                 XmStringFree(tmp_str);
                 add_list_buttons_field_to_XteeGuiBasicFormDialog(dialog,
                                 "cmd_line_args_form",

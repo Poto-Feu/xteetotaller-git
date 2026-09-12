@@ -147,15 +147,13 @@ xtee_gui_new_program_show_dialog(void)
                 text_args_n = 0;
                 XtSetArg(text_args[text_args_n], XmNmaxLength,
                                 XTEE_MAX_FILE_PATH_LEN); text_args_n++;
-                XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
-                                XmFILE_REGULAR); filesel_args_n++;
                 XtSetArg(filesel_args[filesel_args_n],
                                 XmNdialogTitle, tmp_str); filesel_args_n++;
                 add_ltpf_field_to_XteeGuiBasicFormDialog(
                                 &new_program_dialog,
                                 "program_exe_path", "Executable path: ",
                                 text_args, text_args_n,
-                                filesel_args, filesel_args_n);
+                                filesel_args, filesel_args_n, XmFILE_REGULAR);
                 XmStringFree(tmp_str);
 
                 XtAddCallback(new_program_dialog.ok_btn,

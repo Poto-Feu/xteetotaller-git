@@ -1553,13 +1553,15 @@ gui_create_menubar(void)
 {
         Widget tmp_w;
         XmString file_str, edit_str, prefix_str, wine_str, help_str;
-        XmString new_prefix_str;
-        XmString open_prefix_str, exit_str;
+        XmString new_prefix_str, open_prefix_str, exit_str;
+        XmString new_prefix_acc, open_prefix_acc, exit_acc;
         XmString preferences_str;
         XmString reload_prefix_str, prefix_options_str, new_program_str,
                  run_executable_str;
+        XmString reload_prefix_acc;
         XmString winecfg_str, uninstaller_str, explorer_str, regedit_str,
                  winefile_str, winetricks_str, kill_wine_str;
+        XmString kill_wine_acc;
         XmString about_str;
         const char *help_button_id = "button_4";
         const int file_button_i = 0;
@@ -1599,17 +1601,25 @@ gui_create_menubar(void)
         new_prefix_str = XmStringCreateLocalized("New Prefix");
         open_prefix_str = XmStringCreateLocalized("Open prefix");
         exit_str = XmStringCreateLocalized("Exit");
+        new_prefix_acc = XmStringCreateLocalized("Ctrl+N");
+        open_prefix_acc = XmStringCreateLocalized("Ctrl+O");
+        exit_acc = XmStringCreateLocalized("Ctrl+Q");
         main_gui_data.file_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "file_menu", file_button_i,
                         file_menu_cb,
-                        XmVaPUSHBUTTON, new_prefix_str, 'N', NULL, NULL,
-                        XmVaPUSHBUTTON, open_prefix_str, 'O', NULL, NULL,
+                        XmVaPUSHBUTTON, new_prefix_str, 'N', "Ctrl<Key>n",
+                        new_prefix_acc,
+                        XmVaPUSHBUTTON, open_prefix_str, 'O', "Ctrl<Key>o",
+                        open_prefix_acc,
                         XmVaSEPARATOR,
-                        XmVaPUSHBUTTON, exit_str, 'x', NULL, NULL,
+                        XmVaPUSHBUTTON, exit_str, 'x', "Ctrl<Key>q", exit_acc,
                         NULL);
         XmStringFree(new_prefix_str);
         XmStringFree(open_prefix_str);
         XmStringFree(exit_str);
+        XmStringFree(new_prefix_acc);
+        XmStringFree(open_prefix_acc);
+        XmStringFree(exit_acc);
         preferences_str = XmStringCreateLocalized("Preferences");
         main_gui_data.edit_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "edit_menu", edit_button_i,
@@ -1622,10 +1632,12 @@ gui_create_menubar(void)
         new_program_str = XmStringCreateLocalized("New program");
         run_executable_str = XmStringCreateLocalized(
                         "Run executable in prefix");
+        reload_prefix_acc = XmStringCreateLocalized("F5");
         main_gui_data.prefix_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "prefix_menu", prefix_button_i,
                         prefix_menu_cb,
-                        XmVaPUSHBUTTON, reload_prefix_str, 'R', NULL, NULL,
+                        XmVaPUSHBUTTON, reload_prefix_str, 'R',
+                        "<Key>F5", reload_prefix_acc,
                         XmVaPUSHBUTTON, prefix_options_str, 'O', NULL, NULL,
                         XmVaSEPARATOR,
                         XmVaPUSHBUTTON, new_program_str, 'N', NULL, NULL,
@@ -1636,6 +1648,7 @@ gui_create_menubar(void)
         XmStringFree(prefix_options_str);
         XmStringFree(new_program_str);
         XmStringFree(run_executable_str);
+        XmStringFree(reload_prefix_acc);
         winecfg_str = XmStringCreateLocalized("winecfg");
         uninstaller_str = XmStringCreateLocalized("uninstaller");
         explorer_str = XmStringCreateLocalized("explorer");
@@ -1643,6 +1656,7 @@ gui_create_menubar(void)
         winefile_str = XmStringCreateLocalized("winefile");
         winetricks_str = XmStringCreateLocalized("winetricks");
         kill_wine_str = XmStringCreateLocalized("Kill wine processes");
+        kill_wine_acc = XmStringCreateLocalized("Ctrl+Shift+K");
         main_gui_data.wine_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "wine_menu", wine_button_i,
                         wine_menu_cb,
@@ -1654,7 +1668,8 @@ gui_create_menubar(void)
                         XmVaSEPARATOR,
                         XmVaPUSHBUTTON, winetricks_str, 't', NULL, NULL,
                         XmVaSEPARATOR,
-                        XmVaPUSHBUTTON, kill_wine_str, 'K', NULL, NULL,
+                        XmVaPUSHBUTTON, kill_wine_str, 'K',
+                        "Ctrl Shift <Key>K", kill_wine_acc,
                         NULL);
         XmStringFree(winecfg_str);
         XmStringFree(uninstaller_str);
@@ -1662,6 +1677,7 @@ gui_create_menubar(void)
         XmStringFree(regedit_str);
         XmStringFree(winefile_str);
         XmStringFree(winetricks_str);
+        XmStringFree(kill_wine_acc);
         about_str = XmStringCreateLocalized("About XTeetotaller");
         main_gui_data.help_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "help_menu", help_button_i,

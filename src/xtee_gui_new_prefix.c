@@ -482,14 +482,13 @@ show_new_prefix_dialog(void)
                 text_args_n = 0;
                 XtSetArg(text_args[text_args_n], XmNmaxLength,
                                 XTEE_MAX_FILE_PATH_LEN); text_args_n++;
-                XtSetArg(filesel_args[filesel_args_n], XmNfileTypeMask,
-                                XmFILE_DIRECTORY); filesel_args_n++;
                 XtSetArg(filesel_args[filesel_args_n], XmNdialogTitle,
                                 tmp_str); filesel_args_n++;
                 add_ltpf_field_to_XteeGuiBasicFormDialog(dialog,
                                 "prefix_dir_form", "Prefix directory: ",
                                 text_args, text_args_n,
-                                filesel_args, filesel_args_n);
+                                filesel_args, filesel_args_n,
+                                XmFILE_DIRECTORY);
                 XmStringFree(tmp_str);
                 add_simple_form_field_to_XteeGuiBasicFormDialog(
                                 dialog,
