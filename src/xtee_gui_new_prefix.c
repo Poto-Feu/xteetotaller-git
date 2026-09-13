@@ -490,9 +490,8 @@ show_new_prefix_dialog(void)
                                 filesel_args, filesel_args_n,
                                 XmFILE_DIRECTORY);
                 XmStringFree(tmp_str);
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
+                add_toggle_form_field_to_XteeGuiBasicFormDialog(
                                 dialog,
-                                XTEE_GUI_FORM_FIELD_TOGGLE,
                                 "isolate_home_toggle", "Isolate home");
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,
                                 new_prefix_dialog_ok_cb,

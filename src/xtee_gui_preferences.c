@@ -55,9 +55,8 @@ xtee_gui_preferences_show_dialog(void)
                                 xtee_gui_get_main_win(),
                                 "preferences_dialog",
                                 "XTeetotaller preferences");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
+                add_toggle_form_field_to_XteeGuiBasicFormDialog(
                                 prefs_dialog,
-                                XTEE_GUI_FORM_FIELD_TOGGLE,
                                 "show_hidden_files_toggle",
                                 "Show hidden files on File Selection "
                                 "dialogs.");

@@ -423,45 +423,6 @@ grow_dialog_fields_block_if_needed(XteeGuiBasicFormDialog *dialog)
 }
 
 void
-add_simple_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
-                enum XteeGuiFormFieldType type, char *w_name,
-                char *label_str)
-{
-        bool is_first_field;
-        size_t field_i;
-        Widget new_w = NULL;
-        Widget prev_w = NULL;
-
-        if (type != XTEE_GUI_FORM_FIELD_TOGGLE) {
-                print_warning("Incorrect type for "
-                                "add_simple_form_field_to_"
-                                "XteeGuiBasicFormDialog");
-                type = XTEE_GUI_FORM_FIELD_TOGGLE;
-        }
-
-        is_first_field = dialog->fields_n ? false : true;
-        if (!is_first_field) {
-                prev_w = get_last_XteeGuiFormField_widget(dialog);
-        }
-
-        grow_dialog_fields_block_if_needed(dialog);
-        ++dialog->fields_n;
-        field_i = dialog->fields_n - 1;
-
-        if (type == XTEE_GUI_FORM_FIELD_TOGGLE) {
-                create_gui_toggle_field(&dialog->fields[field_i].data.toggle_g,
-                                dialog->dialog_form,
-                                w_name, label_str);
-                new_w = dialog->fields[field_i].data.toggle_g;
-        } else {
-                /* If this happens, there is a bug somewhere */
-                fatal_error("Unknown form field type.");
-        }
-        dialog->fields[field_i].type = type;
-        set_form_attach_resources(new_w, prev_w);
-}
-
-void
 add_label_text_form_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 char *w_name, char *label_str,
@@ -532,6 +493,32 @@ add_ltpf_field_to_XteeGuiBasicFormDialog(
         }
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LTPF;
         new_w = form_data->form;
+        set_form_attach_resources(new_w, prev_w);
+}
+
+void
+add_toggle_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
+                char *w_name, char *label_str)
+{
+        bool is_first_field;
+        size_t field_i;
+        Widget new_w = NULL;
+        Widget prev_w = NULL;
+
+        is_first_field = dialog->fields_n ? false : true;
+        if (!is_first_field) {
+                prev_w = get_last_XteeGuiFormField_widget(dialog);
+        }
+
+        grow_dialog_fields_block_if_needed(dialog);
+        ++dialog->fields_n;
+        field_i = dialog->fields_n - 1;
+
+        create_gui_toggle_field(&dialog->fields[field_i].data.toggle_g,
+                        dialog->dialog_form,
+                        w_name, label_str);
+        new_w = dialog->fields[field_i].data.toggle_g;
+        dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_TOGGLE;
         set_form_attach_resources(new_w, prev_w);
 }
 

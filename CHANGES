@@ -1,6 +1,11 @@
+2026-09-13
+* Replace add_simple_form_field_to_XteeGuiBasicFormDialog with
+add_toggle_form_field_to_XteeGuiBasicFormDialog
+
 2026-09-12
 * Remove redundant dropdown list field form attachment settings
 * Add accelerators to menubar
+* Remove Unfinished Program dialog
 
 2026-09-11
 * Replace if conditions with an array in wine_menu_cb

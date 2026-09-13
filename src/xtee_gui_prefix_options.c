@@ -424,9 +424,8 @@ xtee_gui_show_prefix_options_dialog(Widget main_win)
                                 main_win,
                                 "prefix_options_dialog",
                                 "Prefix options");
-                add_simple_form_field_to_XteeGuiBasicFormDialog(
+                add_toggle_form_field_to_XteeGuiBasicFormDialog(
                                 dialog,
-                                XTEE_GUI_FORM_FIELD_TOGGLE,
                                 "disable_winemenubuilder_toggle",
                                 "Disable winemenubuilder");
                 XtAddCallback(dialog->ok_btn, XmNactivateCallback,

@@ -111,9 +111,6 @@ XteeGuiFormField *XteeGuiBasicFormDialog_get_field(
                 XteeGuiBasicFormDialog *dialog, size_t i);
 
 /* Can only add Toggle fields */
-void add_simple_form_field_to_XteeGuiBasicFormDialog(
-                XteeGuiBasicFormDialog *dialog,
-                enum XteeGuiFormFieldType type, char *w_name, char *label_str);
 void add_label_text_form_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,
                 char *w_name, char *label_str,
@@ -124,6 +121,9 @@ void add_ltpf_field_to_XteeGuiBasicFormDialog(
                 Arg *text_args, unsigned int text_args_n,
                 Arg *filesel_args, unsigned int filesel_args_n,
                 unsigned char file_type_mask);
+void add_toggle_form_field_to_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog,
+                char *w_name, char *label_str);
 
 void add_radiobox_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog,

@@ -5,8 +5,6 @@
 #include <errno.h>
 
 static struct XteeConfigurationVariable config_vars[] = {
-        { XTEE_CONSTSTRING_STATIC_INIT("gui.show_unfinished_app_dialog"),
-                XTEE_CONSTSTRING_STATIC_INIT("true") },
         { XTEE_CONSTSTRING_STATIC_INIT("gui.show_hidden_files"),
                 XTEE_CONSTSTRING_STATIC_INIT("true") },
 };

@@ -273,75 +273,6 @@ xtee_gui_set_message_area_string(char *s)
         xtee_gui_set_motif_label_string(main_gui_data.message_area_label, s);
 }
 
-#define XTEE_UNFINISHED_APP_CONTENT \
-"This is an alpha version of xteetotaller.\n\
-You may encounter bugs or unimplemented features.\n\n\
-Please note that xteetotaller is vulnerable to TOCTOU race conditions.\n\
-Do not try to rename or modify configurations files during filesystem \
-operations."
-
-static
-XTEE_XT_CALLBACK_FUNC(unfinished_app_dialog_unmap_cb)
-{
-        Widget dont_show_again;
-
-        (void)client_data;
-        (void)call_data;
-
-        if ((dont_show_again = XtNameToWidget(w, "dont_show_again"))) {
-                unsigned char is_set;
-
-                XtVaGetValues(dont_show_again, XmNset, &is_set, NULL);
-                if (is_set == XmSET) {
-                        xtee_config_set_entry_value_and_write(
-                                        "gui.show_unfinished_app_dialog",
-                                        "false");
-                        print_info("gui.show_unfinished_app_dialog set to "
-                                        "false");
-                } else if (is_set == XmUNSET) {
-                        xtee_config_set_entry_value_and_write(
-                                        "gui.show_unfinished_app_dialog",
-                                        "true");
-                        print_info("gui.show_unfinshed_app_dialog set to "
-                                        "true");
-                }
-        }
-
-        XtDestroyWidget(XtParent(w));
-}
-
-static void
-show_unfinished_app_dialog(Widget parent)
-{
-        Arg args[10];
-        Widget dialog, dont_show_again;
-        XmString dialog_title, dialog_text;
-        unsigned int n = 0;
-
-        dialog_title = XmStringCreateLocalized("Unfinished application");
-        dialog_text = XmStringCreateLocalized(XTEE_UNFINISHED_APP_CONTENT);
-        set_message_dialog_args(args, &n, dialog_title, dialog_text);
-        dialog = XmCreateInformationDialog(parent, "unfinished_app_dialog",
-                        args, n);
-        XmStringFree(dialog_title);
-        XmStringFree(dialog_text);
-
-        dont_show_again = XmVaCreateToggleButtonGadget(dialog,
-                        "dont_show_again",
-                        XmNalignment, XmALIGNMENT_BEGINNING,
-                        XmNspacing, 20,
-                        NULL);
-        xtee_gui_set_motif_label_string(dont_show_again,
-                        "Don't show this again");
-        XtManageChild(dont_show_again);
-
-        xtee_gui_hide_dialog_cancel_button(dialog);
-        xtee_gui_disable_dialog_help_button(dialog);
-        XtAddCallback(dialog, XmNunmapCallback, unfinished_app_dialog_unmap_cb,
-                        NULL);
-        XtManageChild(dialog);
-}
-
 static void
 disable_programs_btns(void)
 {
@@ -1817,8 +1748,6 @@ xtee_gui_init(int *argc, char *argv[])
 void
 xtee_gui_run(void)
 {
-        const char *config_val;
-
         XtRealizeWidget(main_gui_data.toplevel);
 
         if (!xtee_system_is_wine_installed) {
@@ -1836,14 +1765,6 @@ xtee_gui_run(void)
                                 main_gui_data.main_win);
         }
 
-        if(!(config_val = xtee_config_get_entry_value(
-                                        "gui.show_unfinished_app_dialog"))
-                        || !xtee_strcmp_bool(config_val, "false")) {
-                show_unfinished_app_dialog(main_gui_data.main_win);
-        } else {
-                print_info("Not showing unfinished application dialog "
-                                "per user setting");
-        }
         XtAppMainLoop(main_gui_data.app_context);
 }
 
