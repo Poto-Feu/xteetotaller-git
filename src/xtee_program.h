@@ -20,6 +20,7 @@ typedef struct XteeProgram {
         size_t overrides_n;
         XteeStringList args_list;
         bool is_x11_display_set;
+        bool is_damavand_on;
 } XteeProgram;
 
 void xtee_init_program(XteeProgram *program,

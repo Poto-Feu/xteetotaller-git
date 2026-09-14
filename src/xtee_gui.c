@@ -1,7 +1,6 @@
 #include "xtee_gui.h"
 #include "xtee_error.h"
 #include "xtee_file.h"
-#include "xtee_gui_form.h"
 #include "xtee_gui_new_prefix.h"
 #include "xtee_gui_new_program.h"
 #include "xtee_gui_preferences.h"
@@ -11,7 +10,6 @@
 #include "xtee_state.h"
 #include "xtee_system.h"
 #include "xtee_utils.h"
-#include "xtee_wine.h"
 #include "xteetotaller.h"
 
 #include <Xm/AtomMgr.h>
@@ -101,11 +99,10 @@ static XteePushButtonData programs_btns_data[] = {
                 &main_gui_data.work_area_struct.remove_program_btn },
 };
 
-static int start_program_btn_i = 0;
-static int program_options_btn_i = 1;
-static int remove_program_btn_i = 2;
+static const int start_program_btn_i = 0;
+static const int program_options_btn_i = 1;
+static const int remove_program_btn_i = 2;
 
-static Widget run_exec_browse_dialog = NULL;
 static Widget main_working_dialog = NULL;
 
 char *
@@ -477,6 +474,13 @@ xtee_gui_set_env_data_handler(const XteePrefix *prefix, XteeProgram *program,
                 xtee_env_data_add_var_to_handler(&env_data_handler,
                                 "DISPLAY",
                                 env_data_handler.x11_display_str);
+        }
+
+        /* Set WINE_D3D_CONFIG if needed */
+        if (program && program->is_damavand_on) {
+                xtee_env_data_add_var_to_handler(&env_data_handler,
+                                "WINE_D3D_CONFIG",
+                                "renderer=vulkan");
         }
 
         return env_data_handler;
@@ -1214,6 +1218,7 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
 static void
 xtee_gui_run_executable_in_prefix(void)
 {
+        static Widget run_exec_browse_dialog = NULL;
         char *gui_show_hidden_files_val;
 
         if (!run_exec_browse_dialog) {

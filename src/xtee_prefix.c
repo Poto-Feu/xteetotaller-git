@@ -761,6 +761,22 @@ write_program_config_file(XteeProgram *program,
                 }
         }
 
+        if (program->is_damavand_on) {
+                XteeConfigurationEntry conf_entry = {
+                        "enable_damavand", "true"
+                };
+                if (xtee_write_config_entry(f, conf_entry) != 0) {
+                        return -1;
+                }
+        } else {
+                XteeConfigurationEntry conf_entry = {
+                        "enable_damavand", "false"
+                };
+                if (xtee_write_config_entry(f, conf_entry) != 0) {
+                        return -1;
+                }
+        }
+
         return 0;
 }
 
@@ -890,12 +906,12 @@ xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix)
         }
 
         for (size_t i = 0; i < prefix->dxvk_x32_dlls.n; ++i) {
-                const char *x32_dll_info_strs[4];
-
-                x32_dll_info_strs[0] = "Adding ";
-                x32_dll_info_strs[1] = prefix->dxvk_x32_dlls.data[i].s;
-                x32_dll_info_strs[2] = " to dll list.";
-                x32_dll_info_strs[3] = NULL;
+                const char *x32_dll_info_strs[4] = {
+                        "Adding ",
+                        prefix->dxvk_x32_dlls.data[i].s,
+                        " to dll list.",
+                        NULL,
+                };
                 print_info_strs(x32_dll_info_strs);
                 xtee_add_charstring_to_XteeStringList(&dlls_list,
                                 prefix->dxvk_x32_dlls.data[i].s);
@@ -904,19 +920,19 @@ xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix)
         for (size_t i = 0; i < prefix->dxvk_x64_dlls.n; ++i) {
                 if (XteeStringList_is_charstring_present(&dlls_list,
                                         prefix->dxvk_x64_dlls.data[i].s)) {
-                        const char *x64_dll_info_strs[3];
-
-                        x64_dll_info_strs[0] = prefix->dxvk_x64_dlls.data[i].s;
-                        x64_dll_info_strs[1] = " is already on dll list.";
-                        x64_dll_info_strs[2] = NULL;
+                        const char *x64_dll_info_strs[3] = {
+                                prefix->dxvk_x64_dlls.data[i].s,
+                                " is already on dll list.",
+                                NULL,
+                        };
                         print_info_strs(x64_dll_info_strs);
                 } else {
-                        const char *x64_dll_info_strs[4];
-
-                        x64_dll_info_strs[0] = "Adding ";
-                        x64_dll_info_strs[1] = prefix->dxvk_x64_dlls.data[i].s;
-                        x64_dll_info_strs[2] = " to dll list.";
-                        x64_dll_info_strs[3] = NULL;
+                        const char *x64_dll_info_strs[4] = {
+                                "Adding ",
+                                prefix->dxvk_x64_dlls.data[i].s,
+                                " to dll list.",
+                                NULL,
+                        };
                         print_info_strs(x64_dll_info_strs);
                         xtee_add_charstring_to_XteeStringList(&dlls_list,
                                         prefix->dxvk_x64_dlls.data[i].s);
@@ -1068,6 +1084,9 @@ read_program_config_file(XteeProgram *restrict program,
                         program->x11_display_str =
                                 XteeString_create_from_charstring(var_value);
                         program->is_x11_display_set = true;
+                } else if (xtee_strcmp_bool(var_name, "enable_damavand")) {
+                        program->is_damavand_on =
+                                xtee_string_to_bool(var_value);
                 } else {
                         print_warning("Unknown var name in program "
                                         "configuration file.");

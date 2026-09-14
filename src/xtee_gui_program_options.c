@@ -7,9 +7,9 @@
 #include <Xm/List.h>
 #include <Xm/SelectioB.h>
 #include <Xm/TextF.h>
+#include <Xm/ToggleBG.h>
 
 static XteeGuiBasicFormDialog xtee_gui_program_options_dialog = { 0 };
-static Widget new_arg_dialog = NULL;
 
 static const size_t exe_path_field_i = 0;
 
@@ -18,6 +18,7 @@ static const size_t add_arg_btn_i = 0;
 static const size_t remove_arg_btn_i = 1;
 
 static const size_t x11_display_field_i = 2;
+static const size_t enable_damavand_field_i = 3;
 
 static
 XTEE_XT_CALLBACK_FUNC(program_options_unmap_cb)
@@ -37,7 +38,8 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
         char *tmp_ptr;
         XteeGuiBasicFormDialog *dialog;
         XteeProgram *program;
-        XteeGuiFormField *exe_path_field, *x11_display_field;
+        XteeGuiFormField *exe_path_field, *x11_display_field,
+                         *enable_damavand_field;
 
         (void)w;
         (void)call_data;
@@ -77,6 +79,9 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
                 program->is_x11_display_set = false;
         }
         free(x11_display_string);
+        enable_damavand_field = dialog->fields + enable_damavand_field_i;
+        program->is_damavand_on = (bool)XmToggleButtonGadgetGetState(
+                        enable_damavand_field->data.toggle_g);
 
         if (xtee_state_save_loaded_program() != 0) {
                 gui_print_error_log_and_dialog("Cannot save program data.",
@@ -182,6 +187,7 @@ XTEE_XT_CALLBACK_FUNC(add_argument_dialog_cb)
 static
 XTEE_XT_CALLBACK_FUNC(add_arg_btn_cb)
 {
+        static Widget new_arg_dialog = NULL;
         XteeGuiBasicFormDialog *dialog;
         Widget textfield_w;
 
@@ -284,6 +290,7 @@ xtee_gui_show_program_options_dialog(Widget main_win)
         static bool is_dialog_ready = false;
         XteeGuiBasicFormDialog *dialog;
         XteeProgram *loaded_program;
+        XteeGuiFormField *enable_damavand_field;
         enum XteeGetProgramDataStatus status;
 
         dialog = &xtee_gui_program_options_dialog;
@@ -348,6 +355,10 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                                 "x11_display_text",
                                 "X11 Display (leave empty for default)",
                                 NULL, 0);
+                add_toggle_form_field_to_XteeGuiBasicFormDialog(dialog,
+                                "enable_damavand_toggle",
+                                "Enable WineD3D Damavand Vulkan backend "
+                                " (for Wine >= 8.0)");
                 is_dialog_ready = true;
         }
         reset_XteeGuiBasicFormDialog_fields(dialog);
@@ -373,6 +384,12 @@ xtee_gui_show_program_options_dialog(Widget main_win)
                 XmTextFieldSetString(x11_display_field->data.ltf.text,
                                 loaded_program->x11_display_str.s);
         }
+
+        /* Set enable_damavand_toggle */
+        enable_damavand_field = dialog->fields + enable_damavand_field_i;
+        XmToggleButtonGadgetSetState(enable_damavand_field->data.toggle_g,
+                        loaded_program->is_damavand_on,
+                        False);
 
         XtManageChild(dialog->dialog_form);
 }

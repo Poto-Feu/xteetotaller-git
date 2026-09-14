@@ -1,6 +1,14 @@
+2026-09-14
+* Reduce new_arg_dialog scope
+
 2026-09-13
 * Replace add_simple_form_field_to_XteeGuiBasicFormDialog with
 add_toggle_form_field_to_XteeGuiBasicFormDialog
+* Remove some redundant headers include
+* Make programs buttons indexes static variables const
+* Move run_exec_browse_dialog from global static to function static
+* Initialize log messages array in xtee_prefix.c
+* Add toggle for enabling WineD3D Damavand Vulkan backend
 
 2026-09-12
 * Remove redundant dropdown list field form attachment settings
