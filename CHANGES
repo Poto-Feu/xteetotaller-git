@@ -1,5 +1,7 @@
 2026-09-14
 * Reduce new_arg_dialog scope
+* Move preferences dialog data to xtee_gui_data_struct
+* Move more dialogs to xtee_gui_data_struct
 
 2026-09-13
 * Replace add_simple_form_field_to_XteeGuiBasicFormDialog with

@@ -83,6 +83,16 @@ typedef struct XteeGuiMainData {
         Widget message_area_label;
 } XteeGuiMainData;
 
+typedef struct XteeGuiData {
+        XteeGuiBasicFormDialog program_options_dialog;
+        XteeGuiBasicFormDialog new_prefix_dialog;
+        XteeGuiBasicFormDialog prefs_dialog;
+        XteeGuiBasicFormDialog prefix_options_dialog;
+        XteeGuiBasicFormDialog new_program_dialog;
+} XteeGuiData;
+
+XteeGuiData xtee_gui_data_struct = { 0 };
+
 static const char *prefix_button_id = "button_2";
 static const char *wine_button_id = "button_3";
 
@@ -578,7 +588,8 @@ XTEE_XT_CALLBACK_FUNC(program_options_btn_cb)
         (void)w;
         (void)call_data;
         (void)client_data;
-        xtee_gui_show_program_options_dialog(main_gui_data.main_win);
+        xtee_gui_show_program_options_dialog(main_gui_data.main_win,
+                        &xtee_gui_data_struct.program_options_dialog);
 }
 
 static
@@ -1070,7 +1081,8 @@ XTEE_XT_CALLBACK_FUNC(file_menu_cb)
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
         if (item_i == new_prefix_i) {
-                show_new_prefix_dialog();
+                xtee_gui_show_new_prefix_dialog(
+                                &xtee_gui_data_struct.new_prefix_dialog);
         } else if (item_i == open_prefix_i) {
                 show_open_prefix_dialog();
         } else if (item_i == exit_i) {
@@ -1091,7 +1103,8 @@ XTEE_XT_CALLBACK_FUNC(edit_menu_cb)
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
         if (item_i == preferences_item_i) {
-                xtee_gui_preferences_show_dialog();
+                xtee_gui_preferences_show_dialog(
+                                &xtee_gui_data_struct.prefs_dialog);
         }
 }
 
@@ -1292,9 +1305,11 @@ XTEE_XT_CALLBACK_FUNC(prefix_menu_cb)
                 }
                 xtee_gui_set_message_area_string("Prefix reloaded.");
         } else if (item_i == prefix_options_i) {
-                xtee_gui_show_prefix_options_dialog(main_gui_data.main_win);
+                xtee_gui_show_prefix_options_dialog(main_gui_data.main_win,
+                                &xtee_gui_data_struct.prefix_options_dialog);
         } else if (item_i == new_program_i) {
-                xtee_gui_new_program_show_dialog();
+                xtee_gui_new_program_show_dialog(
+                                &xtee_gui_data_struct.new_program_dialog);
         } else if (item_i == run_executable_i) {
                 xtee_gui_run_executable_in_prefix();
         }
@@ -1773,13 +1788,20 @@ xtee_gui_run(void)
         XtAppMainLoop(main_gui_data.app_context);
 }
 
+static void
+xtee_gui_free_data_struct(XteeGuiData *xtee_gui_data)
+{
+        free_XteeGuiBasicFormDialog(&xtee_gui_data->program_options_dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_data->new_prefix_dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_data->prefs_dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_data->prefix_options_dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_data->new_program_dialog);
+}
+
 void
 xtee_gui_free(void)
 {
-        xtee_gui_new_prefix_free();
-        xtee_gui_prefix_options_free();
-        xtee_gui_program_options_free();
-        xtee_gui_new_program_free();
+        xtee_gui_free_data_struct(&xtee_gui_data_struct);
         XtDestroyWidget(main_gui_data.toplevel);
         XmRenderTableFree(xtee_gui_render_table);
 }

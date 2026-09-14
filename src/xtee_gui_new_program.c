@@ -1,11 +1,9 @@
 #include "xtee_gui_new_program.h"
 #include "xtee_file.h"
 #include "xtee_gui.h"
-#include "xtee_gui_form.h"
 #include "xtee_state.h"
 
 static const size_t exe_path_field_i = 1;
-static XteeGuiBasicFormDialog new_program_dialog = { 0 };
 
 static
 XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
@@ -121,7 +119,7 @@ XTEE_XT_CALLBACK_FUNC(new_program_cancel_cb)
 }
 
 void
-xtee_gui_new_program_show_dialog(void)
+xtee_gui_new_program_show_dialog(XteeGuiBasicFormDialog *new_program_dialog)
 {
         static bool is_dialog_ready = false;
 
@@ -134,14 +132,14 @@ xtee_gui_new_program_show_dialog(void)
 
                 tmp_str = XmStringCreateLocalized("Program file selection");
 
-                create_XteeGuiBasicFormDialog(&new_program_dialog,
+                create_XteeGuiBasicFormDialog(new_program_dialog,
                                 xtee_gui_get_main_win(),
                                 "new_program_dialog",
                                 "New Program");
                 XtSetArg(text_args[text_args_n], XmNmaxLength,
                                 XTEE_PROGRAM_ID_MAX_LEN); text_args_n++;
                 add_label_text_form_field_to_XteeGuiBasicFormDialog(
-                                &new_program_dialog,
+                                new_program_dialog,
                                 "program_id_form", "Id: ",
                                 text_args, text_args_n);
                 text_args_n = 0;
@@ -150,29 +148,23 @@ xtee_gui_new_program_show_dialog(void)
                 XtSetArg(filesel_args[filesel_args_n],
                                 XmNdialogTitle, tmp_str); filesel_args_n++;
                 add_ltpf_field_to_XteeGuiBasicFormDialog(
-                                &new_program_dialog,
+                                new_program_dialog,
                                 "program_exe_path", "Executable path: ",
                                 text_args, text_args_n,
                                 filesel_args, filesel_args_n, XmFILE_REGULAR);
                 XmStringFree(tmp_str);
 
-                XtAddCallback(new_program_dialog.ok_btn,
+                XtAddCallback(new_program_dialog->ok_btn,
                                 XmNactivateCallback,
                                 new_program_ok_cb,
-                                &new_program_dialog);
-                XtAddCallback(new_program_dialog.cancel_btn,
+                                new_program_dialog);
+                XtAddCallback(new_program_dialog->cancel_btn,
                                 XmNactivateCallback,
                                 new_program_cancel_cb,
-                                new_program_dialog.dialog_form);
+                                new_program_dialog->dialog_form);
                 is_dialog_ready = true;
         } else {
-                reset_XteeGuiBasicFormDialog_fields(&new_program_dialog);
+                reset_XteeGuiBasicFormDialog_fields(new_program_dialog);
         }
-        XtManageChild(new_program_dialog.dialog_form);
-}
-
-void
-xtee_gui_new_program_free(void)
-{
-        free_XteeGuiBasicFormDialog(&new_program_dialog);
+        XtManageChild(new_program_dialog->dialog_form);
 }

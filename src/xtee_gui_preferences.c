@@ -1,10 +1,8 @@
 #include "xtee_gui_preferences.h"
 #include "xtee_gui.h"
-#include "xtee_gui_form.h"
 
 #include <Xm/ToggleBG.h>
 
-static XteeGuiBasicFormDialog xtee_gui_preferences_dialog = { 0 };
 static const size_t show_hidden_files_field_i = 0;
 
 static
@@ -42,14 +40,12 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_cancel_cb)
 }
 
 void
-xtee_gui_preferences_show_dialog(void)
+xtee_gui_preferences_show_dialog(XteeGuiBasicFormDialog *restrict prefs_dialog)
 {
         static bool is_dialog_ready = false;
-        XteeGuiBasicFormDialog *prefs_dialog;
         XteeGuiFormField *show_hidden_files_field;
         const char *gui_show_hidden_files_val;
 
-        prefs_dialog = &xtee_gui_preferences_dialog;
         if (!is_dialog_ready) {
                 create_XteeGuiBasicFormDialog(prefs_dialog,
                                 xtee_gui_get_main_win(),
@@ -63,11 +59,11 @@ xtee_gui_preferences_show_dialog(void)
                 XtAddCallback(prefs_dialog->ok_btn,
                                 XmNactivateCallback,
                                 prefs_dialog_ok_cb,
-                                &xtee_gui_preferences_dialog);
+                                prefs_dialog);
                 XtAddCallback(prefs_dialog->cancel_btn,
                                 XmNactivateCallback,
                                 prefs_dialog_cancel_cb,
-                                &xtee_gui_preferences_dialog);
+                                prefs_dialog);
                 is_dialog_ready = true;
         }
         show_hidden_files_field = prefs_dialog->fields
@@ -85,5 +81,5 @@ xtee_gui_preferences_show_dialog(void)
                                 show_hidden_files_field->data.toggle_g,
                                 True, False);
         }
-        XtManageChild(xtee_gui_preferences_dialog.dialog_form);
+        XtManageChild(prefs_dialog->dialog_form);
 }

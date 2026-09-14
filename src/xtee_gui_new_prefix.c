@@ -21,15 +21,8 @@ static char *arch_choices_str[3] = { "win32", "win64", "wow64" };
 static const unsigned int arch_choices_n = XTEE_ARRAY_LEN(arch_choices_str);
 
 static unsigned xtee_new_prefix_arch_choice_i;
-static XteeGuiBasicFormDialog xtee_gui_new_prefix_dialog = { 0 };
 
 static Widget new_prefix_working_dialog = NULL;
-
-void
-xtee_gui_new_prefix_free(void)
-{
-        free_XteeGuiBasicFormDialog(&xtee_gui_new_prefix_dialog);
-}
 
 static
 XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_cancel_cb)
@@ -67,12 +60,8 @@ print_dir_status_error(char *s, Widget parent)
 }
 
 static void
-show_new_prefix_working_dialog(void)
+show_new_prefix_working_dialog(Widget parent)
 {
-        XteeGuiBasicFormDialog *parent;
-
-        parent = &xtee_gui_new_prefix_dialog;
-
         if (!new_prefix_working_dialog) {
                 Arg args[10];
                 Cardinal n = 0;
@@ -89,7 +78,7 @@ show_new_prefix_working_dialog(void)
                 XtSetArg(args[n], XmNdialogStyle,
                                 XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
                 new_prefix_working_dialog = XmCreateWorkingDialog(
-                                parent->dialog_form,
+                                parent,
                                 "prefix_init_working_dialog",
                                 args, n);
                 XmStringFree(dialog_title);
@@ -335,7 +324,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                         goto dir_status_error_rtrn;
         }
 
-        show_new_prefix_working_dialog();
+        show_new_prefix_working_dialog(dialog->dialog_form);
         status = create_new_prefix(prefix_id_str, prefix_dir_str,
                         wine_version_charstr, arch_enum_val, isolate_home);
         free(wine_version_charstr);
@@ -442,12 +431,9 @@ create_new_prefix_wine_version_dropdownlist(XteeGuiBasicFormDialog *dialog)
 }
 
 void
-show_new_prefix_dialog(void)
+xtee_gui_show_new_prefix_dialog(XteeGuiBasicFormDialog *dialog)
 {
-        XteeGuiBasicFormDialog *dialog;
         static bool is_dialog_ready = false;
-
-        dialog = &xtee_gui_new_prefix_dialog;
 
         if (xtee_wine_versions_data.n == 0
                         && !xtee_system_is_wine_installed) {
