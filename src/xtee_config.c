@@ -155,6 +155,28 @@ xtee_config_read_variable_line(char *name, char *value, size_t max_name_len,
         return 0;
 }
 
+/* If a non-zero value is returned, the configuration entry does not exist. */
+static int
+xtee_config_set_entry_value(const char *restrict name,
+                const char *restrict val)
+{
+        XteeConfigurationEntry *entry;
+        char *val_buf;
+        size_t val_len;
+
+        val_len = strlen(val);
+        if (!(entry = xtee_config_get_entry(name))) {
+                return -1;
+        }
+        val_buf = malloc_or_exit(val_len + 1);
+        memcpy(val_buf, val, val_len);
+        val_buf[val_len] = '\0';
+
+        free(entry->val);
+        entry->val = val_buf;
+        return 0;
+}
+
 /* Returns a non-zero value on error.
  * If 0 is returned, check if EOF is reached. */
 static int
@@ -315,34 +337,13 @@ xtee_config_free(void)
 char *
 xtee_config_get_entry_value(const char *name)
 {
-        XteeConfigurationEntry *entry;
+        const XteeConfigurationEntry *entry;
 
         if (!(entry = xtee_config_get_entry(name))) {
                 return NULL;
         }
 
         return entry->val;
-}
-
-int
-xtee_config_set_entry_value(const char *restrict name,
-                const char *restrict val)
-{
-        XteeConfigurationEntry *entry;
-        char *val_buf;
-        size_t val_len;
-
-        val_len = strlen(val);
-        if (!(entry = xtee_config_get_entry(name))) {
-                return -1;
-        }
-        val_buf = malloc_or_exit(val_len + 1);
-        memcpy(val_buf, val, val_len);
-        val_buf[val_len] = '\0';
-
-        free(entry->val);
-        entry->val = val_buf;
-        return 0;
 }
 
 void

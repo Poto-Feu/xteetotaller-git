@@ -36,7 +36,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_cancel_cb)
 static
 XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_arch_radiobox_cb)
 {
-        XmToggleButtonCallbackStruct *cbs;
+        const XmToggleButtonCallbackStruct *cbs;
         unsigned int *arch_choice_i;
 
         (void)w;
@@ -63,26 +63,18 @@ static void
 show_new_prefix_working_dialog(Widget parent)
 {
         if (!new_prefix_working_dialog) {
-                Arg args[10];
+                Arg args[4];
                 Cardinal n = 0;
-                XmString dialog_title;
-                XmString message_string;
 
-                dialog_title = XmStringCreateLocalized(
-                                "Prefix initialization");
-                message_string = XmStringCreateLocalized(
-                                "Wine prefix is being initialized.");
-
-                XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
-                XtSetArg(args[n], XmNmessageString, message_string); n++;
                 XtSetArg(args[n], XmNdialogStyle,
                                 XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
                 new_prefix_working_dialog = XmCreateWorkingDialog(
                                 parent,
                                 "prefix_init_working_dialog",
                                 args, n);
-                XmStringFree(dialog_title);
-                XmStringFree(message_string);
+                xtee_gui_set_dialog_title_message(new_prefix_working_dialog,
+                                "Prefix initialization",
+                                "Wine prefix is being initialized.");
                 XtUnmanageChild(XtNameToWidget(new_prefix_working_dialog,
                                         "OK"));
                 xtee_gui_disable_dialog_help_button(new_prefix_working_dialog);
@@ -157,9 +149,9 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         const int prefix_id_field_i = XTEE_NEW_PREFIX_ID_FIELD_I;
         const int isolate_home_field_i = XTEE_NEW_PREFIX_ISOLATE_HOME_FIELD_I;
         char *wine_version_charstr = NULL;
-        XteeWineVersionData *wine_version_data;
+        const XteeWineVersionData *wine_version_data;
         XteeGuiBasicFormDialog *dialog;
-        char *prefix_arch_str;
+        const char *prefix_arch_str;
         char *prefix_id_str, *prefix_dir_str;
         enum XteeNewPrefixCreateStatus status;
         enum XteeDirStatus dir_status;
@@ -405,7 +397,7 @@ load_prefix_error:
         return;
 }
 
-void
+static void
 create_new_prefix_arch_radiobox(XteeGuiBasicFormDialog *dialog)
 {
         XteeGuiFormField *last_field;
@@ -418,7 +410,7 @@ create_new_prefix_arch_radiobox(XteeGuiBasicFormDialog *dialog)
                         new_prefix_dialog_arch_radiobox_cb);
 }
 
-void
+static void
 create_new_prefix_wine_version_dropdownlist(XteeGuiBasicFormDialog *dialog)
 {
         XteeStringList items_list;

@@ -57,17 +57,10 @@ xtee_string_to_bool(const char *s)
         return (strcmp("false", s) == 0) ? false : true;
 }
 
-inline bool
-xtee_is_char_ascii_alphanum(char c)
-{
-        return ((c > 47 && c < 58) || (c > 64 && c < 91)
-                        || (c > 96 && c < 123));
-}
-
 /* Make sure that all env_data_handler members are initialized to zero when
  * calling this function for the first time. */
-void xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler, char *name,
-                char *value);
+void xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler,
+                const char *name, const char *value);
 void xtee_env_data_free_handler(XteeEnvDataHandler *);
 
 #endif

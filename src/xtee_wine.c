@@ -243,7 +243,7 @@ void
 xtee_wine_free(void)
 {
         for (size_t i = 0; i < xtee_wine_versions_data.n; ++i) {
-                XteeWineVersionData *version_data;
+                const XteeWineVersionData *version_data;
 
                 version_data = xtee_wine_versions_data.block + i;
                 XteeString_free(version_data->id);
@@ -279,7 +279,7 @@ xtee_wine_get_versions_ids(void)
         list.data = malloc_or_exit(list.n * sizeof (XteeString));
 
         for (size_t i = 0; i < xtee_wine_versions_data.n; ++i) {
-                XteeWineVersionData *version_data;
+                const XteeWineVersionData *version_data;
 
                 version_data = xtee_wine_versions_data.block + i;
                 list.data[i] = XteeString_duplicate(version_data->id);

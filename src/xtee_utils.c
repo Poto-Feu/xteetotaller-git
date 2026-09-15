@@ -3,11 +3,10 @@
 
 extern inline char *xtee_bool_to_string(bool x);
 extern inline bool xtee_string_to_bool(const char *s);
-extern inline bool xtee_is_char_ascii_alphanum(char c);
 
 void
 xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler,
-                char *name, char *value)
+                const char *name, const char *value)
 {
         if (!handler->n) {
                 size_t block_initial_size = 6;

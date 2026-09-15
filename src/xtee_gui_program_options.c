@@ -33,7 +33,7 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
         char *x11_display_string;
         char *exe_path_error_str;
         char *exe_path_str;
-        char *tmp_ptr;
+        const char *tmp_ptr;
         XteeGuiBasicFormDialog *dialog;
         XteeProgram *program;
         XteeGuiFormField *exe_path_field, *x11_display_field,
@@ -131,7 +131,7 @@ static
 XTEE_XT_CALLBACK_FUNC(args_list_selection_cb)
 {
         XteeGuiBasicFormDialog *dialog;
-        XmListCallbackStruct *cbs;
+        const XmListCallbackStruct *cbs;
         XteeGuiListButtonsForm *field;
 
         (void)w;
@@ -152,7 +152,7 @@ static
 XTEE_XT_CALLBACK_FUNC(add_argument_dialog_cb)
 {
         XteeProgram *program;
-        XmSelectionBoxCallbackStruct *cbs;
+        const XmSelectionBoxCallbackStruct *cbs;
         XteeGuiBasicFormDialog *dialog;
         char *textfield_str;
 
@@ -224,7 +224,7 @@ static
 XTEE_XT_CALLBACK_FUNC(remove_arg_btn_cb)
 {
         XteeGuiBasicFormDialog *dialog;
-        XmPushButtonCallbackStruct *cbs;
+        const XmPushButtonCallbackStruct *cbs;
         XteeProgram *program;
         unsigned int *list_positions;
         int list_positions_n;
@@ -272,7 +272,7 @@ set_program_args_widgets(XteeGuiBasicFormDialog *dialog,
 }
 
 static void
-set_program_exe_path_field(XteeGuiBasicFormDialog *dialog,
+set_program_exe_path_field(const XteeGuiBasicFormDialog *dialog,
                 XteeProgram *program)
 {
         XteeGuiFormField *exe_path_field;
@@ -379,7 +379,8 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                 XteeGuiFormField *x11_display_field;
 
                 x11_display_field = dialog->fields + x11_display_field_i;
-                XmTextFieldSetString(x11_display_field->data.ltf.text,
+                XteeGuiLabelTextForm_set_text_string(
+                                &x11_display_field->data.ltf,
                                 loaded_program->x11_display_str.s);
         }
 

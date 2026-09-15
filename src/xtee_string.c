@@ -41,7 +41,8 @@ XteeConstString_to_new_XteeString(const XteeConstString cstr)
 {
         XteeString new_str;
 
-        new_str.s = strdup(cstr.s);
+        new_str.s = malloc(cstr.n + 1);
+        memcpy(new_str.s, cstr.s, cstr.n + 1);
         new_str.n = cstr.n;
 
         return new_str;
@@ -87,23 +88,6 @@ xtee_string_merge_char_strings_block(const char **strs)
         } while (*(++strs));
 
         return rtrn_str;
-}
-
-XteeString
-XteeString_merge_charstring_XteeConstString(const char *charstr,
-                const XteeConstString cstr)
-{
-        XteeString new_str;
-        size_t charstr_len = strlen(charstr);
-        size_t total_len = charstr_len + cstr.n;
-
-        new_str.s = malloc_or_exit(total_len + 1);
-        memcpy(new_str.s, charstr, charstr_len);
-        memcpy(new_str.s + charstr_len, cstr.s, cstr.n);
-        new_str.s[total_len] = '\0';
-        new_str.n = total_len;
-
-        return new_str;
 }
 
 XteeString

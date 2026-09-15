@@ -26,7 +26,6 @@ enum XteeDirStatus {
 };
 
 int xtee_directory_exist_or_create(const XteeConstString path);
-bool xtee_is_windows_illegal_character(char c);
 
 /* If a non-zero value is returned, a reading error occured and the type
  * argument is not guaranteed to be set. */

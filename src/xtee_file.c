@@ -17,7 +17,7 @@ xtee_directory_exist_or_create(const XteeConstString path)
         return 0;
 }
 
-bool
+static bool
 xtee_is_windows_illegal_character(char c)
 {
         switch (c) {
@@ -164,7 +164,7 @@ enum XteeDirStatus
 xtee_get_dir_status(const char *path)
 {
         DIR *dir = NULL;
-        struct dirent *dir_entry;
+        const struct dirent *dir_entry;
         int prev_errno;
 
         if (path[0] != '/') {
@@ -217,7 +217,7 @@ xtee_file_get_dir_files_list(XteeConstString dir_path,
 {
         const size_t start_listcapacity = 5;
         DIR *dir = NULL;
-        struct dirent *dir_entry;
+        const struct dirent *dir_entry;
         size_t listcapacity = 0;
         int prev_errno;
 
@@ -309,6 +309,9 @@ xtee_file_copy(const char *restrict dest, const char *restrict file_path)
 
         input_f = fopen(file_path, "rb");
         output_f = fopen(dest, "wb");
+        if (!input_f || !output_f) {
+                return -1;
+        }
 
         while (!feof(input_f)) {
                 size_t n;

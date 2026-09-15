@@ -41,3 +41,17 @@ XTEE_XT_CALLBACK_FUNC(xtee_gui_reset_message_area_string)
         (void)client_data;
         xtee_gui_set_message_area_string("Ready");
 }
+
+void
+xtee_gui_set_dialog_title_message(Widget dialog, char *title, char *msg)
+{
+        XmString title_str, msg_str;
+
+        title_str = XmStringCreateLocalized(title);
+        msg_str = XmStringCreateLocalized(msg);
+        XtVaSetValues(dialog, XmNdialogTitle, title_str,
+                        XmNmessageString, msg_str,
+                        NULL);
+        XmStringFree(title_str);
+        XmStringFree(msg_str);
+}

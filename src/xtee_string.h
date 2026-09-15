@@ -47,9 +47,6 @@ XteeString XteeString_create_from_charstring(const char *s);
 
 XteeString XteeConstString_to_new_XteeString(const XteeConstString);
 XteeString XteeString_merge_char_strings(const char *s1, const char *s2);
-XteeString XteeString_merge_charstring_XteeConstString(
-                const char *charstr,
-                const XteeConstString cstr);
 XteeString XteeString_merge_XteeConstString_charstring(
                 const XteeConstString cstr, const char *charstr);
 XteeString XteeString_merge_XteeConstStrings(

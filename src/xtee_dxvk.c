@@ -56,7 +56,7 @@ add_dxvk_dlls_to_list(XteeStringList *dlls_list,
 }
 
 static void
-free_dxvk_version_data(XteeDxvkVersionData *dxvk_version)
+free_dxvk_version_data(const XteeDxvkVersionData *dxvk_version)
 {
         XteeString_free(dxvk_version->id);
         XteeStringList_free(dxvk_version->x32_dll_strs);

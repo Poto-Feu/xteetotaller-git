@@ -104,11 +104,6 @@ enum XteeLoadPrefixStatus xtee_prefix_load(XteePrefix *prefix,
 int xtee_prefix_save_config(XteePrefix *prefix);
 
 int get_prefixes_ids(XteePrefixIdBlock *block);
-int get_prefix_programs_ids(XteeConstString prefix_id,
-                XteePrefixIdBlock *block);
-
-XteeString xtee_prefix_get_program_config_path(XteePrefix *prefix,
-                XteeProgram *program);
 
 /* We cannot use const for program as its values are used in an
  * XteeConfigurationEntry struct, which discards the const qualifier. */
@@ -126,7 +121,7 @@ int xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program);
 
 /* The returned pointer is dynamically allocated.
  * Don't forget to call free when you don't need it anymore! */
-XteeProgram *xtee_prefix_get_program_data(XteePrefix *prefix,
+XteeProgram *xtee_prefix_get_program_data(const XteePrefix *prefix,
                 const char *program_id,
                 enum XteeGetProgramDataStatus *status);
 
@@ -134,7 +129,7 @@ XteeProgram *xtee_prefix_get_program_data(XteePrefix *prefix,
  * xtee_gui_update_display as the process is not forked when calling these
  * functions. */
 int xtee_prefix_install_dxvk(XteePrefix *prefix,
-                XteeDxvkVersionData *dxvk_data);
+                const XteeDxvkVersionData *dxvk_data);
 int xtee_prefix_remove_dxvk(XteePrefix *prefix);
 
 /* Do not free returned string as they are pointers to string literals. */

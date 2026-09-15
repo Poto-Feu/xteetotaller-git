@@ -22,7 +22,7 @@ static void
 create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
                 char *form_name,
                 char *label_name, char *label_str,
-                char *text_name, int text_left_margin)
+                const char *text_name, int text_left_margin)
 {
         XmString tmp_str;
 
@@ -60,7 +60,7 @@ reset_gui_label_text_form(XteeGuiLabelTextForm *f)
 static
 XTEE_XT_CALLBACK_FUNC(ltpf_browse_dialog_map_cb)
 {
-        char *gui_show_hidden_files_val;
+        const char *gui_show_hidden_files_val;
 
         (void)call_data;
         (void)client_data;
@@ -116,12 +116,12 @@ static void
 create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                 char *form_name,
                 char *label_name, char *label_str,
-                char *text_name, int text_margin)
+                const char *text_name, int text_margin)
 {
         Arg args[10];
         Cardinal n = 0;
         XmString tmp_str;
-        char *gui_show_hidden_files_val;
+        const char *gui_show_hidden_files_val;
 
         form_data->form = XmCreateForm(parent, form_name, NULL, 0);
         tmp_str = XmStringCreateLocalized(label_str);
@@ -252,7 +252,7 @@ reset_XteeGuiFormField(XteeGuiFormField *field)
         }
 }
 
-Widget
+static Widget
 get_XteeGuiFormField_widget(XteeGuiFormField *field)
 {
         enum XteeGuiFormFieldType type;
@@ -364,7 +364,7 @@ get_last_XteeGuiFormField_data(XteeGuiBasicFormDialog *dialog)
         return &dialog->fields[dialog->fields_n - 1];
 }
 
-Widget
+static Widget
 get_last_XteeGuiFormField_widget(XteeGuiBasicFormDialog *dialog)
 {
         if (!dialog->fields_n) {
@@ -376,7 +376,8 @@ get_last_XteeGuiFormField_widget(XteeGuiBasicFormDialog *dialog)
 }
 
 XteeGuiFormField *
-XteeGuiBasicFormDialog_get_field(XteeGuiBasicFormDialog *dialog, size_t i)
+XteeGuiBasicFormDialog_get_field(const XteeGuiBasicFormDialog *dialog,
+                size_t i)
 {
         if (i >= dialog->fields_n) {
                 return NULL;
@@ -524,7 +525,7 @@ add_toggle_form_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
 
 void
 add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
-                char *w_name, char *label_str,
+                const char *w_name, char *label_str,
                 char **choices_str, unsigned int choices_n)
 {
         const int radiobox_w_margin = 10;
@@ -582,8 +583,8 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
 
 void
 add_dropdownlist_field_to_XteeGuiBasicFormDialog(
-                XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
-                XteeStringList choices_strs)
+                XteeGuiBasicFormDialog *dialog, const char *w_name,
+                char *label_str, XteeStringList choices_strs)
 {
         const int dropdownlist_w_margin = 10;
         Arg args[10];
@@ -646,10 +647,9 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
 
 void
 add_list_buttons_field_to_XteeGuiBasicFormDialog(
-                XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
-                XteeStringList buttons_names,
-                char **buttons_strs,
-                bool are_btns_enabled)
+                XteeGuiBasicFormDialog *dialog, const char *w_name,
+                char *label_str, XteeStringList buttons_names,
+                char **buttons_strs, bool are_btns_enabled)
 {
         Arg args[5];
         Cardinal n = 0;
@@ -753,11 +753,10 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
 
 void
 add_string_and_button_field_to_XteeGuiBasicFormDialog(
-                XteeGuiBasicFormDialog *dialog, char *w_name, char *label_str,
-                char *string_name, char *string_str,
-                char *button_name, char *button_str,
-                XTEE_XT_CALLBACK_FUNC_PTR(button_cb),
-                void *client_data)
+                XteeGuiBasicFormDialog *dialog, const char *w_name,
+                char *label_str, const char *string_name, char *string_str,
+                const char *button_name, char *button_str,
+                XTEE_XT_CALLBACK_FUNC_PTR(button_cb), void *client_data)
 {
         const int string_w_margin = 10;
         XteeGuiStringAndButtonForm *form_data;

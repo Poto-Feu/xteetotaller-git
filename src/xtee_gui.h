@@ -9,12 +9,11 @@ extern XmRenderTable xtee_gui_render_table;
 
 void xtee_gui_init(int *argc, char *argv[]);
 void xtee_gui_run(void);
-void xtee_gui_free(void);
 
 char *XmString_to_char_str(XmString *xmstr);
 
 void xtee_gui_set_message_area_string(char *s);
-int refresh_program_list(void);
+void refresh_program_list(void);
 
 int xtee_gui_load_prefix(const char *prefix_id, Widget parent);
 
@@ -25,9 +24,6 @@ void gui_print_error_log_and_dialog(char *msg, Widget parent);
 void gui_print_warning_dialog(char *msg, Widget parent);
 
 Widget xtee_gui_get_main_win(void);
-
-/* Mostly used for working dialogs */
-void xtee_gui_handle_busy_events(void);
 
 /* The block pointed by args MUST NOT have a NULL pointer at its end and
  * args_n should also reflect this.

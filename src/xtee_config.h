@@ -43,10 +43,6 @@ void xtee_config_free(void);
  * DO NOT free the returned pointer as it points to the entry string. */
 char *xtee_config_get_entry_value(const char *name);
 
-/* If a non-zero value is returned, the configuration entry does not exist. */
-int xtee_config_set_entry_value(const char *restrict name,
-                const char *restrict val);
-
 /* If the entry does not exist, it prints an error message but returns 0.
  * Calls exit(-1) on writing errors. */
 void xtee_config_set_entry_value_and_write(const char *restrict name,

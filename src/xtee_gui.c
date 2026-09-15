@@ -56,21 +56,8 @@ typedef struct XteeWorkAreaStruct {
         Widget prefix_info_label;
 } XteeWorkAreaStruct;
 
-typedef struct XteeGuiPlaceholderDialog {
-        Widget dialog_form;
-        Widget label;
-        Widget ok_btn;
-        Widget cancel_btn;
-} XteeGuiPlaceholderDialog;
-
-typedef struct XteeGuiNewProgramData {
-        XteeGuiBasicFormDialog dialog;
-} XteeGuiNewProgramData;
-
 typedef struct XteeGuiMainData {
         XteeWorkAreaStruct work_area_struct;
-        XteeGuiBasicFormDialog prefs_dialog;
-        XteeGuiPlaceholderDialog prefix_options_dialog;
         XtAppContext app_context;
         Widget toplevel;
         Widget main_win;
@@ -126,7 +113,6 @@ XmString_to_char_str(XmString *xmstr)
 static void
 set_and_show_main_working_dialog(char *title, char *msg)
 {
-        XmString title_str, msg_str;
         if (!main_working_dialog) {
                 Arg args[5];
                 Cardinal n = 0;
@@ -140,14 +126,7 @@ set_and_show_main_working_dialog(char *title, char *msg)
                 xtee_gui_hide_dialog_cancel_button(main_working_dialog);
                 xtee_gui_hide_dialog_help_button(main_working_dialog);
         }
-        title_str = XmStringCreateLocalized(title);
-        msg_str = XmStringCreateLocalized(msg);
-        XtVaSetValues(main_working_dialog,
-                        XmNdialogTitle, title_str,
-                        XmNmessageString, msg_str,
-                        NULL);
-        XmStringFree(title_str);
-        XmStringFree(msg_str);
+        xtee_gui_set_dialog_title_message(main_working_dialog, title, msg);
         XtManageChild(main_working_dialog);
 }
 
@@ -311,55 +290,33 @@ reset_prefix_info_label(void)
 static void
 update_prefix_info_label(void)
 {
-        char id_field_str[] = "Id: ";
-        char wineprefix_dir_field_str[] = "Wine prefix directory: ";
-        char wine_version_field_str[] = "Wine version: ";
-        char arch_field_str[] = "Architecture: ";
-        char date_field_str[] = "Date created: ";
         const char *arch_str;
         char *source_str;
-        XteePrefix *current_prefix;
+        const XteePrefix *current_prefix;
 
         current_prefix = xtee_state_get_loaded_prefix();
         arch_str = xtee_prefix_get_arch_string(current_prefix->arch);
-        source_str = malloc(sizeof(id_field_str) + current_prefix->id.n
-                        + sizeof(wineprefix_dir_field_str)
-                        + current_prefix->wineprefix_dir.n
-                        + sizeof(wine_version_field_str)
-                        + current_prefix->wine_version.n
-                        + sizeof(arch_field_str)
-                        + strlen(arch_str)
-                        + sizeof(date_field_str)
-                        + sizeof(current_prefix->creation_date.year)
-                        + sizeof(current_prefix->creation_date.month)
-                        + sizeof(current_prefix->creation_date.day) + 1);
-        source_str[0] = '\0';
-        strcat(source_str, id_field_str);
-        strcat(source_str, current_prefix->id.s);
-        strcat(source_str, "\n");
-        strcat(source_str, wineprefix_dir_field_str);
-        strcat(source_str, current_prefix->wineprefix_dir.s);
-        strcat(source_str, "\n");
-        strcat(source_str, wine_version_field_str);
-        strcat(source_str, current_prefix->wine_version.s);
-        strcat(source_str, "\n");
-        strcat(source_str, arch_field_str);
-        strcat(source_str, arch_str);
-        strcat(source_str, "\n");
-        strcat(source_str, date_field_str);
-        strcat(source_str, current_prefix->creation_date.year);
-        strcat(source_str, "-");
-        strcat(source_str, current_prefix->creation_date.month);
-        strcat(source_str, "-");
-        strcat(source_str, current_prefix->creation_date.day);
-
+        const char *strs_block[] = { "Id; ", current_prefix->id.s,
+                "\n",
+                "Wine prefix directory: ", current_prefix->wine_version.s,
+                "\n",
+                "Wine version: ", current_prefix->wineprefix_dir.s,
+                "\n",
+                "Architecture: ", arch_str,
+                "\n",
+                "Date created: ", current_prefix->creation_date.year,
+                "-", current_prefix->creation_date.month,
+                "-", current_prefix->creation_date.day,
+                NULL,
+        };
+        source_str = xtee_string_merge_char_strings_block(strs_block);
         xtee_gui_set_motif_label_string(
                         main_gui_data.work_area_struct.prefix_info_label,
                         source_str);
         free(source_str);
 }
 
-int
+void
 refresh_program_list(void)
 {
         XmStringTable str_list;
@@ -367,14 +324,14 @@ refresh_program_list(void)
         Widget programs_list;
 
         if (!xtee_state_is_prefix_loaded) {
-                return 0;
+                return;
         }
 
         programs_list = main_gui_data.work_area_struct.programs_list;
         current_prefix = xtee_state_get_loaded_prefix();
         XmListDeleteAllItems(programs_list);
         if (!current_prefix->programs_n) {
-                return 0;
+                return;
         }
 
         str_list = malloc_or_exit(
@@ -391,8 +348,6 @@ refresh_program_list(void)
                 XmStringFree(str_list[i]);
         }
         free(str_list);
-
-        return 0;
 }
 
 static void
@@ -422,15 +377,13 @@ refresh_prefix_gui(void)
 
         disable_programs_btns();
         update_prefix_info_label();
-        if (refresh_program_list() != 0) {
-                return;
-        }
+        refresh_program_list();
 }
 
 static
 XTEE_XT_CALLBACK_FUNC(programs_list_cb)
 {
-        XmListCallbackStruct *cbs;
+        const XmListCallbackStruct *cbs;
 
         (void)w;
         (void)client_data;
@@ -448,15 +401,15 @@ XTEE_XT_CALLBACK_FUNC(programs_list_cb)
  * be set.
  * This is mainly for use with wine utilities such as winecfg. */
 static XteeEnvDataHandler
-xtee_gui_set_env_data_handler(const XteePrefix *prefix, XteeProgram *program,
-                bool is_winetricks)
+xtee_gui_set_env_data_handler(const XteePrefix *prefix,
+                const XteeProgram *program, bool is_winetricks)
 {
         XteeEnvDataHandler env_data_handler = { 0 };
 
         xtee_env_data_add_var_to_handler(&env_data_handler, "WINEPREFIX",
                         prefix->wineprefix_dir.s);
         if (is_winetricks) {
-                XteeWineVersionData *wine_version;
+                const XteeWineVersionData *wine_version;
 
                 wine_version =
                         xtee_state_get_loaded_prefix_wine_version_data();
@@ -504,7 +457,7 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         char *args_regular[3];
         char **args_multiple = NULL;
         char **args_ptr;
-        XteePrefix *loaded_prefix;
+        const XteePrefix *loaded_prefix;
         XteeProgram *program_data;
         XteeWineVersionData *version_data;
         const char *info_strs[3];
@@ -789,7 +742,7 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
 }
 
 static int
-fork_exec_run_executable(XteePrefix *prefix, XteeString path_str)
+fork_exec_run_executable(const XteePrefix *prefix, XteeString path_str)
 {
         XteeEnvDataHandler env_data_handler;
         char *args[3];
@@ -956,7 +909,7 @@ xtee_gui_load_prefix(const char *prefix_id, Widget parent)
 static
 XTEE_XT_CALLBACK_FUNC(open_prefix_dialog_cb)
 {
-        XteePrefix *current_prefix;
+        const XteePrefix *current_prefix;
         XmSelectionBoxCallbackStruct *cbs;
         char *prefix_id;
         int r;
@@ -1120,23 +1073,17 @@ create_about_dialog(void)
 {
         Widget about_dialog;
         Arg args[10];
-        XmString dialog_title, dialog_text;
         unsigned int n = 0;
-
-        dialog_title = XmStringCreateLocalized("About XTeetotaller");
-        dialog_text = XmStringCreateLocalized(ABOUT_DIALOG_TEXT_CONTENT);
 
         /* Don't make this dialog modal as it doesn't interact with the rest of
          * the program. */
-        XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
-        XtSetArg(args[n], XmNmessageString, dialog_text); n++;
         XtSetArg(args[n], XmNnoResize, True); n++;
         XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
         XtSetArg(args[n], XmNdefaultButton, XmDIALOG_OK_BUTTON); n++;
         about_dialog = XmCreateInformationDialog(main_gui_data.main_win,
                         "about_dialog", args, n);
-        XmStringFree(dialog_title);
-        XmStringFree(dialog_text);
+        xtee_gui_set_dialog_title_message(about_dialog, "About XTeetotaller",
+                        ABOUT_DIALOG_TEXT_CONTENT);
 
         xtee_gui_hide_dialog_cancel_button(about_dialog);
         xtee_gui_disable_dialog_help_button(about_dialog);
@@ -1150,8 +1097,8 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
         XmFileSelectionBoxCallbackStruct *cbs;
         XteeString val_xteestr;
         char *val_str;
-        XteePrefix *loaded_prefix;
-        XteeWineVersionData *version_data;
+        const XteePrefix *loaded_prefix;
+        const XteeWineVersionData *version_data;
         enum XteeExecutableType exe_type;
         int r;
         bool is_file_msi = false;
@@ -1232,7 +1179,7 @@ static void
 xtee_gui_run_executable_in_prefix(void)
 {
         static Widget run_exec_browse_dialog = NULL;
-        char *gui_show_hidden_files_val;
+        const char *gui_show_hidden_files_val;
 
         if (!run_exec_browse_dialog) {
                 Arg args[10];
@@ -1291,7 +1238,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_menu_cb)
 #pragma GCC diagnostic pop
 
         if (item_i == reload_prefix_i) {
-                XteePrefix *current_prefix;
+                const XteePrefix *current_prefix;
                 (void)w;
                 (void)client_data;
                 (void)call_data;
@@ -1323,7 +1270,7 @@ xtee_gui_run_wine_utility(char *tool_exe_name,
         char *exec_args[2];
         XteeEnvDataHandler env_data_handler;
         XteeWineVersionData *wine_version;
-        XteePrefix *loaded_prefix;
+        const XteePrefix *loaded_prefix;
         int r;
         size_t args_n = XTEE_ARRAY_LEN(exec_args);
 
@@ -1350,7 +1297,7 @@ static void
 xtee_gui_run_winetricks(void)
 {
         XteeEnvDataHandler env_data_handler;
-        XteePrefix *loaded_prefix;
+        const XteePrefix *loaded_prefix;
         int r;
 
         if (!xtee_system_is_winetricks_installed) {
@@ -1376,10 +1323,11 @@ xtee_gui_run_winetricks(void)
         }
 }
 
+static
 XTEE_XT_CALLBACK_FUNC(kill_wine_confirm_dialog_ok_cb)
 {
         XteeEnvDataHandler env_data_handler;
-        XteePrefix *loaded_prefix;
+        const XteePrefix *loaded_prefix;
         XteeWineVersionData *wine_version;
         char *args[] = { "-k" };
         int r;
@@ -1481,7 +1429,6 @@ XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
 static
 XTEE_XT_CALLBACK_FUNC(help_menu_cb)
 {
-        static Widget about_dialog = NULL;
         const int about_item_i = 0;
         int item_i;
 
@@ -1492,6 +1439,7 @@ XTEE_XT_CALLBACK_FUNC(help_menu_cb)
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
         if (item_i == about_item_i) {
+                static Widget about_dialog = NULL;
                 if (!about_dialog) {
                         about_dialog = create_about_dialog();
                 }
@@ -1509,7 +1457,7 @@ gui_create_menubar(void)
         XmString preferences_str;
         XmString reload_prefix_str, prefix_options_str, new_program_str,
                  run_executable_str;
-        XmString reload_prefix_acc;
+        XmString reload_prefix_acc, new_program_acc;
         XmString winecfg_str, uninstaller_str, explorer_str, regedit_str,
                  winefile_str, winetricks_str, kill_wine_str;
         XmString kill_wine_acc;
@@ -1584,6 +1532,7 @@ gui_create_menubar(void)
         run_executable_str = XmStringCreateLocalized(
                         "Run executable in prefix");
         reload_prefix_acc = XmStringCreateLocalized("F5");
+        new_program_acc = XmStringCreateLocalized("Ctrl+Shift+N");
         main_gui_data.prefix_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "prefix_menu", prefix_button_i,
                         prefix_menu_cb,
@@ -1591,7 +1540,8 @@ gui_create_menubar(void)
                         "<Key>F5", reload_prefix_acc,
                         XmVaPUSHBUTTON, prefix_options_str, 'O', NULL, NULL,
                         XmVaSEPARATOR,
-                        XmVaPUSHBUTTON, new_program_str, 'N', NULL, NULL,
+                        XmVaPUSHBUTTON, new_program_str, 'N',
+                        "Ctrl Shift <Key>N", new_program_acc,
                         XmVaSEPARATOR,
                         XmVaPUSHBUTTON, run_executable_str, 'e', NULL, NULL,
                         NULL);
@@ -1600,6 +1550,7 @@ gui_create_menubar(void)
         XmStringFree(new_program_str);
         XmStringFree(run_executable_str);
         XmStringFree(reload_prefix_acc);
+        XmStringFree(new_program_acc);
         winecfg_str = XmStringCreateLocalized("winecfg");
         uninstaller_str = XmStringCreateLocalized("uninstaller");
         explorer_str = XmStringCreateLocalized("explorer");
@@ -1678,6 +1629,20 @@ gui_create_main_application(void)
         disable_programs_btns();
 }
 
+static void
+xtee_gui_free(void)
+{
+        free_XteeGuiBasicFormDialog(
+                        &xtee_gui_data_struct.program_options_dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_data_struct.new_prefix_dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_data_struct.prefs_dialog);
+        free_XteeGuiBasicFormDialog(
+                        &xtee_gui_data_struct.prefix_options_dialog);
+        free_XteeGuiBasicFormDialog(&xtee_gui_data_struct.new_program_dialog);
+        XtDestroyWidget(main_gui_data.toplevel);
+        XmRenderTableFree(xtee_gui_render_table);
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(shell_close_callback)
 {
@@ -1719,7 +1684,8 @@ set_window_close_callback(Widget shell)
 static void
 create_xtee_render_table(void)
 {
-        char *xlfd_str = "-misc-fixed-medium-r-*-*-13-*-*-*-*-80-iso10646-*";
+        const char *xlfd_str =
+                "-misc-fixed-medium-r-*-*-13-*-*-*-*-80-iso10646-*";
         Arg args[10];
         Cardinal n;
         XmRendition rendition;
@@ -1738,7 +1704,7 @@ create_xtee_render_table(void)
 void
 xtee_gui_init(int *argc, char *argv[])
 {
-        Screen *screen;
+        const Screen *screen;
         int screen_width, screen_height;
         Dimension x_pos, y_pos;
 
@@ -1788,24 +1754,6 @@ xtee_gui_run(void)
         XtAppMainLoop(main_gui_data.app_context);
 }
 
-static void
-xtee_gui_free_data_struct(XteeGuiData *xtee_gui_data)
-{
-        free_XteeGuiBasicFormDialog(&xtee_gui_data->program_options_dialog);
-        free_XteeGuiBasicFormDialog(&xtee_gui_data->new_prefix_dialog);
-        free_XteeGuiBasicFormDialog(&xtee_gui_data->prefs_dialog);
-        free_XteeGuiBasicFormDialog(&xtee_gui_data->prefix_options_dialog);
-        free_XteeGuiBasicFormDialog(&xtee_gui_data->new_program_dialog);
-}
-
-void
-xtee_gui_free(void)
-{
-        xtee_gui_free_data_struct(&xtee_gui_data_struct);
-        XtDestroyWidget(main_gui_data.toplevel);
-        XmRenderTableFree(xtee_gui_render_table);
-}
-
 Widget
 xtee_gui_get_main_win(void)
 {
@@ -1842,7 +1790,7 @@ xtee_gui_exec(char *pathname, char **args, size_t args_n,
         return r;
 }
 
-void
+static void
 xtee_gui_handle_busy_events(void)
 {
         Display *dpy;
@@ -1880,7 +1828,7 @@ xtee_gui_fork_exec(char *pathname, char **args, size_t args_n,
                                 int wait_rtrn;
 
                                 xtee_gui_handle_busy_events();
-                                wait_rtrn = waitpid(-1, &rv, 0 | WNOHANG);
+                                wait_rtrn = waitpid(-1, &rv, WNOHANG);
                                 if(wait_rtrn == -1) {
                                         return -1;
                                 } else if(wait_rtrn != 0) {

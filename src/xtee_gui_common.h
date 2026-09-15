@@ -20,6 +20,7 @@ Display *xtee_gui_get_display(void);
 
 Widget xtee_gui_get_textfield_child_widget(Widget);
 char *xtee_gui_get_textfield_child_string(Widget);
+void xtee_gui_set_dialog_title_message(Widget dialog, char *title, char *msg);
 
 XTEE_XT_CALLBACK_FUNC(xtee_gui_reset_message_area_string);
 #define xtee_gui_reset_message_area_string_CALL \

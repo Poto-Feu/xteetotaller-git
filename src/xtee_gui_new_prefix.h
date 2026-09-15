@@ -4,6 +4,5 @@
 #include "xtee_gui_form.h"
 
 void xtee_gui_show_new_prefix_dialog(XteeGuiBasicFormDialog *dialog);
-void create_new_prefix_arch_radiobox(XteeGuiBasicFormDialog *dialog);
 
 #endif

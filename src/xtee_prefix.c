@@ -21,7 +21,7 @@ static XteeString prefixes_data_dir_path = { 0 };
 
 extern inline char *xtee_prefix_get_arch_string(enum XteePrefixArch arch);
 
-enum XteePrefixArch
+static enum XteePrefixArch
 xtee_prefix_get_arch_enum_value(const char *s)
 {
         if (xtee_strcmp_bool(s, XTEE_PREFIX_ARCH_WIN32_STR)) {
@@ -35,7 +35,7 @@ xtee_prefix_get_arch_enum_value(const char *s)
 }
 
 /* Returned XteeString struct must be freed */
-XteeString
+static XteeString
 get_xteetotaller_prefixes_dir_path(void)
 {
         XteeConstString xtee_dir_path;
@@ -329,8 +329,9 @@ xtee_prefix_load(XteePrefix *prefix, const char *id)
         struct stat statbuf;
         XteeDate tmp_date;
         XteeString prefix_data_dir, config_file_path;
-        XteeWineVersionData *version_data;
+        const XteeWineVersionData *version_data;
         FILE *config_file;
+        int r = 0;
         bool is_wineprefix_dir_set = false;
         bool is_wine_version_set = false;
         bool is_creation_year_set = false;
@@ -341,7 +342,6 @@ xtee_prefix_load(XteePrefix *prefix, const char *id)
         bool is_disable_winemenubuilder_set = false;
         bool is_dxvk_installed_set = false;
         bool is_dxvk_version_set = false;
-        int r = 0;
 
         /* Set all fields to 0 to allow it to free the structure on error. */
         memset(prefix, 0, sizeof(XteePrefix));
@@ -588,7 +588,7 @@ add_item_to_XteePrefixIdBlock(XteePrefixIdBlock *block,
 int
 get_prefixes_ids(XteePrefixIdBlock *block)
 {
-        struct dirent *dir_entry;
+        const struct dirent *dir_entry;
         DIR *prefixes_dir;
         int prev_errno;
         int r = -1;
@@ -655,12 +655,12 @@ err_return:
         return r;
 }
 
-int
+static int
 get_prefix_programs_ids(XteeConstString prefix_id, XteePrefixIdBlock *block)
 {
         XteeString prefix_data_dir_path, programs_dir_path;
         DIR *programs_dir;
-        struct dirent *dir_entry;
+        const struct dirent *dir_entry;
         int prev_errno;
         int r = -1;
 
@@ -780,8 +780,8 @@ write_program_config_file(XteeProgram *program,
         return 0;
 }
 
-XteeString
-xtee_prefix_get_program_config_path(XteePrefix *prefix,
+static XteeString
+xtee_prefix_get_program_config_path(const XteePrefix *prefix,
                 XteeProgram *program)
 {
         XteeString prefix_data_dir_path;
@@ -893,7 +893,7 @@ xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix)
                 winedlloverrides_str = strdup("winemenubuilder.exe=");
                 env_str_len = sizeof("winemenubuilder.exe=") - 1;
         } else {
-                winedlloverrides_str = malloc(1);
+                winedlloverrides_str = malloc_or_exit(1);
                 winedlloverrides_str[0] = '\0';
         }
 
@@ -1121,7 +1121,7 @@ read_program_config_file(XteeProgram *restrict program,
 }
 
 XteeProgram *
-xtee_prefix_get_program_data(XteePrefix *prefix, const char *program_id,
+xtee_prefix_get_program_data(const XteePrefix *prefix, const char *program_id,
                 enum XteeGetProgramDataStatus *status)
 {
         const char *program_config_strs[] = { prefixes_data_dir_path.s,
@@ -1162,12 +1162,13 @@ xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program)
 }
 
 int
-xtee_prefix_install_dxvk(XteePrefix *prefix, XteeDxvkVersionData *dxvk_data)
+xtee_prefix_install_dxvk(XteePrefix *prefix,
+                const XteeDxvkVersionData *dxvk_data)
 {
         const char *system32_info_strs[3];
         XteeString system32_path = { 0 };
         XteeString syswow64_path = { 0 };
-        XteeString *prefix_32bits_dlls_path;
+        const XteeString *prefix_32bits_dlls_path;
 
         system32_path = XteeString_merge_XteeConstString_charstring(
                         XteeString_to_XteeConstString(prefix->wineprefix_dir),
@@ -1270,8 +1271,8 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
         XteeString syswow64_path = { 0 };
         XteeString wine_x32_lib_path = { 0 };
         XteeString wine_x64_lib_path = { 0 };
-        XteeString *prefix_32bits_dlls_path;
-        XteeWineVersionData *wine_version;
+        const XteeString *prefix_32bits_dlls_path;
+        const XteeWineVersionData *wine_version;
 
         wine_version = xtee_wine_get_version_data(prefix->wine_version.s);
         xtee_gui_update_display();
