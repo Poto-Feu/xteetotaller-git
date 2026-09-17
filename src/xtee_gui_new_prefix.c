@@ -444,8 +444,7 @@ xtee_gui_show_new_prefix_dialog(XteeGuiBasicFormDialog *dialog)
                 unsigned int text_args_n = 0;
                 unsigned int filesel_args_n = 0;
 
-                tmp_str = XmStringCreateLocalized("Prefix directory "
-                                "selection");
+                tmp_str = xtee_new_XmString("Prefix directory selection");
                 create_XteeGuiBasicFormDialog(dialog,
                                 xtee_gui_get_main_win(),
                                 "new_prefix_dialog",

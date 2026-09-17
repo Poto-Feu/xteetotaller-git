@@ -27,7 +27,7 @@ create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
         XmString tmp_str;
 
         form_data->form = XmCreateForm(parent, form_name, NULL, 0);
-        tmp_str = XmStringCreateLocalized(label_str);
+        tmp_str = xtee_new_XmString(label_str);
         form_data->label = XmVaCreateManagedLabelGadget(form_data->form,
                         label_name,
                         XmNlabelString, tmp_str,
@@ -124,7 +124,7 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
         const char *gui_show_hidden_files_val;
 
         form_data->form = XmCreateForm(parent, form_name, NULL, 0);
-        tmp_str = XmStringCreateLocalized(label_str);
+        tmp_str = xtee_new_XmString(label_str);
         form_data->label = XmVaCreateManagedLabelGadget(form_data->form,
                         label_name,
                         XmNlabelString, tmp_str,
@@ -134,7 +134,7 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                         NULL);
         XmStringFree(tmp_str);
 
-        tmp_str = XmStringCreateLocalized("...");
+        tmp_str = xtee_new_XmString("...");
         form_data->browse_btn = XmVaCreatePushButton(form_data->form,
                         "browse_btn",
                         XmNlabelString, tmp_str,
@@ -203,7 +203,7 @@ create_gui_toggle_field(Widget *toggle_g, Widget parent,
 {
         XmString tmp_str;
 
-        tmp_str = XmStringCreateLocalized(label_str);
+        tmp_str = xtee_new_XmString(label_str);
         *toggle_g = XmVaCreateManagedToggleButtonGadget(parent,
                         field_name,
                         XmNlabelString, tmp_str,
@@ -319,7 +319,7 @@ create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
         XmString dialog_title;
         Cardinal n = 0;
 
-        dialog_title = XmStringCreateLocalized(title);
+        dialog_title = xtee_new_XmString(title);
         XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
         XtSetArg(args[n], XmNdialogStyle,
                         XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
@@ -328,6 +328,7 @@ create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
         XtSetArg(args[n], XmNautoUnmanage, False); n++;
 
         dialog->dialog_form = XmCreateFormDialog(parent, name, args, n);
+        XmStringFree(dialog_title);
         add_ok_cancel_buttons_to_form_dialog(dialog->dialog_form,
                         &dialog->ok_cancel_column,
                         &dialog->ok_btn,
@@ -556,7 +557,7 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
                         dialog->dialog_form, NULL, 0);
 
-        tmp_str = XmStringCreateLocalized(label_str);
+        tmp_str = xtee_new_XmString(label_str);
         form_data->label = XtVaCreateManagedWidget(
                         "form_label",
                         xmLabelGadgetClass,
@@ -621,7 +622,7 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
                         dialog->dialog_form, NULL, 0);
 
-        tmp_str = XmStringCreateLocalized(label_str);
+        tmp_str = xtee_new_XmString(label_str);
         form_data->label = XtVaCreateManagedWidget(
                         "form_label",
                         xmLabelGadgetClass,
@@ -635,8 +636,7 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
 
         items_table = malloc_or_exit(choices_strs.n * sizeof(XmString));
         for (size_t i = 0; i < choices_strs.n; ++i) {
-                items_table[i] = XmStringCreateLocalized(
-                                choices_strs.data[i].s);
+                items_table[i] = xtee_new_XmString(choices_strs.data[i].s);
         }
         XtSetArg(args[n], XmNcomboBoxType, XmDROP_DOWN_LIST); n++;
         XtSetArg(args[n], XmNitems, items_table); n++;
@@ -684,7 +684,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                         dialog->dialog_form, NULL, 0);
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LIST_BUTTONS;
 
-        tmp_str = XmStringCreateLocalized(label_str);
+        tmp_str = xtee_new_XmString(label_str);
         form_data->label = XtVaCreateManagedWidget(
                         "form_label",
                         xmLabelGadgetClass,
@@ -744,7 +744,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         for (size_t i = 0; i < form_data->buttons_n; ++i) {
                 XmString tmp_btn_str;
 
-                tmp_btn_str = XmStringCreateLocalized(buttons_strs[i]);
+                tmp_btn_str = xtee_new_XmString(buttons_strs[i]);
                 form_data->buttons[i] = XmVaCreatePushButton(
                                 form_data->row_column,
                                 buttons_names.data[i].s,
@@ -788,7 +788,7 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                         dialog->dialog_form, NULL, 0);
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_STRING_AND_BUTTON;
 
-        tmp_str = XmStringCreateLocalized(label_str);
+        tmp_str = xtee_new_XmString(label_str);
         form_data->label = XtVaCreateManagedWidget(
                         "form_label",
                         xmLabelGadgetClass,
@@ -800,7 +800,7 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                         NULL);
         XmStringFree(tmp_str);
 
-        tmp_str = XmStringCreateLocalized(button_str);
+        tmp_str = xtee_new_XmString(button_str);
         form_data->button = XtVaCreateManagedWidget(button_name,
                         xmPushButtonWidgetClass, form_data->form,
                         XmNlabelString, tmp_str,
@@ -812,7 +812,7 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                         client_data);
         XmStringFree(tmp_str);
 
-        tmp_str = XmStringCreateLocalized(string_str);
+        tmp_str = xtee_new_XmString(string_str);
         form_data->string_label = XtVaCreateManagedWidget(string_name,
                         xmLabelGadgetClass, form_data->form,
                         XmNlabelString, tmp_str,

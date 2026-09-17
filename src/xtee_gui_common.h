@@ -26,6 +26,12 @@ XTEE_XT_CALLBACK_FUNC(xtee_gui_reset_message_area_string);
 #define xtee_gui_reset_message_area_string_CALL \
         xtee_gui_reset_message_area_string(NULL, NULL, NULL)
 
+inline XmString
+xtee_new_XmString(char *s)
+{
+        return XmStringCreateLocalized(s);
+}
+
 inline void
 xtee_gui_hide_dialog_cancel_button(Widget w)
 {

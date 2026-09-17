@@ -141,7 +141,7 @@ xtee_gui_set_motif_label_string(Widget w, char *s)
 {
         XmString xmstr;
 
-        xmstr = XmStringCreateLocalized(s);
+        xmstr = xtee_new_XmString(s);
         XtVaSetValues(w, XmNlabelString, xmstr, NULL);
         XmStringFree(xmstr);
 }
@@ -188,19 +188,19 @@ gui_print_message_dialog(char *msg, Widget parent, unsigned char type)
 
         switch (type) {
                 case XmDIALOG_ERROR:
-                        dialog_title = XmStringCreateLocalized("Error");
+                        dialog_title = xtee_new_XmString("Error");
                         break;
                 case XmDIALOG_WARNING:
-                        dialog_title = XmStringCreateLocalized("Warning");
+                        dialog_title = xtee_new_XmString("Warning");
                         break;
                 case XmDIALOG_INFORMATION:
-                        dialog_title = XmStringCreateLocalized("Information");
+                        dialog_title = xtee_new_XmString("Information");
                         break;
                 default:
-                        dialog_title = XmStringCreateLocalized("Message");
+                        dialog_title = xtee_new_XmString("Message");
                         break;
         }
-        dialog_text = XmStringCreateLocalized(msg);
+        dialog_text = xtee_new_XmString(msg);
         set_message_dialog_args(args, &n, dialog_title, dialog_text);
         switch (type) {
                 case XmDIALOG_ERROR:
@@ -278,7 +278,7 @@ enable_programs_btns(void)
 static void
 reset_prefix_info_label(void)
 {
-        XteeWorkAreaStruct *wa_struct;
+        const XteeWorkAreaStruct *wa_struct;
         char *no_prefix_opened_str = "No prefix opened.";
 
         wa_struct = &main_gui_data.work_area_struct;
@@ -337,7 +337,7 @@ refresh_program_list(void)
         str_list = malloc_or_exit(
                         current_prefix->programs_n * sizeof(XmString));
         for (size_t i = 0; i < current_prefix->programs_n; ++i) {
-                str_list[i] = XmStringCreateLocalized(
+                str_list[i] = xtee_new_XmString(
                                 current_prefix->programs_ids[i].s);
         }
         XtVaSetValues(programs_list,
@@ -612,9 +612,9 @@ XTEE_XT_CALLBACK_FUNC(remove_program_btn_cb)
                 XmString dialog_title, dialog_text;
                 XmString yes_string, no_string;
 
-                dialog_title = XmStringCreateLocalized("Remove program");
-                dialog_text = XmStringCreateLocalized("Do you want to "
-                                "remove this program entry?\n"
+                dialog_title = xtee_new_XmString("Remove program");
+                dialog_text = xtee_new_XmString("Do you want to remove this "
+                                "program entry?\n"
                                 "Please note that the actual executable "
                                 "file will be untouched.");
                 set_message_dialog_args(args, &i, dialog_title,
@@ -626,8 +626,8 @@ XTEE_XT_CALLBACK_FUNC(remove_program_btn_cb)
                 XmStringFree(dialog_text);
                 xtee_gui_hide_dialog_help_button(
                                 remove_program_confirm_dialog);
-                yes_string = XmStringCreateLocalized("Yes");
-                no_string = XmStringCreateLocalized("No");
+                yes_string = xtee_new_XmString("Yes");
+                no_string = xtee_new_XmString("No");
                 /* No need for Cancel callback as the dialog is already
                  * unmanaged by default. */
                 XtVaSetValues(remove_program_confirm_dialog,
@@ -659,7 +659,7 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNrightAttachment, XmATTACH_FORM,
                         XmNrightOffset, 20,
                         NULL);
-        tmp_str = XmStringCreateLocalized("Programs");
+        tmp_str = xtee_new_XmString("Programs");
         wa_struct->programs_frame_title = XtVaCreateManagedWidget(
                         "programs_frame_title",
                         xmLabelGadgetClass,
@@ -718,7 +718,7 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         NULL);
         for (size_t i = 0; i < XTEE_ARRAY_LEN(programs_btns_data); ++i) {
                 /* Reuse tmp_str as its contents has already been freed */
-                tmp_str = XmStringCreateLocalized(programs_btns_data[i].label);
+                tmp_str = xtee_new_XmString(programs_btns_data[i].label);
                 *(programs_btns_data[i].w) = XtVaCreateManagedWidget(
                                 programs_btns_data[i].id,
                                 xmPushButtonWidgetClass,
@@ -779,7 +779,7 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNrightAttachment, XmATTACH_OPPOSITE_WIDGET,
                         XmNrightWidget, wa_struct->programs_frame,
                         NULL);
-        tmp_str = XmStringCreateLocalized("Prefix");
+        tmp_str = xtee_new_XmString("Prefix");
         wa_struct->prefix_frame_title = XmVaCreateManagedLabelGadget(
                         wa_struct->prefix_frame,
                         "prefix_frame_title",
@@ -967,8 +967,8 @@ show_open_prefix_dialog(void)
                 XmString dialog_title;
                 XmString selection_label;
 
-                dialog_title = XmStringCreateLocalized("Open prefix");
-                selection_label = XmStringCreateLocalized("Prefixes");
+                dialog_title = xtee_new_XmString("Open prefix");
+                selection_label = xtee_new_XmString("Prefixes");
                 XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
                 XtSetArg(args[n], XmNlistLabelString, selection_label); n++;
                 XtSetArg(args[n], XmNdialogStyle,
@@ -999,8 +999,7 @@ show_open_prefix_dialog(void)
 
         prefixes_strs = malloc_or_exit(id_block.n * sizeof(XmString));
         for (size_t i = 0; i < id_block.n; ++i) {
-                prefixes_strs[i] = XmStringCreateLocalized(
-                                id_block.data[i].s);
+                prefixes_strs[i] = xtee_new_XmString(id_block.data[i].s);
         }
         XtVaSetValues(dialog,
                         XmNlistItems, prefixes_strs,
@@ -1186,7 +1185,7 @@ xtee_gui_run_executable_in_prefix(void)
                 Cardinal n = 0;
                 XmString dialog_title;
 
-                dialog_title = XmStringCreateLocalized("Run executable...");
+                dialog_title = xtee_new_XmString("Run executable...");
                 XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
                 XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
                 XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
@@ -1369,9 +1368,9 @@ show_kill_wine_confirm_dialog(void)
                 XmString dialog_title, dialog_text;
                 XmString yes_string, no_string;
 
-                dialog_title = XmStringCreateLocalized("Kill wine processes");
-                dialog_text = XmStringCreateLocalized("Do you want to kill "
-                                "prefix wine processes?");
+                dialog_title = xtee_new_XmString("Kill wine processes");
+                dialog_text = xtee_new_XmString("Do you want to kill prefix "
+                                "wine processes?");
                 set_message_dialog_args(args, &i, dialog_title,
                                 dialog_text);
                 confirm_dialog = XmCreateQuestionDialog(
@@ -1380,8 +1379,8 @@ show_kill_wine_confirm_dialog(void)
                 XmStringFree(dialog_title);
                 XmStringFree(dialog_text);
                 xtee_gui_hide_dialog_help_button(confirm_dialog);
-                yes_string = XmStringCreateLocalized("Yes");
-                no_string = XmStringCreateLocalized("No");
+                yes_string = xtee_new_XmString("Yes");
+                no_string = xtee_new_XmString("No");
                 XtVaSetValues(confirm_dialog,
                                 XmNokLabelString, yes_string,
                                 XmNcancelLabelString, no_string,
@@ -1469,11 +1468,11 @@ gui_create_menubar(void)
         const int wine_button_i = 3;
         const int help_button_i = 4;
 
-        file_str = XmStringCreateLocalized("File");
-        edit_str = XmStringCreateLocalized("Edit");
-        prefix_str = XmStringCreateLocalized("Prefix");
-        wine_str = XmStringCreateLocalized("Wine");
-        help_str = XmStringCreateLocalized("Help");
+        file_str = xtee_new_XmString("File");
+        edit_str = xtee_new_XmString("Edit");
+        prefix_str = xtee_new_XmString("Prefix");
+        wine_str = xtee_new_XmString("Wine");
+        help_str = xtee_new_XmString("Help");
         main_gui_data.menubar = XmVaCreateSimpleMenuBar(main_gui_data.main_win,
                         "menubar",
                         XmVaCASCADEBUTTON, file_str, 'F',
@@ -1497,12 +1496,12 @@ gui_create_menubar(void)
         tmp_w = XtNameToWidget(main_gui_data.menubar, wine_button_id);
         XtSetSensitive(tmp_w, False);
 
-        new_prefix_str = XmStringCreateLocalized("New Prefix");
-        open_prefix_str = XmStringCreateLocalized("Open prefix");
-        exit_str = XmStringCreateLocalized("Exit");
-        new_prefix_acc = XmStringCreateLocalized("Ctrl+N");
-        open_prefix_acc = XmStringCreateLocalized("Ctrl+O");
-        exit_acc = XmStringCreateLocalized("Ctrl+Q");
+        new_prefix_str = xtee_new_XmString("New Prefix");
+        open_prefix_str = xtee_new_XmString("Open prefix");
+        exit_str = xtee_new_XmString("Exit");
+        new_prefix_acc = xtee_new_XmString("Ctrl+N");
+        open_prefix_acc = xtee_new_XmString("Ctrl+O");
+        exit_acc = xtee_new_XmString("Ctrl+Q");
         main_gui_data.file_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "file_menu", file_button_i,
                         file_menu_cb,
@@ -1519,20 +1518,19 @@ gui_create_menubar(void)
         XmStringFree(new_prefix_acc);
         XmStringFree(open_prefix_acc);
         XmStringFree(exit_acc);
-        preferences_str = XmStringCreateLocalized("Preferences");
+        preferences_str = xtee_new_XmString("Preferences");
         main_gui_data.edit_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "edit_menu", edit_button_i,
                         edit_menu_cb,
                         XmVaPUSHBUTTON, preferences_str, 'e', NULL, NULL,
                         NULL);
         XmStringFree(preferences_str);
-        reload_prefix_str = XmStringCreateLocalized("Reload prefix");
-        prefix_options_str = XmStringCreateLocalized("Options");
-        new_program_str = XmStringCreateLocalized("New program");
-        run_executable_str = XmStringCreateLocalized(
-                        "Run executable in prefix");
-        reload_prefix_acc = XmStringCreateLocalized("F5");
-        new_program_acc = XmStringCreateLocalized("Ctrl+Shift+N");
+        reload_prefix_str = xtee_new_XmString("Reload prefix");
+        prefix_options_str = xtee_new_XmString("Options");
+        new_program_str = xtee_new_XmString("New program");
+        run_executable_str = xtee_new_XmString("Run executable in prefix");
+        reload_prefix_acc = xtee_new_XmString("F5");
+        new_program_acc = xtee_new_XmString("Ctrl+Shift+N");
         main_gui_data.prefix_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "prefix_menu", prefix_button_i,
                         prefix_menu_cb,
@@ -1551,14 +1549,14 @@ gui_create_menubar(void)
         XmStringFree(run_executable_str);
         XmStringFree(reload_prefix_acc);
         XmStringFree(new_program_acc);
-        winecfg_str = XmStringCreateLocalized("winecfg");
-        uninstaller_str = XmStringCreateLocalized("uninstaller");
-        explorer_str = XmStringCreateLocalized("explorer");
-        regedit_str = XmStringCreateLocalized("regedit");
-        winefile_str = XmStringCreateLocalized("winefile");
-        winetricks_str = XmStringCreateLocalized("winetricks");
-        kill_wine_str = XmStringCreateLocalized("Kill wine processes");
-        kill_wine_acc = XmStringCreateLocalized("Ctrl+Shift+K");
+        winecfg_str = xtee_new_XmString("winecfg");
+        uninstaller_str = xtee_new_XmString("uninstaller");
+        explorer_str = xtee_new_XmString("explorer");
+        regedit_str = xtee_new_XmString("regedit");
+        winefile_str = xtee_new_XmString("winefile");
+        winetricks_str = xtee_new_XmString("winetricks");
+        kill_wine_str = xtee_new_XmString("Kill wine processes");
+        kill_wine_acc = xtee_new_XmString("Ctrl+Shift+K");
         main_gui_data.wine_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "wine_menu", wine_button_i,
                         wine_menu_cb,
@@ -1580,7 +1578,7 @@ gui_create_menubar(void)
         XmStringFree(winefile_str);
         XmStringFree(winetricks_str);
         XmStringFree(kill_wine_acc);
-        about_str = XmStringCreateLocalized("About XTeetotaller");
+        about_str = xtee_new_XmString("About XTeetotaller");
         main_gui_data.help_menu = XmVaCreateSimplePulldownMenu(
                         main_gui_data.menubar, "help_menu", help_button_i,
                         help_menu_cb,

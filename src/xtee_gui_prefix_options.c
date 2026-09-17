@@ -110,7 +110,7 @@ hide_install_dxvk_working_dialog(void)
 }
 
 static int
-xtee_gui_install_dxvk(XteeGuiBasicFormDialog *dialog,
+xtee_gui_install_dxvk(const XteeGuiBasicFormDialog *dialog,
                 XteePrefix *restrict prefix, const char *restrict dxvk_str)
 {
         const XteeDxvkVersionData *dxvk_data;
@@ -145,15 +145,12 @@ set_installed_dxvk_field(const XteeGuiBasicFormDialog *dialog)
         form_data = &install_dxvk_field->data.stringandbutton_form;
         loaded_prefix = xtee_state_get_loaded_prefix();
         if (loaded_prefix->is_dxvk_installed) {
-                label_str = XmStringCreateLocalized(
-                                loaded_prefix->dxvk_version.s);
-                button_label = XmStringCreateLocalized(
-                                "Remove DXVK");
+                label_str = xtee_new_XmString(loaded_prefix->dxvk_version.s);
+                button_label = xtee_new_XmString("Remove DXVK");
                 xtee_gui_is_dxvk_installed = true;
         } else {
-                label_str = XmStringCreateLocalized("(not installed)");
-                button_label = XmStringCreateLocalized(
-                                "Install DXVK");
+                label_str = xtee_new_XmString("(not installed)");
+                button_label = xtee_new_XmString("Install DXVK");
                 xtee_gui_is_dxvk_installed = false;
         }
         XtVaSetValues(form_data->string_label,
@@ -169,7 +166,7 @@ set_installed_dxvk_field(const XteeGuiBasicFormDialog *dialog)
 static
 XTEE_XT_CALLBACK_FUNC(dxvk_version_selection_box_cb)
 {
-        XteeGuiBasicFormDialog *dialog;
+        const XteeGuiBasicFormDialog *dialog;
         XteePrefix *loaded_prefix;
         XmSelectionBoxCallbackStruct *cbs;
         char *dxvk_str;
@@ -268,7 +265,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
                 for (size_t i = 0; i < dxvk_versions_list.n; ++i) {
                         XmString item_str;
 
-                        item_str = XmStringCreateLocalized(
+                        item_str = xtee_new_XmString(
                                         dxvk_versions_list.data[i].s);
                         XmListAddItem(items_list, item_str, 0);
                 }
@@ -291,7 +288,7 @@ XTEE_XT_CALLBACK_FUNC(wine_version_selection_box_cb)
 {
         const XteeGuiBasicFormDialog *dialog;
         XteeGuiFormField *change_wine_field;
-        XteeGuiStringAndButtonForm *form_data;
+        const XteeGuiStringAndButtonForm *form_data;
         const XteePrefix *loaded_prefix;
         const XteeWineVersionData *current_wine;
         const XteeWineVersionData *new_wine;
@@ -370,7 +367,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
                 for (size_t i = 0; i < wine_versions_list.n; ++i) {
                         XmString item_str;
 
-                        item_str = XmStringCreateLocalized(
+                        item_str = xtee_new_XmString(
                                         wine_versions_list.data[i].s);
                         XmListAddItem(items_list, item_str, 0);
                 }
@@ -389,7 +386,7 @@ static void
 set_change_wine_string(const XteeGuiBasicFormDialog *dialog)
 {
         XteeGuiFormField *change_wine_field;
-        XteeGuiStringAndButtonForm *form_data;
+        const XteeGuiStringAndButtonForm *form_data;
         XteePrefix *loaded_prefix;
 
         change_wine_field = dialog->fields + change_wine_version_i;

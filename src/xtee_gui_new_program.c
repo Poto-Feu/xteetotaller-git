@@ -130,7 +130,7 @@ xtee_gui_new_program_show_dialog(XteeGuiBasicFormDialog *new_program_dialog)
                 unsigned int text_args_n = 0;
                 unsigned int filesel_args_n = 0;
 
-                tmp_str = XmStringCreateLocalized("Program file selection");
+                tmp_str = xtee_new_XmString("Program file selection");
 
                 create_XteeGuiBasicFormDialog(new_program_dialog,
                                 xtee_gui_get_main_win(),

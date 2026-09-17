@@ -112,8 +112,7 @@ reload_program_cmd_line_args_list(XteeGuiBasicFormDialog *dialog)
         args_field = &dialog->fields[args_field_i].data.listbuttons_form;
         args_strs = malloc_or_exit(program->args_list.n * sizeof(XmString));
         for (size_t i = 0; i < program->args_list.n; ++i) {
-                args_strs[i] = XmStringCreateLocalized(
-                                program->args_list.data[i].s);
+                args_strs[i] = xtee_new_XmString(program->args_list.data[i].s);
         }
         XtVaSetValues(args_field->list,
                         XmNitems, args_strs,
@@ -312,7 +311,7 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                 unsigned text_args_n = 0;
                 unsigned filesel_args_n = 0;
 
-                tmp_str = XmStringCreateLocalized("Program file selection");
+                tmp_str = xtee_new_XmString("Program file selection");
                 XtSetArg(text_args[text_args_n], XmNmaxLength,
                                 XTEE_MAX_FILE_PATH_LEN); text_args_n++;
                 XtSetArg(filesel_args[filesel_args_n],

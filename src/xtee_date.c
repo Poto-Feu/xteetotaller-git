@@ -6,7 +6,7 @@
 void
 xtee_date_set_to_current_day(XteeDate *date)
 {
-        struct tm *current_time;
+        const struct tm *current_time;
         time_t t;
         int corrected_year, corrected_month;
 

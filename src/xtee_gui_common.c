@@ -4,6 +4,7 @@
 #include <X11/Intrinsic.h>
 #include <Xm/TextF.h>
 
+extern inline XmString xtee_new_XmString(char *s);
 extern inline void xtee_gui_hide_dialog_cancel_button(Widget w);
 extern inline void xtee_gui_hide_dialog_help_button(Widget w);
 extern inline void xtee_gui_disable_dialog_help_button(Widget w);
@@ -47,8 +48,8 @@ xtee_gui_set_dialog_title_message(Widget dialog, char *title, char *msg)
 {
         XmString title_str, msg_str;
 
-        title_str = XmStringCreateLocalized(title);
-        msg_str = XmStringCreateLocalized(msg);
+        title_str = xtee_new_XmString(title);
+        msg_str = xtee_new_XmString(msg);
         XtVaSetValues(dialog, XmNdialogTitle, title_str,
                         XmNmessageString, msg_str,
                         NULL);

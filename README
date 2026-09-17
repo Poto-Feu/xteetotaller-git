@@ -22,7 +22,6 @@ reduced.
 A lot of allocations are made in a naive way, where blocks are resized by one
 when an object is added.
 This is unnoticeable for the user in most cases, but must still be addressed.
-* Keyboard traversal and Enter key have some issues on forms with fields.
 * There are no documentation or help system for the program.
 * Labels with UTF-8 characters may not be displayed correctly.
 However, this isssue should not be present on TextField widgets.
