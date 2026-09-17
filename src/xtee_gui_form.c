@@ -140,7 +140,6 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                         XmNlabelString, tmp_str,
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNrightAttachment, XmATTACH_FORM,
-                        XmNtraversalOn, False,
                         NULL);
         XmStringFree(tmp_str);
         gui_show_hidden_files_val = xtee_config_get_entry_value(
@@ -181,6 +180,12 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
         XtAddCallback(form_data->browse_dialog, XmNcancelCallback,
                         ltpf_file_selection_btns_cb,
                         (XtPointer)form_data->text);
+        XtVaSetValues(form_data->text,
+                        XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
+                        NULL);
+        XtVaSetValues(form_data->browse_btn,
+                        XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
+                        NULL);
         XtManageChild(form_data->text);
         XtManageChild(form_data->browse_btn);
         XtManageChild(form_data->form);
@@ -203,6 +208,7 @@ create_gui_toggle_field(Widget *toggle_g, Widget parent,
                         field_name,
                         XmNlabelString, tmp_str,
                         XmNalignment, XmALIGNMENT_BEGINNING,
+                        XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
                         NULL);
         XmStringFree(tmp_str);
 }
@@ -327,6 +333,7 @@ create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
                         &dialog->ok_btn,
                         &dialog->cancel_btn);
         XtVaSetValues(dialog->dialog_form,
+                        XmNdefaultButton, dialog->ok_btn,
                         XmNcancelButton, dialog->cancel_btn,
                         NULL);
         dialog->fields = NULL;
@@ -569,11 +576,15 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, form_data->label,
                         XmNleftOffset, radiobox_w_margin,
+                        XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
+                        XmNtraversalOn, True,
                         NULL);
         for (size_t i = 0; i < choices_n; ++i) {
-                form_data->choices_w[i] = XtCreateManagedWidget(
+                form_data->choices_w[i] = XtVaCreateManagedWidget(
                                 choices_str[i], xmToggleButtonGadgetClass,
-                                form_data->row_column, NULL, 0);
+                                form_data->row_column,
+                                XmNtraversalOn, True,
+                                NULL);
         }
 
         set_form_attach_resources(form_data->form, prev_w);
