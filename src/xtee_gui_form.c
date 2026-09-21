@@ -16,7 +16,7 @@
 extern inline void reset_XteeGuiBasicFormDialog_fields(
                 XteeGuiBasicFormDialog *dialog);
 
-static const int text_w_margin = 10;
+static const int field_widget_margin = 10;
 
 static Widget
 create_gui_form_field_label(Widget form, char *label_name, char *label_str)
@@ -302,8 +302,8 @@ create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
         Arg args[] = {
                 { XmNdialogTitle, (XtArgVal)dialog_title },
                 { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
-                { XmNwidth, 600 },
-                { XmNheight, 450 },
+                { XmNwidth, XTEE_GUI_BASICFORMDIALOG_WIDTH },
+                { XmNheight, XTEE_GUI_BASICFORMDIALOG_HEIGHT },
                 { XmNautoUnmanage, False },
         };
 
@@ -436,7 +436,7 @@ add_label_text_form_field_to_XteeGuiBasicFormDialog(
                         dialog->dialog_form,
                         w_name,
                         "form_label", label_str,
-                        "form_text", text_w_margin);
+                        "form_text", field_widget_margin);
         new_w = form_data->form;
         if (text_args && text_args_n) {
                 XtSetValues(form_data->text, text_args, text_args_n);
@@ -468,7 +468,8 @@ add_ltpf_field_to_XteeGuiBasicFormDialog(
         field_i = dialog->fields_n - 1;
         form_data = &dialog->fields[field_i].data.ltpf;
         create_gui_ltpf(form_data, dialog->dialog_form, w_name, "form_label",
-                        label_str, "form_text", text_w_margin, file_type_mask);
+                        label_str, "form_text", field_widget_margin,
+                        file_type_mask);
         if (text_args && text_args_n) {
                 XtSetValues(form_data->text, text_args, text_args_n);
         }
@@ -512,7 +513,6 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 const char *w_name, char *label_str,
                 char **choices_str, unsigned int choices_n)
 {
-        const int radiobox_w_margin = 10;
         XteeGuiRadioBoxForm *form_data;
         Widget prev_w = NULL;
         size_t field_i;
@@ -541,7 +541,7 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, form_data->label,
-                        XmNleftOffset, radiobox_w_margin,
+                        XmNleftOffset, field_widget_margin,
                         XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
                         XmNtraversalOn, True,
                         NULL);
@@ -563,7 +563,6 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog, const char *w_name,
                 char *label_str, XteeStringList choices_strs)
 {
-        const int dropdownlist_w_margin = 10;
         XmStringTable items_table = NULL;
         XteeGuiDropDownListForm *form_data;
         Widget prev_w = NULL;
@@ -597,7 +596,7 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
                 { XmNtopAttachment, XmATTACH_FORM },
                 { XmNleftAttachment, XmATTACH_WIDGET },
                 { XmNleftWidget, (XtArgVal)form_data->label },
-                { XmNleftOffset, dropdownlist_w_margin },
+                { XmNleftOffset, field_widget_margin },
         };
         form_data->list = XtCreateManagedWidget("dropdownlist",
                         xmComboBoxWidgetClass, form_data->form, args,
@@ -621,7 +620,6 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                 { XmNselectionPolicy, XmSINGLE_SELECT },
                 { XmNlistSizePolicy, XmCONSTANT },
         };
-        const int list_w_margin = 10;
         XteeGuiListButtonsForm *form_data;
         Widget prev_w = NULL;
         Widget list_parent;
@@ -650,7 +648,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                         XmNresizable, False,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, form_data->label,
-                        XmNleftOffset, list_w_margin,
+                        XmNleftOffset, field_widget_margin,
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNrightAttachment, XmATTACH_FORM,
                         NULL);
@@ -662,7 +660,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         XtVaSetValues(list_parent,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, form_data->label,
-                        XmNleftOffset, list_w_margin,
+                        XmNleftOffset, field_widget_margin,
                         XmNrightAttachment, XmATTACH_POSITION,
                         XmNrightPosition, 3,
                         XmNtopAttachment, XmATTACH_FORM,
@@ -677,7 +675,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                         XmNentryAlignment, XmALIGNMENT_CENTER,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, list_parent,
-                        XmNleftOffset, list_w_margin,
+                        XmNleftOffset, field_widget_margin,
                         XmNrightAttachment, XmATTACH_FORM,
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNbottomAttachment, XmATTACH_OPPOSITE_WIDGET,
@@ -714,7 +712,6 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                 const char *button_name, char *button_str,
                 XTEE_XT_CALLBACK_FUNC_PTR(button_cb), void *client_data)
 {
-        const int string_w_margin = 10;
         XteeGuiStringAndButtonForm *form_data;
         Widget prev_w = NULL;
         XmString tmp_str;
@@ -756,10 +753,10 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                         XmNtopWidget, form_data->label,
                         XmNleftAttachment, XmATTACH_WIDGET,
                         XmNleftWidget, form_data->label,
-                        XmNleftOffset, string_w_margin,
+                        XmNleftOffset, field_widget_margin,
                         XmNrightAttachment, XmATTACH_WIDGET,
                         XmNrightWidget, form_data->button,
-                        XmNrightOffset, string_w_margin,
+                        XmNrightOffset, field_widget_margin,
                         NULL);
         XmStringFree(tmp_str);
         set_form_attach_resources(form_data->form, prev_w);

@@ -10,6 +10,26 @@ Using this program on a big-endian CPU may cause issues.
 Third-party libraries licenses are present in the licenses subdirectory.
 Building and installation information are available in the INSTALL file.
 
+Features
+========
+* Lightweight GUI created with Motif
+* Low number of dependencies - only Motif and X11 libraries
+* win32, win64 and wow64 Wine prefixes creation
+* Programs list for each prefix
+* Enabling and disabling DXVK dlls
+* Switching prefix Wine version
+* Setting launch options for each program
+* Enabling the experimental WineD3D Damavand renderer for specific programs
+* Setting X11 DISPLAY per program
+* Disabling winemenubuilder for each prefix
+* No internet access, no automatic downloads
+
+Planned features
+================
+* Set dll overrides for each program
+* Set niceness value for each program
+* In-program help system
+
 Known issues
 ============
 * It is not possible to copy and paste with Ctrl+C and Ctrl+V yet.
