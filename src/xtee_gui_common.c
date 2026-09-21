@@ -2,6 +2,7 @@
 #include "xtee_gui.h"
 
 #include <X11/Intrinsic.h>
+#include <Xm/FileSB.h>
 #include <Xm/TextF.h>
 
 extern inline XmString xtee_new_XmString(char *s);
@@ -55,4 +56,26 @@ xtee_gui_set_dialog_title_message(Widget dialog, char *title, char *msg)
                         NULL);
         XmStringFree(title_str);
         XmStringFree(msg_str);
+}
+
+Widget
+xtee_create_FileSelectionDialog(Widget parent, char *dialog_name,
+                char *dialog_title, unsigned char file_type_mask)
+{
+        XmString title_str = xtee_new_XmString(dialog_title);
+        Arg args[] = {
+                { XmNpathMode, XmPATH_MODE_RELATIVE },
+                { XmNdialogTitle, (XtArgVal)title_str },
+                { XmNresizePolicy, XmRESIZE_NONE },
+                { XmNwidth, XTEE_FILESELECTIONBOX_WIDTH },
+                { XmNheight, XTEE_FILESELECTIONBOX_HEIGHT },
+                { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                { XmNfileTypeMask, file_type_mask },
+        };
+        Widget fileseldialog;
+
+        fileseldialog = XmCreateFileSelectionDialog(parent, dialog_name,
+                        args, XtNumber(args));
+        XmStringFree(title_str);
+        return fileseldialog;
 }

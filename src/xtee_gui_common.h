@@ -26,6 +26,9 @@ XTEE_XT_CALLBACK_FUNC(xtee_gui_reset_message_area_string);
 #define xtee_gui_reset_message_area_string_CALL \
         xtee_gui_reset_message_area_string(NULL, NULL, NULL)
 
+Widget xtee_create_FileSelectionDialog(Widget parent, char *dialog_name,
+                char *dialog_title, unsigned char file_type_mask);
+
 inline XmString
 xtee_new_XmString(char *s)
 {

@@ -195,17 +195,13 @@ XTEE_XT_CALLBACK_FUNC(add_arg_btn_cb)
         dialog = (XteeGuiBasicFormDialog *)client_data;
 
         if (!new_arg_dialog) {
-                Arg args[5];
-                Cardinal n = 0;
-
-                XtSetArg(args[n], XmNdialogStyle,
-                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
-                XtSetArg(args[n], XmNtitle, "Add argument"); n++;
-                XtSetArg(args[n], XmNautoUnmanage, False); n++;
+                Arg args[] = {
+                        { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                        { XmNtitle, (XtArgVal)"Add argument" },
+                        { XmNautoUnmanage, False },
+                };
                 new_arg_dialog = XmCreatePromptDialog(dialog->dialog_form,
-                                "add_argument_dialog",
-                                args,
-                                n);
+                                "add_argument_dialog", args, XtNumber(args));
                 XtAddCallback(new_arg_dialog, XmNokCallback,
                                 add_argument_dialog_cb,
                                 dialog);
@@ -304,16 +300,15 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                         "Add argument",
                         "Remove argument",
                 };
-                Arg text_args[4];
+                Arg text_args[] = {
+                        { XmNmaxLength, XTEE_MAX_FILE_PATH_LEN },
+                };
                 Arg filesel_args[4];
                 XmString tmp_str;
                 XteeGuiFormField *args_field;
-                unsigned text_args_n = 0;
                 unsigned filesel_args_n = 0;
 
                 tmp_str = xtee_new_XmString("Program file selection");
-                XtSetArg(text_args[text_args_n], XmNmaxLength,
-                                XTEE_MAX_FILE_PATH_LEN); text_args_n++;
                 XtSetArg(filesel_args[filesel_args_n],
                                 XmNdialogTitle, tmp_str); filesel_args_n++;
 
@@ -332,7 +327,7 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                 add_ltpf_field_to_XteeGuiBasicFormDialog(dialog,
                                 "exe_path_form",
                                 "Executable path: ",
-                                text_args, text_args_n,
+                                text_args, XtNumber(text_args),
                                 filesel_args, filesel_args_n, XmFILE_REGULAR);
                 XmStringFree(tmp_str);
                 add_list_buttons_field_to_XteeGuiBasicFormDialog(dialog,

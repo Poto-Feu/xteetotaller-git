@@ -1,9 +1,16 @@
+2026-09-21
+* Reduce code repetition for form fields label creation
+
+2026-09-20
+* Refactor FileSelectionDialog creation to reduce redundant code
+
 2026-09-17
 * Make Ok button widget XmNdefaultButton in XteeGuiBasicFormDialog
 * Remove keyboard traversal Known Issue in README
 * Fix a few more cppcheck warnings
 * Use utility function for creating XmString to reduce function name length
 * Add cppcheck-xteetotaller.sh script to repo
+* Replace XtSetArg with Arg struct initialization where it is possible
 
 2026-09-16
 * Fix tab traversal for some widgets

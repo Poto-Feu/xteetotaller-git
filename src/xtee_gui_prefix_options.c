@@ -83,15 +83,14 @@ static void
 set_and_show_install_dxvk_working_dialog(Widget parent, char *title, char *msg)
 {
         if (!install_dxvk_working_dialog) {
-                Arg args[5];
-                Cardinal n = 0;
+                Arg args[] = {
+                        { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                };
 
-                XtSetArg(args[n], XmNdialogStyle,
-                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
                 install_dxvk_working_dialog = XmCreateWorkingDialog(
                                 parent,
                                 "install_dxvk_working_dialog",
-                                args, n);
+                                args, XtNumber(args));
                 XtUnmanageChild(XtNameToWidget(install_dxvk_working_dialog,
                                         "OK"));
                 xtee_gui_hide_dialog_cancel_button(
@@ -240,18 +239,17 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_install_dxvk_cb)
 
         if (!dxvk_version_selection_box) {
                 XteeStringList dxvk_versions_list;
-                Arg args[5];
-                Cardinal n = 0;
                 Widget items_list;
+                Arg args[] = {
+                        { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                        { XmNmustMatch, True },
+                        { XmNautoUnmanage, False },
+                };
 
-                XtSetArg(args[n], XmNdialogStyle,
-                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
-                XtSetArg(args[n], XmNmustMatch, True); n++;
-                XtSetArg(args[n], XmNautoUnmanage, False); n++;
                 dxvk_version_selection_box = XmCreateSelectionDialog(
                                 dialog->dialog_form,
                                 "dxvk_version_selection_box",
-                                args, n);
+                                args, XtNumber(args));
                 xtee_gui_disable_dialog_help_button(
                                 dxvk_version_selection_box);
                 XtUnmanageChild(XtNameToWidget(dxvk_version_selection_box,
@@ -342,18 +340,17 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_change_wine_cb)
         dialog = (XteeGuiBasicFormDialog *)client_data;
         if (!wine_version_selection_box) {
                 XteeStringList wine_versions_list;
-                Arg args[5];
-                Cardinal n = 0;
+                Arg args[] = {
+                        { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                        { XmNmustMatch, True },
+                        { XmNautoUnmanage, False },
+                };
                 Widget items_list;
 
-                XtSetArg(args[n], XmNdialogStyle,
-                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
-                XtSetArg(args[n], XmNmustMatch, True); n++;
-                XtSetArg(args[n], XmNautoUnmanage, False); n++;
                 wine_version_selection_box = XmCreateSelectionDialog(
                                 dialog->dialog_form,
                                 "wine_version_selection_box",
-                                args, n);
+                                args, XtNumber(args));
                 xtee_gui_disable_dialog_help_button(
                                 wine_version_selection_box);
                 XtUnmanageChild(XtNameToWidget(wine_version_selection_box,

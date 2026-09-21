@@ -1071,16 +1071,16 @@ static Widget
 create_about_dialog(void)
 {
         Widget about_dialog;
-        Arg args[10];
-        unsigned int n = 0;
-
         /* Don't make this dialog modal as it doesn't interact with the rest of
          * the program. */
-        XtSetArg(args[n], XmNnoResize, True); n++;
-        XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
-        XtSetArg(args[n], XmNdefaultButton, XmDIALOG_OK_BUTTON); n++;
+        Arg args[] = {
+                { XmNnoResize, True },
+                { XmNresizePolicy, XmRESIZE_NONE },
+                { XmNdefaultButton, XmDIALOG_OK_BUTTON },
+        };
+
         about_dialog = XmCreateInformationDialog(main_gui_data.main_win,
-                        "about_dialog", args, n);
+                        "about_dialog", args, XtNumber(args));
         xtee_gui_set_dialog_title_message(about_dialog, "About XTeetotaller",
                         ABOUT_DIALOG_TEXT_CONTENT);
 
@@ -1178,44 +1178,17 @@ static void
 xtee_gui_run_executable_in_prefix(void)
 {
         static Widget run_exec_browse_dialog = NULL;
-        const char *gui_show_hidden_files_val;
 
         if (!run_exec_browse_dialog) {
-                Arg args[10];
-                Cardinal n = 0;
-                XmString dialog_title;
-
-                dialog_title = xtee_new_XmString("Run executable...");
-                XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
-                XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
-                XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
-                XtSetArg(args[n], XmNwidth, XTEE_FILESELECTIONBOX_WIDTH); n++;
-                XtSetArg(args[n], XmNheight,
-                                XTEE_FILESELECTIONBOX_HEIGHT); n++;
-                XtSetArg(args[n], XmNdialogStyle,
-                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
-                run_exec_browse_dialog = XmCreateFileSelectionDialog(
+                run_exec_browse_dialog = xtee_create_FileSelectionDialog(
                                 main_gui_data.main_win,
-                                "run_exec_browse_dialog", args, n);
-                XmStringFree(dialog_title);
+                                "run_exec_browse_dialog", "Run executable...",
+                                XmFILE_REGULAR);
                 XtAddCallback(run_exec_browse_dialog, XmNokCallback,
                                 run_exec_browse_dialog_btns_cb,
                                 NULL);
                 XtAddCallback(run_exec_browse_dialog, XmNcancelCallback,
                                 run_exec_browse_dialog_btns_cb,
-                                NULL);
-        }
-        gui_show_hidden_files_val = xtee_config_get_entry_value(
-                        "gui.show_hidden_files");
-        if (!gui_show_hidden_files_val
-                        || !xtee_string_to_bool(
-                                gui_show_hidden_files_val)) {
-                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
-                                XmFILTER_HIDDEN_FILES,
-                                NULL);
-        } else {
-                XtVaSetValues(run_exec_browse_dialog, XmNfileFilterStyle,
-                                XmFILTER_NONE,
                                 NULL);
         }
         XtManageChild(run_exec_browse_dialog);

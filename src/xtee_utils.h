@@ -9,6 +9,7 @@
 
 #define XTEE_ARRAY_LEN(x) (sizeof(x)/sizeof((x)[0]))
 #define XTEE_STRINGLIT_LEN(x) (XTEE_ARRAY_LEN(x) - 1)
+#define XTEE_ARRAY_LAST_I(x) (XTEE_ARRAY_LEN(x) - 1)
 
 #define XTEE_MAX_FILENAME_LEN 256
 

@@ -63,15 +63,13 @@ static void
 show_new_prefix_working_dialog(Widget parent)
 {
         if (!new_prefix_working_dialog) {
-                Arg args[4];
-                Cardinal n = 0;
+                Arg args[] = {
+                        { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                };
 
-                XtSetArg(args[n], XmNdialogStyle,
-                                XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
                 new_prefix_working_dialog = XmCreateWorkingDialog(
-                                parent,
-                                "prefix_init_working_dialog",
-                                args, n);
+                                parent, "prefix_init_working_dialog",
+                                args, XtNumber(args));
                 xtee_gui_set_dialog_title_message(new_prefix_working_dialog,
                                 "Prefix initialization",
                                 "Wine prefix is being initialized.");

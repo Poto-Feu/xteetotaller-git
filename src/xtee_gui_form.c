@@ -18,17 +18,13 @@ extern inline void reset_XteeGuiBasicFormDialog_fields(
 
 static const int text_w_margin = 10;
 
-static void
-create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
-                char *form_name,
-                char *label_name, char *label_str,
-                const char *text_name, int text_left_margin)
+static Widget
+create_gui_form_field_label(Widget form, char *label_name, char *label_str)
 {
-        XmString tmp_str;
+        XmString tmp_str = xtee_new_XmString(label_str);
+        Widget label;
 
-        form_data->form = XmCreateForm(parent, form_name, NULL, 0);
-        tmp_str = xtee_new_XmString(label_str);
-        form_data->label = XmVaCreateManagedLabelGadget(form_data->form,
+        label = XmVaCreateManagedLabelGadget(form,
                         label_name,
                         XmNlabelString, tmp_str,
                         XmNtopAttachment, XmATTACH_FORM,
@@ -36,6 +32,18 @@ create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
                         XmNleftAttachment, XmATTACH_FORM,
                         NULL);
         XmStringFree(tmp_str);
+        return label;
+}
+
+static void
+create_gui_label_text_form(XteeGuiLabelTextForm *form_data, Widget parent,
+                char *form_name,
+                char *label_name, char *label_str,
+                const char *text_name, int text_left_margin)
+{
+        form_data->form = XmCreateForm(parent, form_name, NULL, 0);
+        form_data->label = create_gui_form_field_label(form_data->form,
+                        label_name, label_str);
         form_data->text = XtVaCreateManagedWidget(text_name,
                         xmTextFieldWidgetClass, form_data->form,
                         XmNrenderTable, xtee_gui_render_table,
@@ -102,9 +110,7 @@ XTEE_XT_CALLBACK_FUNC(ltpf_file_selection_btns_cb)
                 if (!val_str) {
                         return;
                 }
-                XtVaSetValues(path_text,
-                                XmNvalue, val_str,
-                                NULL);
+                XtVaSetValues(path_text, XmNvalue, val_str, NULL);
                 XtFree(val_str);
                 XtUnmanageChild(w);
         } else if (cbs->reason == XmCR_CANCEL) {
@@ -116,24 +122,14 @@ static void
 create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                 char *form_name,
                 char *label_name, char *label_str,
-                const char *text_name, int text_margin)
+                const char *text_name, int text_margin,
+                unsigned char file_type_mask)
 {
-        Arg args[10];
-        Cardinal n = 0;
         XmString tmp_str;
-        const char *gui_show_hidden_files_val;
 
         form_data->form = XmCreateForm(parent, form_name, NULL, 0);
-        tmp_str = xtee_new_XmString(label_str);
-        form_data->label = XmVaCreateManagedLabelGadget(form_data->form,
-                        label_name,
-                        XmNlabelString, tmp_str,
-                        XmNtopAttachment, XmATTACH_FORM,
-                        XmNtopOffset, 5,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        NULL);
-        XmStringFree(tmp_str);
-
+        form_data->label = create_gui_form_field_label(form_data->form,
+                        label_name, label_str);
         tmp_str = xtee_new_XmString("...");
         form_data->browse_btn = XmVaCreatePushButton(form_data->form,
                         "browse_btn",
@@ -142,21 +138,8 @@ create_gui_ltpf(XteeGuiLTPF *form_data, Widget parent,
                         XmNrightAttachment, XmATTACH_FORM,
                         NULL);
         XmStringFree(tmp_str);
-        gui_show_hidden_files_val = xtee_config_get_entry_value(
-                        "gui.show_hidden_files");
-        XtSetArg(args[n], XmNpathMode, XmPATH_MODE_RELATIVE); n++;
-        XtSetArg(args[n], XmNresizePolicy, XmRESIZE_NONE); n++;
-        XtSetArg(args[n], XmNwidth, XTEE_FILESELECTIONBOX_WIDTH); n++;
-        XtSetArg(args[n], XmNheight, XTEE_FILESELECTIONBOX_HEIGHT); n++;
-        XtSetArg(args[n], XmNdialogStyle,
-                        XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
-        if (!gui_show_hidden_files_val
-                        || !xtee_string_to_bool(gui_show_hidden_files_val)) {
-                XtSetArg(args[n], XmNfileFilterStyle,
-                                XmFILTER_HIDDEN_FILES); n++;
-        }
-        form_data->browse_dialog = XmCreateFileSelectionDialog(parent,
-                        "browse_dialog", args, n);
+        form_data->browse_dialog = xtee_create_FileSelectionDialog(parent,
+                        "browse_dialog", "browse_dialog", file_type_mask);
         xtee_gui_disable_dialog_help_button(form_data->browse_dialog);
         XtAddCallback(form_data->browse_btn, XmNactivateCallback,
                         ltpf_browse_btn_cb,
@@ -315,19 +298,17 @@ void
 create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
                 char *name, char *title)
 {
-        Arg args[10];
-        XmString dialog_title;
-        Cardinal n = 0;
+        XmString dialog_title = xtee_new_XmString(title);
+        Arg args[] = {
+                { XmNdialogTitle, (XtArgVal)dialog_title },
+                { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                { XmNwidth, 600 },
+                { XmNheight, 450 },
+                { XmNautoUnmanage, False },
+        };
 
-        dialog_title = xtee_new_XmString(title);
-        XtSetArg(args[n], XmNdialogTitle, dialog_title); n++;
-        XtSetArg(args[n], XmNdialogStyle,
-                        XmDIALOG_PRIMARY_APPLICATION_MODAL); n++;
-        XtSetArg(args[n], XmNwidth, 600); n++;
-        XtSetArg(args[n], XmNheight, 450); n++;
-        XtSetArg(args[n], XmNautoUnmanage, False); n++;
-
-        dialog->dialog_form = XmCreateFormDialog(parent, name, args, n);
+        dialog->dialog_form = XmCreateFormDialog(parent, name, args,
+                        XtNumber(args));
         XmStringFree(dialog_title);
         add_ok_cancel_buttons_to_form_dialog(dialog->dialog_form,
                         &dialog->ok_cancel_column,
@@ -486,16 +467,11 @@ add_ltpf_field_to_XteeGuiBasicFormDialog(
         ++dialog->fields_n;
         field_i = dialog->fields_n - 1;
         form_data = &dialog->fields[field_i].data.ltpf;
-        create_gui_ltpf(form_data,
-                        dialog->dialog_form,
-                        w_name,
-                        "form_label", label_str,
-                        "form_text", text_w_margin);
+        create_gui_ltpf(form_data, dialog->dialog_form, w_name, "form_label",
+                        label_str, "form_text", text_w_margin, file_type_mask);
         if (text_args && text_args_n) {
                 XtSetValues(form_data->text, text_args, text_args_n);
         }
-        XtVaSetValues(form_data->browse_dialog, XmNfileTypeMask,
-                        file_type_mask, NULL);
         if (filesel_args && filesel_args_n) {
                 XtSetValues(form_data->browse_dialog, filesel_args,
                                 filesel_args_n);
@@ -539,7 +515,6 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
         const int radiobox_w_margin = 10;
         XteeGuiRadioBoxForm *form_data;
         Widget prev_w = NULL;
-        XmString tmp_str;
         size_t field_i;
         bool is_first_field;
 
@@ -556,18 +531,8 @@ add_radiobox_field_to_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_RADIOBOX;
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
                         dialog->dialog_form, NULL, 0);
-
-        tmp_str = xtee_new_XmString(label_str);
-        form_data->label = XtVaCreateManagedWidget(
-                        "form_label",
-                        xmLabelGadgetClass,
-                        form_data->form,
-                        XmNlabelString, tmp_str,
-                        XmNtopAttachment, XmATTACH_FORM,
-                        XmNtopOffset, 5,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        NULL);
-        XmStringFree(tmp_str);
+        form_data->label = create_gui_form_field_label(form_data->form,
+                        "form_label", label_str);
 
         form_data->choices_w = malloc_or_exit(choices_n * sizeof(Widget));
         form_data->choices_n = choices_n;
@@ -599,12 +564,9 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
                 char *label_str, XteeStringList choices_strs)
 {
         const int dropdownlist_w_margin = 10;
-        Arg args[10];
-        Cardinal n = 0;
         XmStringTable items_table = NULL;
         XteeGuiDropDownListForm *form_data;
         Widget prev_w = NULL;
-        XmString tmp_str;
         size_t field_i;
         bool is_first_field;
 
@@ -621,32 +583,25 @@ add_dropdownlist_field_to_XteeGuiBasicFormDialog(
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_DROPDOWNLIST;
         form_data->form = XtCreateWidget(w_name, xmFormWidgetClass,
                         dialog->dialog_form, NULL, 0);
-
-        tmp_str = xtee_new_XmString(label_str);
-        form_data->label = XtVaCreateManagedWidget(
-                        "form_label",
-                        xmLabelGadgetClass,
-                        form_data->form,
-                        XmNlabelString, tmp_str,
-                        XmNtopAttachment, XmATTACH_FORM,
-                        XmNtopOffset, 5,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        NULL);
-        XmStringFree(tmp_str);
+        form_data->label = create_gui_form_field_label(form_data->form,
+                        "form_label", label_str);
 
         items_table = malloc_or_exit(choices_strs.n * sizeof(XmString));
         for (size_t i = 0; i < choices_strs.n; ++i) {
                 items_table[i] = xtee_new_XmString(choices_strs.data[i].s);
         }
-        XtSetArg(args[n], XmNcomboBoxType, XmDROP_DOWN_LIST); n++;
-        XtSetArg(args[n], XmNitems, items_table); n++;
-        XtSetArg(args[n], XmNitemCount, (int)choices_strs.n); n++;
-        XtSetArg(args[n], XmNtopAttachment, XmATTACH_FORM); n++;
-        XtSetArg(args[n], XmNleftAttachment, XmATTACH_WIDGET); n++;
-        XtSetArg(args[n], XmNleftWidget, form_data->label); n++;
-        XtSetArg(args[n], XmNleftOffset, dropdownlist_w_margin); n++;
+        Arg args[] = {
+                { XmNcomboBoxType, XmDROP_DOWN_LIST },
+                { XmNitems, (XtArgVal)items_table },
+                { XmNitemCount, ((int)choices_strs.n) },
+                { XmNtopAttachment, XmATTACH_FORM },
+                { XmNleftAttachment, XmATTACH_WIDGET },
+                { XmNleftWidget, (XtArgVal)form_data->label },
+                { XmNleftOffset, dropdownlist_w_margin },
+        };
         form_data->list = XtCreateManagedWidget("dropdownlist",
-                        xmComboBoxWidgetClass, form_data->form, args, n);
+                        xmComboBoxWidgetClass, form_data->form, args,
+                        XtNumber(args));
         for (size_t i = 0; i < choices_strs.n; ++i) {
                 XmStringFree(items_table[i]);
         }
@@ -662,13 +617,14 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                 char *label_str, XteeStringList buttons_names,
                 char **buttons_strs, bool are_btns_enabled)
 {
-        Arg args[5];
-        Cardinal n = 0;
+        Arg args[] = {
+                { XmNselectionPolicy, XmSINGLE_SELECT },
+                { XmNlistSizePolicy, XmCONSTANT },
+        };
         const int list_w_margin = 10;
         XteeGuiListButtonsForm *form_data;
         Widget prev_w = NULL;
         Widget list_parent;
-        XmString tmp_str;
         size_t field_i;
         bool is_first_field;
 
@@ -684,17 +640,8 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                         dialog->dialog_form, NULL, 0);
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_LIST_BUTTONS;
 
-        tmp_str = xtee_new_XmString(label_str);
-        form_data->label = XtVaCreateManagedWidget(
-                        "form_label",
-                        xmLabelGadgetClass,
-                        form_data->form,
-                        XmNlabelString, tmp_str,
-                        XmNtopAttachment, XmATTACH_FORM,
-                        XmNtopOffset, 5,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        NULL);
-        XmStringFree(tmp_str);
+        form_data->label = create_gui_form_field_label(form_data->form,
+                        "form_label", label_str);
         form_data->child_form = XtCreateWidget("child_form", xmFormWidgetClass,
                         form_data->form, NULL, 0);
         XtVaSetValues(form_data->child_form,
@@ -707,10 +654,8 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
                         XmNtopAttachment, XmATTACH_FORM,
                         XmNrightAttachment, XmATTACH_FORM,
                         NULL);
-        XtSetArg(args[n], XmNselectionPolicy, XmSINGLE_SELECT); ++n;
-        XtSetArg(args[n], XmNlistSizePolicy, XmCONSTANT); ++n;
         form_data->list = XmCreateScrolledList(form_data->child_form,
-                        "form_field_list", args, n);
+                        "form_field_list", args, XtNumber(args));
         list_parent = XtParent(form_data->list);
         /* Add offset to bottom attachment to make it look less cramped with
          * the new widget. */
@@ -788,18 +733,8 @@ add_string_and_button_field_to_XteeGuiBasicFormDialog(
                         dialog->dialog_form, NULL, 0);
         dialog->fields[field_i].type = XTEE_GUI_FORM_FIELD_STRING_AND_BUTTON;
 
-        tmp_str = xtee_new_XmString(label_str);
-        form_data->label = XtVaCreateManagedWidget(
-                        "form_label",
-                        xmLabelGadgetClass,
-                        form_data->form,
-                        XmNlabelString, tmp_str,
-                        XmNtopAttachment, XmATTACH_FORM,
-                        XmNtopOffset, 5,
-                        XmNleftAttachment, XmATTACH_FORM,
-                        NULL);
-        XmStringFree(tmp_str);
-
+        form_data->label = create_gui_form_field_label(form_data->form,
+                        "form_label", label_str);
         tmp_str = xtee_new_XmString(button_str);
         form_data->button = XtVaCreateManagedWidget(button_name,
                         xmPushButtonWidgetClass, form_data->form,
