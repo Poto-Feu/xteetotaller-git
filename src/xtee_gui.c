@@ -1175,6 +1175,22 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
 }
 
 static void
+set_FileSelectionDialog_hidden_files_flag(Widget dialog)
+{
+        const char *gui_show_hidden_files_val;
+
+        gui_show_hidden_files_val = xtee_config_get_entry_value(
+                        "gui.show_hidden_files");
+        if (!gui_show_hidden_files_val
+                        || !xtee_string_to_bool(gui_show_hidden_files_val)) {
+                XtVaSetValues(dialog, XmNfileFilterStyle,
+                                XmFILTER_HIDDEN_FILES, NULL);
+        } else {
+                XtVaSetValues(dialog, XmNfileFilterStyle, XmFILTER_NONE, NULL);
+        }
+}
+
+static void
 xtee_gui_run_executable_in_prefix(void)
 {
         static Widget run_exec_browse_dialog = NULL;
@@ -1191,6 +1207,7 @@ xtee_gui_run_executable_in_prefix(void)
                                 run_exec_browse_dialog_btns_cb,
                                 NULL);
         }
+        set_FileSelectionDialog_hidden_files_flag(run_exec_browse_dialog);
         XtManageChild(run_exec_browse_dialog);
 }
 

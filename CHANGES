@@ -1,8 +1,15 @@
+2026-09-23
+* Refactor WINEDLLOVERRIDES handling
+
+2026-09-22
+* Fix Run executable in prefix hidden files flag
+
 2026-09-21
 * Reduce code repetition for form fields label creation
 * Use same margin const variable for all form fields
 * Change some width and height dialog constants
 * Add Features and Planned features sections in README
+* Add setting environment variables future feature in README
 
 2026-09-20
 * Refactor FileSelectionDialog creation to reduce redundant code

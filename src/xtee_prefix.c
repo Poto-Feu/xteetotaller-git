@@ -885,24 +885,23 @@ get_prefix_arch_from_str(const char *s)
 char *
 xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix)
 {
+        XteeDllOverrideList overrides_list = { 0 };
         XteeStringList dlls_list = { 0 };
-        char *winedlloverrides_str;
-        size_t env_str_len = 0;
+        char *env_str;
 
         if (prefix->disable_winemenubuilder) {
-                winedlloverrides_str = strdup("winemenubuilder.exe=");
-                env_str_len = sizeof("winemenubuilder.exe=") - 1;
-        } else {
-                winedlloverrides_str = malloc_or_exit(1);
-                winedlloverrides_str[0] = '\0';
+                XteeConstString winemenubuilder_str =
+                        XTEE_CONSTSTRING_STATIC_INIT("winemenubuilder.exe");
+                xtee_dll_add_override_to_list(&overrides_list,
+                                winemenubuilder_str,
+                                XTEE_DLL_OVERRIDE_DISABLE);
         }
 
         if (!prefix->is_dxvk_installed) {
-                if (prefix->disable_winemenubuilder) {
-                        return winedlloverrides_str;
-                }
-                free(winedlloverrides_str);
-                return NULL;
+                env_str = xtee_dll_get_WINEDLLOVERRIDES_string(
+                                &overrides_list);
+                xtee_dll_free_list(&overrides_list);
+                return env_str;
         }
 
         for (size_t i = 0; i < prefix->dxvk_x32_dlls.n; ++i) {
@@ -940,29 +939,22 @@ xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix)
         }
 
         for (size_t i = 0; i < dlls_list.n; ++i) {
-                bool is_semicolon_needed;
-                char *tmp_ptr;
+                XteeString id_without_dll = { 0 };
 
-                is_semicolon_needed = (i != 0
-                                || prefix->disable_winemenubuilder);
-                env_str_len += dlls_list.data[i].n - 4 + sizeof("=n,b");
-                if (is_semicolon_needed) {
-                        ++env_str_len;
-                }
-
-                tmp_ptr = realloc_or_exit(winedlloverrides_str,
-                                env_str_len + 1);
-                winedlloverrides_str = tmp_ptr;
-                if (is_semicolon_needed) {
-                        strcat(winedlloverrides_str, ";");
-                }
-                strncat(winedlloverrides_str,
-                                dlls_list.data[i].s,
-                                dlls_list.data[i].n - 4);
-                strcat(winedlloverrides_str, "=n,b");
+                id_without_dll.n = dlls_list.data[i].n - 4;
+                id_without_dll.s = malloc_or_exit(id_without_dll.n + 1);
+                memcpy(id_without_dll.s, dlls_list.data[i].s,
+                                id_without_dll.n);
+                id_without_dll.s[id_without_dll.n] = '\0';
+                xtee_dll_add_override_to_list(&overrides_list,
+                                XteeString_to_XteeConstString(id_without_dll),
+                                XTEE_DLL_OVERRIDE_NB);
+                XteeString_free(id_without_dll);
         }
+        env_str = xtee_dll_get_WINEDLLOVERRIDES_string(&overrides_list);
+        xtee_dll_free_list(&overrides_list);
         XteeStringList_free(dlls_list);
-        return winedlloverrides_str;
+        return env_str;
 }
 
 static int
