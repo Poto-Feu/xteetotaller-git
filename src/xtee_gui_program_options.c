@@ -353,10 +353,11 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                                 " (for Wine >= 8.0)");
                 is_dialog_ready = true;
         }
-        reset_XteeGuiBasicFormDialog_fields(dialog);
         if (xtee_gui_get_selected_program_string(&program_str) != 0) {
-                fatal_error("Cannot get selected program string.");
+                print_warning("No selected item in programs list");
+                return;
         }
+        reset_XteeGuiBasicFormDialog_fields(dialog);
 
         if ((status = xtee_state_set_loaded_program(program_str.s))
                         != XTEE_GET_PROGRAM_DATA_OK) {

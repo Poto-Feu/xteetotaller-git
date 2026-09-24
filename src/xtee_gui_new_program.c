@@ -106,7 +106,7 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                                 "list.",
                                 xtee_gui_get_main_win());
         }
-        refresh_program_list();
+        refresh_programs_list();
 }
 
 static

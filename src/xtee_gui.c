@@ -317,7 +317,7 @@ update_prefix_info_label(void)
 }
 
 void
-refresh_program_list(void)
+refresh_programs_list(void)
 {
         XmStringTable str_list;
         XteePrefix *current_prefix;
@@ -377,24 +377,7 @@ refresh_prefix_gui(void)
 
         disable_programs_btns();
         update_prefix_info_label();
-        refresh_program_list();
-}
-
-static
-XTEE_XT_CALLBACK_FUNC(programs_list_cb)
-{
-        const XmListCallbackStruct *cbs;
-
-        (void)w;
-        (void)client_data;
-        cbs = (XmListCallbackStruct *)call_data;
-        switch (cbs->reason) {
-                case XmCR_SINGLE_SELECT:
-                        enable_programs_btns();
-                        break;
-                default:
-                        break;
-        }
+        refresh_programs_list();
 }
 
 /* If program is NULL, then environment variables related to programs will not
@@ -449,8 +432,8 @@ xtee_gui_set_env_data_handler(const XteePrefix *prefix,
         return env_data_handler;
 }
 
-static
-XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
+static void
+run_program_common_func(void)
 {
         XteeEnvDataHandler env_data_handler;
         XteeString program_str;
@@ -461,26 +444,17 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
         XteeProgram *program_data;
         XteeWineVersionData *version_data;
         const char *info_strs[3];
-        unsigned int *list_positions;
         size_t args_n;
-        Widget programs_list;
         enum XteeGetProgramDataStatus status;
-        int list_positions_n;
         int r;
 
-        (void)w;
-        (void)call_data;
-        programs_list = (Widget)client_data;
         loaded_prefix = xtee_state_get_loaded_prefix();
         version_data = xtee_wine_get_version_data(
                         loaded_prefix->wine_version.s);
 
-        XtVaGetValues(programs_list,
-                        XmNselectedPositionCount, &list_positions_n,
-                        XmNselectedPositions, &list_positions,
-                        NULL);
         if (xtee_gui_get_selected_program_string(&program_str) != 0) {
-                fatal_error("Cannot get selected program string.");
+                print_warning("No program selected");
+                return;
         }
         program_data = xtee_prefix_get_program_data(loaded_prefix,
                         program_str.s, &status);
@@ -536,6 +510,37 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
 }
 
 static
+XTEE_XT_CALLBACK_FUNC(programs_list_cb)
+{
+        const XmListCallbackStruct *cbs;
+
+        (void)w;
+        (void)client_data;
+        cbs = (XmListCallbackStruct *)call_data;
+        switch (cbs->reason) {
+                case XmCR_SINGLE_SELECT:
+                        enable_programs_btns();
+                        break;
+                case XmCR_DEFAULT_ACTION:
+                        if (cbs->selected_item_count != 0) {
+                                run_program_common_func();
+                        }
+                        break;
+                default:
+                        break;
+        }
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
+{
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+        run_program_common_func();
+}
+
+static
 XTEE_XT_CALLBACK_FUNC(program_options_btn_cb)
 {
         (void)w;
@@ -560,8 +565,10 @@ XTEE_XT_CALLBACK_FUNC(remove_program_yes_cb)
         (void)client_data;
 
         if (xtee_gui_get_selected_program_string(&program_name) != 0) {
-                gui_print_error_dialog("No program selected, cannot remove "
-                                "program entry", xtee_gui_get_main_win());
+                gui_print_error_log_and_dialog(
+                                "No program selected, cannot remove entry",
+                                xtee_gui_get_main_win());
+                return;
         }
         loaded_prefix = xtee_state_get_loaded_prefix();
         data_path = get_xteetotaller_dir_path();
@@ -589,13 +596,26 @@ XTEE_XT_CALLBACK_FUNC(remove_program_yes_cb)
         } else {
                 xtee_prefix_reload_programs_list(
                                 xtee_state_get_loaded_prefix());
-                refresh_program_list();
+                refresh_programs_list();
                 disable_programs_btns();
                 gui_print_info_dialog("Program entry sucessfully removed.",
                                 xtee_gui_get_main_win());
                 xtee_gui_set_message_area_string("Program entry removed.");
         }
         free(full_program_path);
+}
+
+static bool
+gui_is_program_selected(void)
+{
+        Widget programs_list;
+        int list_positions_n;
+
+        programs_list = main_gui_data.work_area_struct.programs_list;
+        XtVaGetValues(programs_list,
+                        XmNselectedPositionCount, &list_positions_n,
+                        NULL);
+        return list_positions_n != 0;
 }
 
 static
@@ -639,6 +659,10 @@ XTEE_XT_CALLBACK_FUNC(remove_program_btn_cb)
                 XtAddCallback(remove_program_confirm_dialog, XmNokCallback,
                                 remove_program_yes_cb, NULL);
         }
+        if (!gui_is_program_selected()) {
+                print_warning("No program selected");
+                return;
+        }
         XtManageChild(remove_program_confirm_dialog);
 }
 
@@ -680,11 +704,11 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
         wa_struct->programs_list = XmCreateScrolledList(
                         wa_struct->programs_form,
                         "programs_list", args, n);
-        /* Don't set XmNsingleSelectionCallback with XtVaSetValues as it
-         * causes a SEGFAULT.
-         * Use XtAddCallback instead. */
         XtAddCallback(wa_struct->programs_list,
                         XmNsingleSelectionCallback, programs_list_cb,
+                        NULL);
+        XtAddCallback(wa_struct->programs_list,
+                        XmNdefaultActionCallback, programs_list_cb,
                         NULL);
 
         programs_list_parent = XtParent(wa_struct->programs_list);
@@ -729,7 +753,7 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
         }
         XtAddCallback(*programs_btns_data[start_program_btn_i].w,
                         XmNactivateCallback, start_program_btn_cb,
-                        main_gui_data.work_area_struct.programs_list);
+                        NULL);
         XtAddCallback(*programs_btns_data[program_options_btn_i].w,
                         XmNactivateCallback, program_options_btn_cb,
                         NULL);
@@ -1175,22 +1199,6 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
 }
 
 static void
-set_FileSelectionDialog_hidden_files_flag(Widget dialog)
-{
-        const char *gui_show_hidden_files_val;
-
-        gui_show_hidden_files_val = xtee_config_get_entry_value(
-                        "gui.show_hidden_files");
-        if (!gui_show_hidden_files_val
-                        || !xtee_string_to_bool(gui_show_hidden_files_val)) {
-                XtVaSetValues(dialog, XmNfileFilterStyle,
-                                XmFILTER_HIDDEN_FILES, NULL);
-        } else {
-                XtVaSetValues(dialog, XmNfileFilterStyle, XmFILTER_NONE, NULL);
-        }
-}
-
-static void
 xtee_gui_run_executable_in_prefix(void)
 {
         static Widget run_exec_browse_dialog = NULL;
@@ -1207,7 +1215,6 @@ xtee_gui_run_executable_in_prefix(void)
                                 run_exec_browse_dialog_btns_cb,
                                 NULL);
         }
-        set_FileSelectionDialog_hidden_files_flag(run_exec_browse_dialog);
         XtManageChild(run_exec_browse_dialog);
 }
 

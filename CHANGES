@@ -1,5 +1,10 @@
+2026-09-24
+* Add double click and Enter key feature in programs list
+* Fix crashes caused by using program buttons when no program is selected
+
 2026-09-23
 * Refactor WINEDLLOVERRIDES handling
+* Set hidden files filter on FileSelectionDialog map callback
 
 2026-09-22
 * Fix Run executable in prefix hidden files flag

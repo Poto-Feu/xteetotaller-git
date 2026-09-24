@@ -58,6 +58,25 @@ xtee_gui_set_dialog_title_message(Widget dialog, char *title, char *msg)
         XmStringFree(msg_str);
 }
 
+/* Needed to read "gui.show_hidden_files" parameter and set the value
+ * accordingly. */
+static
+XTEE_XT_CALLBACK_FUNC(FileSelectionDialog_map_cb)
+{
+        const char *gui_show_hidden_files_val;
+
+        (void)call_data;
+        (void)client_data;
+        gui_show_hidden_files_val = xtee_config_get_entry_value(
+                        "gui.show_hidden_files");
+        if (!gui_show_hidden_files_val
+                        || !xtee_string_to_bool(gui_show_hidden_files_val)) {
+                XtVaSetValues(w, XmNfileFilterStyle, XmFILTER_HIDDEN_FILES,
+                                NULL);
+        } else {
+                XtVaSetValues(w, XmNfileFilterStyle, XmFILTER_NONE, NULL);
+        }
+}
 Widget
 xtee_create_FileSelectionDialog(Widget parent, char *dialog_name,
                 char *dialog_title, unsigned char file_type_mask)
@@ -77,5 +96,7 @@ xtee_create_FileSelectionDialog(Widget parent, char *dialog_name,
         fileseldialog = XmCreateFileSelectionDialog(parent, dialog_name,
                         args, XtNumber(args));
         XmStringFree(title_str);
+        XtAddCallback(fileseldialog, XmNmapCallback,
+                        FileSelectionDialog_map_cb, NULL);
         return fileseldialog;
 }
