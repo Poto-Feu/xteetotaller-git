@@ -296,14 +296,11 @@ update_prefix_info_label(void)
 
         current_prefix = xtee_state_get_loaded_prefix();
         arch_str = xtee_prefix_get_arch_string(current_prefix->arch);
-        const char *strs_block[] = { "Id; ", current_prefix->id.s,
+        const char *strs_block[] = { "Id; ", current_prefix->id.s, "\n",
+                "Wine prefix directory: ", current_prefix->wineprefix_dir.s,
                 "\n",
-                "Wine prefix directory: ", current_prefix->wine_version.s,
-                "\n",
-                "Wine version: ", current_prefix->wineprefix_dir.s,
-                "\n",
-                "Architecture: ", arch_str,
-                "\n",
+                "Wine version: ", current_prefix->wine_version.s, "\n",
+                "Architecture: ", arch_str, "\n",
                 "Date created: ", current_prefix->creation_date.year,
                 "-", current_prefix->creation_date.month,
                 "-", current_prefix->creation_date.day,
@@ -374,7 +371,6 @@ refresh_prefix_gui(void)
         XtSetSensitive(tmp_w, True);
         tmp_w = XtNameToWidget(main_gui_data.menubar, wine_button_id);
         XtSetSensitive(tmp_w, True);
-
         disable_programs_btns();
         update_prefix_info_label();
         refresh_programs_list();
@@ -412,23 +408,19 @@ xtee_gui_set_env_data_handler(const XteePrefix *prefix,
                                 "WINEDLLOVERRIDES",
                                 env_data_handler.winedlloverrides_str);
         }
-
         /* Set X11 DISPLAY if requested by user in program options */
         if (program && program->is_x11_display_set) {
                 env_data_handler.x11_display_str = xtee_strdup_or_exit(
                                 program->x11_display_str.s);
-                xtee_env_data_add_var_to_handler(&env_data_handler,
-                                "DISPLAY",
+                xtee_env_data_add_var_to_handler(&env_data_handler, "DISPLAY",
                                 env_data_handler.x11_display_str);
         }
-
         /* Set WINE_D3D_CONFIG if needed */
         if (program && program->is_damavand_on) {
                 xtee_env_data_add_var_to_handler(&env_data_handler,
                                 "WINE_D3D_CONFIG",
                                 "renderer=vulkan");
         }
-
         return env_data_handler;
 }
 
@@ -462,8 +454,7 @@ run_program_common_func(void)
                 xtee_gui_print_get_program_data_error(status);
                 return;
         }
-        set_and_show_main_working_dialog("Running program",
-                        "Running program");
+        set_and_show_main_working_dialog("Running program", "Running program");
         if (program_data->args_list.n != 0) {
                 args_n = program_data->args_list.n + 3;
                 args_multiple = malloc_or_exit(args_n * sizeof(char *));
@@ -487,8 +478,7 @@ run_program_common_func(void)
                         program_data, false);
         xtee_free_program(program_data);
         free(program_data);
-        r = xtee_gui_fork_exec(version_data->wine_path.s,
-                        args_ptr, args_n,
+        r = xtee_gui_fork_exec(version_data->wine_path.s, args_ptr, args_n,
                         env_data_handler.block, env_data_handler.n);
         free(args_ptr[2]);
         xtee_env_data_free_handler(&env_data_handler);
@@ -563,7 +553,6 @@ XTEE_XT_CALLBACK_FUNC(remove_program_yes_cb)
         (void)w;
         (void)call_data;
         (void)client_data;
-
         if (xtee_gui_get_selected_program_string(&program_name) != 0) {
                 gui_print_error_log_and_dialog(
                                 "No program selected, cannot remove entry",
@@ -622,10 +611,10 @@ static
 XTEE_XT_CALLBACK_FUNC(remove_program_btn_cb)
 {
         static Widget remove_program_confirm_dialog = NULL;
+
         (void)w;
         (void)call_data;
         (void)client_data;
-
         if (!remove_program_confirm_dialog) {
                 Arg args[10];
                 Cardinal i = 0;
@@ -710,7 +699,6 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
         XtAddCallback(wa_struct->programs_list,
                         XmNdefaultActionCallback, programs_list_cb,
                         NULL);
-
         programs_list_parent = XtParent(wa_struct->programs_list);
         XtVaSetValues(programs_list_parent,
                         XmNheight, 200,
@@ -811,7 +799,6 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNlabelString, tmp_str,
                         NULL);
         XmStringFree(tmp_str);
-
         wa_struct->prefix_form = XtCreateWidget("prefix_frame_form",
                         xmFormWidgetClass,
                         wa_struct->prefix_frame,
@@ -827,7 +814,6 @@ create_gui_prefix_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
                         XmNleftOffset, button_lr_margin,
                         NULL);
         reset_prefix_info_label();
-
         XtManageChild(wa_struct->prefix_form);
         XtManageChild(wa_struct->prefix_frame);
 }
@@ -1157,8 +1143,7 @@ XTEE_XT_CALLBACK_FUNC(run_exec_browse_dialog_btns_cb)
                                 XteeString_to_XteeConstString(val_xteestr))
                         != 0
                         && !is_file_msi) {
-                gui_print_error_log_and_dialog(
-                                "Executable type is incorrect.",
+                gui_print_error_log_and_dialog("Executable type is incorrect.",
                                 main_gui_data.main_win);
                 free(val_str);
                 return;
@@ -1232,7 +1217,6 @@ XTEE_XT_CALLBACK_FUNC(prefix_menu_cb)
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
-
         if (item_i == reload_prefix_i) {
                 const XteePrefix *current_prefix;
                 (void)w;
