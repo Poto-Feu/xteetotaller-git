@@ -1382,6 +1382,8 @@ XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
                 { "uninstaller", "Running uninstaller",
                         "Running uninstaller" },
                 { "explorer", "Running explorer", "Running explorer" },
+                { "control", "Running Control Panel",
+                        "Running Control Panel" },
                 { "regedit", "Running regedit", "Running regedit" },
                 { "winefile", "Running winefile", "Running winefile" },
         };
@@ -1438,8 +1440,8 @@ gui_create_menubar(void)
         XmString reload_prefix_str, prefix_options_str, new_program_str,
                  run_executable_str;
         XmString reload_prefix_acc, new_program_acc;
-        XmString winecfg_str, uninstaller_str, explorer_str, regedit_str,
-                 winefile_str, winetricks_str, kill_wine_str;
+        XmString winecfg_str, uninstaller_str, explorer_str, control_panel_str,
+                 regedit_str, winefile_str, winetricks_str, kill_wine_str;
         XmString kill_wine_acc;
         XmString about_str;
         const char *help_button_id = "button_4";
@@ -1533,6 +1535,7 @@ gui_create_menubar(void)
         winecfg_str = xtee_new_XmString("winecfg");
         uninstaller_str = xtee_new_XmString("uninstaller");
         explorer_str = xtee_new_XmString("explorer");
+        control_panel_str = xtee_new_XmString("Control Panel");
         regedit_str = xtee_new_XmString("regedit");
         winefile_str = xtee_new_XmString("winefile");
         winetricks_str = xtee_new_XmString("winetricks");
@@ -1544,6 +1547,7 @@ gui_create_menubar(void)
                         XmVaPUSHBUTTON, winecfg_str, 'c', NULL, NULL,
                         XmVaPUSHBUTTON, uninstaller_str, 'u', NULL, NULL,
                         XmVaPUSHBUTTON, explorer_str, 'x', NULL, NULL,
+                        XmVaPUSHBUTTON, control_panel_str, 'P', NULL, NULL,
                         XmVaPUSHBUTTON, regedit_str, 'r', NULL, NULL,
                         XmVaPUSHBUTTON, winefile_str, 'f', NULL, NULL,
                         XmVaSEPARATOR,
@@ -1555,6 +1559,7 @@ gui_create_menubar(void)
         XmStringFree(winecfg_str);
         XmStringFree(uninstaller_str);
         XmStringFree(explorer_str);
+        XmStringFree(control_panel_str);
         XmStringFree(regedit_str);
         XmStringFree(winefile_str);
         XmStringFree(winetricks_str);

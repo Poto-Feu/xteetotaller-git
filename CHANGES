@@ -1,6 +1,7 @@
 2026-09-27
 * Grow XteeGuiBasicFormDialog fields block dynamically
 * Do not use temporary pointer when calling realloc_or_exit
+* Add Control Panel button to Wine menu
 
 2026-09-25
 * Add ctags file to .cvsignore
