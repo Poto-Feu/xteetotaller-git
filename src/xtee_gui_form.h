@@ -91,6 +91,7 @@ typedef struct XteeGuiBasicFormDialog {
         Widget ok_cancel_column;
         XteeGuiFormField *fields;
         size_t fields_n;
+        size_t capacity;
 } XteeGuiBasicFormDialog;
 
 void free_XteeGuiFormField(XteeGuiFormField *field);

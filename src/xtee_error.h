@@ -57,6 +57,8 @@ calloc_or_exit(size_t nmemb, size_t size)
         return ptr;
 }
 
+/* A temporary pointer is not needed as the NULL check is done in this
+ * function. */
 inline void *
 realloc_or_exit(void *ptr, size_t size)
 {

@@ -247,12 +247,9 @@ xtee_file_get_dir_files_list(XteeConstString dir_path,
                 }
 
                 if (list->n == listcapacity) {
-                        XteeString *tmp_ptr;
-
                         listcapacity *= 2;
-                        tmp_ptr = realloc_or_exit(list->data,
+                        list->data = realloc_or_exit(list->data,
                                         listcapacity * sizeof(XteeString));
-                        list->data = tmp_ptr;
                 }
                 list->data[list->n] = XteeString_create_from_charstring(
                                 dir_entry->d_name);

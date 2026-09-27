@@ -15,8 +15,6 @@ xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler,
                 handler->block = malloc_or_exit(
                                 handler->block_size * sizeof(XteeEnvData));
         } else if (handler->n + 1 > handler->block_size) {
-                XteeEnvData *tmp_ptr;
-
                 print_info("Growing XteeEnvDataHandler.");
                 /* This may cause unsigned integer overflow but since there are
                  * no way for user to add environment variables for now, this
@@ -24,9 +22,8 @@ xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler,
                  * When adding support for user-defined environment variable,
                  * we should add a limit to avoid this issue. */
                 handler->block_size *= 2;
-                tmp_ptr = realloc_or_exit(handler->block,
+                handler->block = realloc_or_exit(handler->block,
                                 handler->block_size * sizeof(XteeEnvData));
-                handler->block = tmp_ptr;
         }
 
         handler->block[handler->n].name = name;

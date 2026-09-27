@@ -574,11 +574,8 @@ static void
 add_item_to_XteePrefixIdBlock(XteePrefixIdBlock *block,
                 const char *restrict id)
 {
-        XteeString *tmp_ptr;
-
-        tmp_ptr = realloc_or_exit(block->data,
+        block->data = realloc_or_exit(block->data,
                         (block->n + 1) * sizeof(XteeString));
-        block->data = tmp_ptr;
         block->data[block->n] = XteeString_create_from_charstring(id);
         ++block->n;
 }
@@ -806,7 +803,6 @@ XteeAddProgramStatus add_program_to_prefix(XteePrefix *prefix,
 {
         const char *error_str = "Cannot write to program config file.";
         XteeString new_program_config_path;
-        XteeString *tmp_ptr;
         FILE *f;
         int fd;
         int r;
@@ -839,9 +835,8 @@ XteeAddProgramStatus add_program_to_prefix(XteePrefix *prefix,
         if (r != 0) {
                 return XTEE_ADD_PROGRAM_WRITE_ERROR;
         }
-        tmp_ptr = realloc_or_exit(prefix->programs_ids,
+        prefix->programs_ids = realloc_or_exit(prefix->programs_ids,
                         ++prefix->programs_n * sizeof(XteeString));
-        prefix->programs_ids = tmp_ptr;
         prefix->programs_ids[prefix->programs_n - 1] = XteeString_duplicate(
                         program->id);
         return XTEE_ADD_PROGRAM_0K;

@@ -137,11 +137,8 @@ void
 xtee_add_charstring_to_XteeStringList(XteeStringList *list,
                 const char *s)
 {
-        XteeString *tmp_ptr;
-
-        tmp_ptr = realloc_or_exit(
-                        list->data, (list->n + 1) * sizeof(*tmp_ptr));
-        list->data = tmp_ptr;
+        list->data = realloc_or_exit(list->data,
+                        (list->n + 1) * sizeof(*list->data));
         list->data[list->n] = XteeString_create_from_charstring(s);
         ++list->n;
 }

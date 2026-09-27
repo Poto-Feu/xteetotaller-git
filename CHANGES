@@ -1,3 +1,10 @@
+2026-09-27
+* Grow XteeGuiBasicFormDialog fields block dynamically
+* Do not use temporary pointer when calling realloc_or_exit
+
+2026-09-25
+* Add ctags file to .cvsignore
+
 2026-09-24
 * Add double click and Enter key feature in programs list
 * Fix crashes caused by using program buttons when no program is selected

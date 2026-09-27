@@ -383,11 +383,22 @@ set_form_attach_resources(Widget new_w, Widget prev_w)
 static void
 grow_dialog_fields_block_if_needed(XteeGuiBasicFormDialog *dialog)
 {
-        XteeGuiFormField *tmp_ptr;
+        const size_t start_capacity = 5;
 
-        tmp_ptr = realloc_or_exit(dialog->fields,
+        if (!dialog->fields) {
+                dialog->fields = malloc_or_exit(
+                                start_capacity * sizeof(XteeGuiFormField));
+                dialog->capacity = start_capacity;
+        }
+
+        if (dialog->fields_n == dialog->capacity) {
+                dialog->fields = realloc_or_exit(dialog->fields,
+                                dialog->capacity * 2 * sizeof(
+                                        XteeGuiFormField));
+                dialog->capacity *= 2;
+        }
+        dialog->fields = realloc_or_exit(dialog->fields,
                         (dialog->fields_n + 1) * sizeof(XteeGuiFormField));
-        dialog->fields = tmp_ptr;
 }
 
 void

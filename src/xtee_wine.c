@@ -123,7 +123,6 @@ xtee_wine_add_installed(void)
         XteeStringList files_list = { 0 };
         XteeConstString xtee_dir_path = { 0 };
         XteeString wine_comp_path = { 0 };
-        XteeWineVersionData *tmp_ptr;
 
         xtee_dir_path = get_xteetotaller_dir_path();
         wine_comp_path = XteeString_merge_XteeConstString_charstring(
@@ -147,9 +146,9 @@ xtee_wine_add_installed(void)
          * files in this directory, so there will not be a lot of memory
          * wasted.
          * Add one to size to take into account system wine data. */
-        tmp_ptr = realloc_or_exit(xtee_wine_versions_data.block,
+        xtee_wine_versions_data.block = realloc_or_exit(
+                        xtee_wine_versions_data.block,
                         (files_list.n + 1) * sizeof(XteeWineVersionData));
-        xtee_wine_versions_data.block = tmp_ptr;
 
         for (size_t i = 0; i < files_list.n; ++i) {
                 XteeWineVersionData *version_data;

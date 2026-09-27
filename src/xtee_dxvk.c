@@ -72,7 +72,6 @@ xtee_dxvk_init(void)
         XteeStringList files_list = { 0 };
         XteeConstString xtee_dir_path = { 0 };
         XteeString dxvk_comp_path = { 0 };
-        XteeDxvkVersionData *tmp_ptr;
 
         xtee_dir_path = get_xteetotaller_dir_path();
         dxvk_comp_path = XteeString_merge_XteeConstString_charstring(
@@ -92,9 +91,8 @@ xtee_dxvk_init(void)
         }
         /* See comment inx tee_wine_add_installed, except there are no
          * system installation of dxvk. */
-        tmp_ptr = realloc_or_exit(dxvk_versions_data.block,
+        dxvk_versions_data.block = realloc_or_exit(dxvk_versions_data.block,
                         files_list.n * sizeof(XteeDxvkVersionData));
-        dxvk_versions_data.block = tmp_ptr;
         for (size_t i = 0; i < files_list.n; ++i) {
                 const char *reading_path_info_strs[5];
                 const char *x32_dir_suffix = "/x32/";

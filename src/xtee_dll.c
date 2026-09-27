@@ -12,11 +12,8 @@ xtee_dll_add_override_to_list(XteeDllOverrideList *list,
                                 start_capacity * sizeof(*list->block));
                 list->capacity = start_capacity;
         } else if (list->capacity == list->n) {
-                XteeDllOverride *tmp_ptr;
-
-                tmp_ptr = realloc_or_exit(list->block,
+                list->block = realloc_or_exit(list->block,
                                 list->capacity * 2 * sizeof(*list->block));
-                list->block = tmp_ptr;
                 list->capacity *= 2;
         }
         list->block[list->n].name = XteeConstString_to_new_XteeString(
