@@ -56,7 +56,7 @@ xtee_bool_to_string(bool x)
 inline bool
 xtee_string_to_bool(const char *s)
 {
-        return (strcmp("false", s) == 0) ? false : true;
+        return (!s || strcmp("false", s) == 0) ? false : true;
 }
 
 /* Make sure that all env_data_handler members are initialized to zero when

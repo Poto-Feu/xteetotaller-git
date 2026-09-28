@@ -7,6 +7,8 @@
 static struct XteeConfigurationVariable config_vars[] = {
         { XTEE_CONSTSTRING_STATIC_INIT("gui.show_hidden_files"),
                 XTEE_CONSTSTRING_STATIC_INIT("true") },
+        { XTEE_CONSTSTRING_STATIC_INIT("gui.show_missing_system_wine_message"),
+                XTEE_CONSTSTRING_STATIC_INIT("true") },
 };
 
 size_t config_vars_len = XTEE_ARRAY_LEN(config_vars);

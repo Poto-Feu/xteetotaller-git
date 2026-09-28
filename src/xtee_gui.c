@@ -1715,17 +1715,79 @@ xtee_gui_init(int *argc, char *argv[])
         gui_create_main_application();
 }
 
+static
+XTEE_XT_CALLBACK_FUNC(system_wine_not_installed_dialog_ok_cb)
+{
+        const char *true_str = "true";
+        const char *false_str = "false";
+        const char *config_val_str;
+        Widget toggle_w = (Widget)client_data;
+        bool toggle_w_state;
+
+        (void)w;
+        (void)call_data;
+        toggle_w_state = !!XmToggleButtonGadgetGetState(toggle_w);
+        if (toggle_w_state) {
+                config_val_str = false_str;
+        } else {
+                config_val_str = true_str;
+        }
+        xtee_config_set_entry_value_and_write(
+                        "gui.show_missing_system_wine_message",
+                        config_val_str);
+}
+
+static void
+show_system_wine_not_installed_dialog(void)
+{
+        static Widget dialog = NULL;
+        static Widget dont_show_again_toggle = NULL;
+        char *dialog_char_str = "System-wide Wine is not installed.\n"
+                        "This means that prefixes with Wine version "
+                        "set to System will not work.";
+        char *toggle_char_str = "Don't show this again";
+        XmString dialog_str = xtee_new_XmString(dialog_char_str);
+        XmString dialog_title = xtee_new_XmString(
+                        "System-wide Wine not found");
+        XmString toggle_str = xtee_new_XmString(toggle_char_str);
+        Arg dialog_args[] = {
+                { XmNdialogTitle, (XtArgVal)dialog_title },
+                { XmNmessageString, (XtArgVal)dialog_str },
+                { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+        };
+        Widget main_win = xtee_gui_get_main_win();
+
+        dialog = XmCreateWarningDialog(main_win, "missing_system_wine_dialog",
+                        dialog_args, XtNumber(dialog_args));
+        xtee_gui_hide_dialog_cancel_button(dialog);
+        xtee_gui_disable_dialog_help_button(dialog);
+        XmStringFree(dialog_title);
+        XmStringFree(dialog_str);
+        dont_show_again_toggle = XtVaCreateManagedWidget(
+                        "dont_show_again_toggle", xmToggleButtonGadgetClass,
+                        dialog,
+                        XmNlabelString, toggle_str,
+                        XmNalignment, XmALIGNMENT_BEGINNING,
+                        NULL);
+        XmStringFree(toggle_str);
+        XtAddCallback(dialog, XmNokCallback,
+                        system_wine_not_installed_dialog_ok_cb,
+                        dont_show_again_toggle);
+        XtManageChild(dialog);
+}
+
 void
 xtee_gui_run(void)
 {
+        const char *show_no_system_wine_dialog;
+
         XtRealizeWidget(main_gui_data.toplevel);
 
-        if (!xtee_system_is_wine_installed) {
-                gui_print_warning_dialog(
-                                "Wine is not installed.\n"
-                                "This means that prefixes with Wine version "
-                                "set to System will not work.",
-                                main_gui_data.main_win);
+        show_no_system_wine_dialog = xtee_config_get_entry_value(
+                        "gui.show_missing_system_wine_message");
+        if (!xtee_system_is_wine_installed
+                        && xtee_string_to_bool(show_no_system_wine_dialog)) {
+                show_system_wine_not_installed_dialog();
         }
 
         if(!xtee_system_is_winetricks_installed) {

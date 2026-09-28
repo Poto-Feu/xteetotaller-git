@@ -1,3 +1,8 @@
+2026-09-28
+* Fix missing system-wide Wine message box text
+* Add NULL check in xtee_string_to_bool
+* Allow user to disable Missing System Wine dialog
+
 2026-09-27
 * Grow XteeGuiBasicFormDialog fields block dynamically
 * Do not use temporary pointer when calling realloc_or_exit
