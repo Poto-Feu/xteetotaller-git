@@ -1,7 +1,6 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 
-EXTRA_DIST =    .editorconfig \
-                README
+EXTRA_DIST =    .editorconfig
 
 bin_PROGRAMS = xteetotaller
 
@@ -53,6 +52,7 @@ xteetotaller_SOURCES =  src/xteetotaller.c \
                         src/xtee_wine.h
 dist_doc_DATA = README \
                 CHANGES \
+                COPYING \
                 INSTALL \
                 licenses/COPYING.Motif \
                 licenses/COPYING.libXt \

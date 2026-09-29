@@ -1,3 +1,6 @@
+2026-09-29
+* License the program under GNU AGPL v3
+
 2026-09-28
 * Fix missing system-wide Wine message box text
 * Add NULL check in xtee_string_to_bool
