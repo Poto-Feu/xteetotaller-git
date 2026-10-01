@@ -46,6 +46,7 @@ This is unnoticeable for the user in most cases, but must still be addressed.
 * There are no documentation or help system for the program.
 * Labels with UTF-8 characters may not be displayed correctly.
 However, this isssue should not be present on TextField widgets.
+* Some fonts are hardcoded and cannot be modified with Xt resources.
 * Some errors may result in crash or are ignored silently.
 The former is mostly caused by a configuration file writing error.
 This should not happen unless the file system is corrupted or has not enough
