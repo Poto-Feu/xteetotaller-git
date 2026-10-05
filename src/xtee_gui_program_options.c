@@ -375,7 +375,7 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                                 " (for Wine >= 8.0)");
                 add_toggle_form_field_to_XteeGuiBasicFormDialog(dialog,
                                 "force_vsync_toggle",
-                                "Force VSync (for OpenGL and Vulkan wtih Mesa"
+                                "Force VSync (for OpenGL and Vulkan wtih Mesa "
                                 "only)");
                 is_dialog_ready = true;
         }
