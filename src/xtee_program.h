@@ -39,6 +39,7 @@ typedef struct XteeProgram {
         XteeStringList args_list;
         bool is_x11_display_set;
         bool is_damavand_on;
+        bool is_force_vsync_on;
 } XteeProgram;
 
 void xtee_init_program(XteeProgram *program,

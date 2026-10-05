@@ -35,6 +35,7 @@ static const size_t remove_arg_btn_i = 1;
 
 static const size_t x11_display_field_i = 2;
 static const size_t enable_damavand_field_i = 3;
+static const size_t force_vsync_field_i = 4;
 
 static
 XTEE_XT_CALLBACK_FUNC(program_options_unmap_cb)
@@ -55,7 +56,7 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
         XteeGuiBasicFormDialog *dialog;
         XteeProgram *program;
         XteeGuiFormField *exe_path_field, *x11_display_field,
-                         *enable_damavand_field;
+                         *enable_damavand_field, *force_vsync_field;
 
         (void)w;
         (void)call_data;
@@ -98,6 +99,9 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
         enable_damavand_field = dialog->fields + enable_damavand_field_i;
         program->is_damavand_on = (bool)XmToggleButtonGadgetGetState(
                         enable_damavand_field->data.toggle_g);
+        force_vsync_field = dialog->fields + force_vsync_field_i;
+        program->is_force_vsync_on = (bool)XmToggleButtonGadgetGetState(
+                        force_vsync_field->data.toggle_g);
 
         if (xtee_state_save_loaded_program() != 0) {
                 gui_print_error_log_and_dialog("Cannot save program data.",
@@ -303,7 +307,7 @@ xtee_gui_show_program_options_dialog(Widget main_win,
         static bool is_dialog_ready = false;
         XteeString program_str;
         XteeProgram *loaded_program;
-        XteeGuiFormField *enable_damavand_field;
+        XteeGuiFormField *enable_damavand_field, *force_vsync_field;
         enum XteeGetProgramDataStatus status;
 
         if (!is_dialog_ready) {
@@ -369,6 +373,10 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                                 "enable_damavand_toggle",
                                 "Enable WineD3D Damavand Vulkan backend "
                                 " (for Wine >= 8.0)");
+                add_toggle_form_field_to_XteeGuiBasicFormDialog(dialog,
+                                "force_vsync_toggle",
+                                "Force VSync (for OpenGL and Vulkan wtih Mesa"
+                                "only)");
                 is_dialog_ready = true;
         }
         if (xtee_gui_get_selected_program_string(&program_str) != 0) {
@@ -401,6 +409,11 @@ xtee_gui_show_program_options_dialog(Widget main_win,
         enable_damavand_field = dialog->fields + enable_damavand_field_i;
         XmToggleButtonGadgetSetState(enable_damavand_field->data.toggle_g,
                         loaded_program->is_damavand_on,
+                        False);
+        /* Set force_vsync_toggle */
+        force_vsync_field = dialog->fields + force_vsync_field_i;
+        XmToggleButtonGadgetSetState(force_vsync_field->data.toggle_g,
+                        loaded_program->is_force_vsync_on,
                         False);
 
         XtManageChild(dialog->dialog_form);

@@ -1,3 +1,6 @@
+2026-10-05
+* Implement Force VSync for Mesa feature in Program options
+
 2026-10-01
 * Add hardcoded font issue in README Known issues section
 

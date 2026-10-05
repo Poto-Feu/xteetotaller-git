@@ -439,6 +439,15 @@ xtee_gui_set_env_data_handler(const XteePrefix *prefix,
                                 "WINE_D3D_CONFIG",
                                 "renderer=vulkan");
         }
+
+        if (program && program->is_force_vsync_on) {
+                /* For OpenGL vsync with Mesa */
+                xtee_env_data_add_var_to_handler(&env_data_handler,
+                                "vblank_mode", "3");
+                /* For Vulkan vsync with Mesa */
+                xtee_env_data_add_var_to_handler(&env_data_handler,
+                                "MESA_VK_WSI_PRESENT_MODE", "fifo");
+        }
         return env_data_handler;
 }
 

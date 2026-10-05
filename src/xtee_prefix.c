@@ -792,6 +792,22 @@ write_program_config_file(XteeProgram *program,
                 }
         }
 
+        if (program->is_force_vsync_on) {
+                XteeConfigurationEntry conf_entry = {
+                        "force_vsync", "true"
+                };
+                if (xtee_write_config_entry(f, conf_entry) != 0) {
+                        return -1;
+                }
+        } else {
+                XteeConfigurationEntry conf_entry = {
+                        "force_vsync", "false"
+                };
+                if (xtee_write_config_entry(f, conf_entry) != 0) {
+                        return -1;
+                }
+        }
+
         return 0;
 }
 
@@ -1091,6 +1107,9 @@ read_program_config_file(XteeProgram *restrict program,
                         program->is_x11_display_set = true;
                 } else if (xtee_strcmp_bool(var_name, "enable_damavand")) {
                         program->is_damavand_on =
+                                xtee_string_to_bool(var_value);
+                } else if (xtee_strcmp_bool(var_name, "force_vsync")) {
+                        program->is_force_vsync_on =
                                 xtee_string_to_bool(var_value);
                 } else {
                         print_warning("Unknown var name in program "

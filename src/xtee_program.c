@@ -32,6 +32,7 @@ xtee_init_program(XteeProgram *program, const char* id, const char *exe_path)
         program->x11_display_str.s = NULL;
         program->x11_display_str.n = 0;
         program->is_damavand_on = false;
+        program->is_force_vsync_on = false;
         xtee_date_set_to_current_day(&program->creation_date);
         init_XteeStringList(&program->args_list);
 }
