@@ -53,16 +53,14 @@
 #endif
 
 typedef struct XteeEnvData {
-        const char *name;
-        const char *value;
+        char *name;
+        char *value;
 } XteeEnvData;
 
 typedef struct XteeEnvDataHandler {
         XteeEnvData *block;
         size_t n;
         size_t block_size;
-        char *winedlloverrides_str;
-        char *x11_display_str;
 } XteeEnvDataHandler;
 
 inline char *

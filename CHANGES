@@ -1,3 +1,6 @@
+2026-10-10
+* Copy environment variable name and value in XteeEnvData struct
+
 2026-10-05
 * Implement Force VSync for Mesa feature in Program options
 * Fix typo in Force vsync toggle label

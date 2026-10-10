@@ -401,6 +401,7 @@ static XteeEnvDataHandler
 xtee_gui_set_env_data_handler(const XteePrefix *prefix,
                 const XteeProgram *program, bool is_winetricks)
 {
+        char *winedlloverrides_str;
         XteeEnvDataHandler env_data_handler = { 0 };
 
         xtee_env_data_add_var_to_handler(&env_data_handler, "WINEPREFIX",
@@ -418,20 +419,18 @@ xtee_gui_set_env_data_handler(const XteePrefix *prefix,
                                 wine_version->wineserver_path.s);
         }
 
-        env_data_handler.winedlloverrides_str =
-                xtee_prefix_get_WINEDLLOVERRIDES_env_value(prefix);
-        if (env_data_handler.winedlloverrides_str
-                        && *env_data_handler.winedlloverrides_str != '\0') {
+        winedlloverrides_str = xtee_prefix_get_WINEDLLOVERRIDES_env_value(
+                        prefix);
+        if (winedlloverrides_str && *winedlloverrides_str != '\0') {
                 xtee_env_data_add_var_to_handler(&env_data_handler,
                                 "WINEDLLOVERRIDES",
-                                env_data_handler.winedlloverrides_str);
+                                winedlloverrides_str);
         }
+        free(winedlloverrides_str);
         /* Set X11 DISPLAY if requested by user in program options */
         if (program && program->is_x11_display_set) {
-                env_data_handler.x11_display_str = xtee_strdup_or_exit(
-                                program->x11_display_str.s);
                 xtee_env_data_add_var_to_handler(&env_data_handler, "DISPLAY",
-                                env_data_handler.x11_display_str);
+                                program->x11_display_str.s);
         }
         /* Set WINE_D3D_CONFIG if needed */
         if (program && program->is_damavand_on) {

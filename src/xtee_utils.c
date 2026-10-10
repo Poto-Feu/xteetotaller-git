@@ -18,6 +18,7 @@
 
 #include "xtee_utils.h"
 #include "xtee_error.h"
+#include "xtee_string.h"
 
 extern inline char *xtee_bool_to_string(bool x);
 extern inline bool xtee_string_to_bool(const char *s);
@@ -44,19 +45,19 @@ xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler,
                                 handler->block_size * sizeof(XteeEnvData));
         }
 
-        handler->block[handler->n].name = name;
-        handler->block[handler->n].value = value;
+        handler->block[handler->n].name = xtee_strdup_or_exit(name);
+        handler->block[handler->n].value = xtee_strdup_or_exit(value);
         ++handler->n;
 }
 
 void
 xtee_env_data_free_handler(XteeEnvDataHandler *handler)
 {
+        for (size_t i = 0; i < handler->n; ++i) {
+                free(handler->block[i].name);
+                free(handler->block[i].value);
+        }
         free(handler->block);
-        free(handler->winedlloverrides_str);
-        free(handler->x11_display_str);
         handler->block = NULL;
         handler->n = 0;
-        handler->winedlloverrides_str = NULL;
-        handler->x11_display_str = NULL;
 }
