@@ -99,5 +99,5 @@ xtee_gui_preferences_show_dialog(XteeGuiBasicFormDialog *restrict prefs_dialog)
                                 show_hidden_files_field->data.toggle_g,
                                 True, False);
         }
-        XtManageChild(prefs_dialog->dialog_form);
+        manage_XteeGuiBasicFormDialog(prefs_dialog);
 }

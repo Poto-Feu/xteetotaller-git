@@ -29,6 +29,7 @@ extern inline bool xtee_is_charstring_number(const char *s);
 extern inline char *xtee_strdup_or_exit(const char *s);
 extern inline XteeString XteeString_duplicate(const XteeString str);
 extern inline void init_XteeStringList(XteeStringList *list);
+extern inline bool charstring_has_equal_sign(const char *s);
 
 XteeString
 move_string_to_XteeString(char *s)

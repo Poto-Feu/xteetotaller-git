@@ -499,5 +499,5 @@ xtee_gui_show_new_prefix_dialog(XteeGuiBasicFormDialog *dialog)
                 /* Reset forms only if dialog was already existing */
                 reset_XteeGuiBasicFormDialog_fields(dialog);
         }
-        XtManageChild(dialog->dialog_form);
+        manage_XteeGuiBasicFormDialog(dialog);
 }

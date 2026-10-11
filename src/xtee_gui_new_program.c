@@ -51,6 +51,12 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                                 dialog_w);
                 XtFree(id_str);
                 return;
+        } else if (id_str[0] == '.') {
+                gui_print_error_log_and_dialog("Program id must not start "
+                                "with a dot character.",
+                                dialog->dialog_form);
+                XtFree(id_str);
+                return;
         }
 
         exe_path_field = dialog->fields + exe_path_field_i;
@@ -184,5 +190,5 @@ xtee_gui_new_program_show_dialog(XteeGuiBasicFormDialog *new_program_dialog)
         } else {
                 reset_XteeGuiBasicFormDialog_fields(new_program_dialog);
         }
-        XtManageChild(new_program_dialog->dialog_form);
+        manage_XteeGuiBasicFormDialog(new_program_dialog);
 }

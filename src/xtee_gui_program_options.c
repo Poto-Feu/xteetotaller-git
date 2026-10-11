@@ -297,18 +297,6 @@ typedef struct NewEnvVarOkData {
         XteeGuiBasicFormDialog *parent_dialog;
 } NewEnvVarOkData;
 
-static bool
-charstring_has_spaces(const char *s)
-{
-        while (*s != '\0') {
-                if (isspace(*s)) {
-                        return true;
-                }
-                ++s;
-        }
-        return false;
-}
-
 /* Environment variables in the list will be shown in the "name=value"
  * format. */
 static void
@@ -354,6 +342,18 @@ reload_program_env_vars_list(XteeGuiBasicFormDialog *dialog)
         free(env_strs);
 }
 
+static bool
+charstring_has_spaces(const char *s)
+{
+        while (*s != '\0') {
+                if (isspace(*s)) {
+                        return true;
+                }
+                ++s;
+        }
+        return false;
+}
+
 static
 XTEE_XT_CALLBACK_FUNC(new_env_var_ok_cb)
 {
@@ -373,6 +373,12 @@ XTEE_XT_CALLBACK_FUNC(new_env_var_ok_cb)
         if (charstring_has_spaces(var_name)) {
                 gui_print_error_dialog("Environment variable name must not "
                                 "have any spaces.", dialog->dialog_form);
+                free(var_name);
+                return;
+        } else if (charstring_has_equal_sign(var_name)) {
+                gui_print_error_dialog("= character cannot be present in "
+                                "environment variable name.",
+                                dialog->dialog_form);
                 free(var_name);
                 return;
         }
@@ -462,7 +468,7 @@ XTEE_XT_CALLBACK_FUNC(add_var_btn_cb)
                 is_dialog_ready = true;
         }
         reset_XteeGuiBasicFormDialog_fields(&new_var_dialog);
-        XtManageChild(new_var_dialog.dialog_form);
+        manage_XteeGuiBasicFormDialog(&new_var_dialog);
 }
 
 static
@@ -664,6 +670,5 @@ xtee_gui_show_program_options_dialog(Widget main_win,
         XmToggleButtonGadgetSetState(force_vsync_field->data.toggle_g,
                         loaded_program->is_force_vsync_on,
                         False);
-
-        XtManageChild(dialog->dialog_form);
+        manage_XteeGuiBasicFormDialog(dialog);
 }

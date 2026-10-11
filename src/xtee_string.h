@@ -141,5 +141,16 @@ init_XteeStringList(XteeStringList *list)
         list->n = 0;
 }
 
+inline bool
+charstring_has_equal_sign(const char *s)
+{
+        while (*s != '\0') {
+                if (*s == '=') {
+                        return true;
+                }
+                ++s;
+        }
+        return false;
+}
 
 #endif

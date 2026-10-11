@@ -461,5 +461,5 @@ xtee_gui_show_prefix_options_dialog(Widget main_win,
                         False);
         set_installed_dxvk_field(dialog);
         set_change_wine_string(dialog);
-        XtManageChild(dialog->dialog_form);
+        manage_XteeGuiBasicFormDialog(dialog);
 }

@@ -700,8 +700,11 @@ get_prefix_programs_ids(XteeConstString prefix_id, XteePrefixIdBlock *block)
                 size_t program_path_len;
                 int stat_rtrn;
 
-                if ((xtee_strcmp_bool(".", dir_entry->d_name))
-                                || xtee_strcmp_bool("..", dir_entry->d_name)) {
+                /* This will catch both current and parent directories
+                 * but also files starting with a dot.
+                 * We ignore the latter as xteetotaller prevents the user to
+                 * create a hidden program file. */
+                if (dir_entry->d_name[0] == '.') {
                         continue;
                 }
                 program_path_len = programs_dir_path.n
@@ -1131,9 +1134,16 @@ read_program_config_file(XteeProgram *restrict program,
                         program->is_force_vsync_on =
                                 xtee_string_to_bool(var_value);
                 } else if (xtee_strcmp_bool(var_name, "env_name")) {
-                        is_current_var_env_name = true;
-                        is_previous_var_env_name = true;
-                        previous_env_name = xtee_strdup_or_exit(var_value);
+                        if (charstring_has_equal_sign(var_value)) {
+                                print_warning("= character cannot be present "
+                                                "in environment variable "
+                                                "name.");
+                        } else {
+                                is_current_var_env_name = true;
+                                is_previous_var_env_name = true;
+                                previous_env_name = xtee_strdup_or_exit(
+                                                var_value);
+                        }
                 } else if (xtee_strcmp_bool(var_name, "env_value")) {
                         if (!is_previous_var_env_name) {
                                 print_warning("env_value config variable not "

@@ -183,4 +183,10 @@ reset_XteeGuiBasicFormDialog_fields(XteeGuiBasicFormDialog *dialog)
         }
 }
 
+inline void
+manage_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog)
+{
+        XtManageChild(dialog->dialog_form);
+}
+
 #endif
