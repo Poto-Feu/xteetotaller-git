@@ -30,6 +30,7 @@
 #define XTEE_PROGRAM_EXE_PATH_MAX_LEN (XTEE_VAR_VALUE_MAX_LEN - 1)
 
 typedef struct XteeProgram {
+        XteeEnvDataHandler env_data;
         XteeString id;
         XteeString exe_path;
         XteeString x11_display_str;
@@ -48,6 +49,9 @@ void xtee_free_program(XteeProgram *program);
 void xtee_program_add_argument(XteeProgram *restrict program,
                 const char *restrict arg_str);
 void xtee_program_remove_argument(XteeProgram *program, size_t i);
+void xtee_program_add_env_var(XteeProgram *restrict program,
+                const char *restrict env_name,
+                const char *restrict env_value);
 
 /* On success, 0 is returned and error_str is left untouched.
  * Else, error_str will be set to point to a string with the error message. */

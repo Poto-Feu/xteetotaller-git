@@ -33,6 +33,10 @@ static const size_t args_field_i = 1;
 static const size_t add_arg_btn_i = 0;
 static const size_t remove_arg_btn_i = 1;
 
+static const size_t env_vars_field_i = 5;
+static const size_t add_var_btn_i = 0;
+static const size_t remove_var_btn_i = 1;
+
 static const size_t x11_display_field_i = 2;
 static const size_t enable_damavand_field_i = 3;
 static const size_t force_vsync_field_i = 4;
@@ -288,6 +292,229 @@ set_program_args_widgets(XteeGuiBasicFormDialog *dialog,
                         remove_arg_btn_i, False);
 }
 
+typedef struct NewEnvVarOkData {
+        XteeGuiBasicFormDialog *dialog;
+        XteeGuiBasicFormDialog *parent_dialog;
+} NewEnvVarOkData;
+
+static bool
+charstring_has_spaces(const char *s)
+{
+        while (*s != '\0') {
+                if (isspace(*s)) {
+                        return true;
+                }
+                ++s;
+        }
+        return false;
+}
+
+/* Environment variables in the list will be shown in the "name=value"
+ * format. */
+static void
+reload_program_env_vars_list(XteeGuiBasicFormDialog *dialog)
+{
+        XteeGuiFormField *env_vars_field;
+        Widget list_w;
+        XteeProgram *program;
+        XmString *env_strs;
+
+        program = xtee_state_get_loaded_program();
+        env_vars_field = XteeGuiBasicFormDialog_get_field(dialog,
+                        env_vars_field_i);
+        list_w = env_vars_field->data.listbuttons_form.list;
+        if (program->env_data.n == 0) {
+                XmListDeleteAllItems(list_w);
+                return;
+        }
+        env_strs = malloc_or_exit(program->env_data.n * sizeof(XmString));
+        for (size_t i = 0; i < program->env_data.n; ++i) {
+                XteeEnvData *current_env_data;
+                char *combined_str;
+                size_t var_name_len, var_value_len, total_str_len;
+
+                current_env_data = program->env_data.block + i;
+                var_name_len = strlen(current_env_data->name);
+                var_value_len = strlen(current_env_data->value);
+                total_str_len = var_name_len + var_value_len + 1;
+                combined_str = malloc_or_exit(total_str_len + 1);
+                memcpy(combined_str, current_env_data->name, var_name_len);
+                combined_str[var_name_len] = '=';
+                memcpy(combined_str + var_name_len + 1,
+                                current_env_data->value, var_value_len);
+                combined_str[total_str_len] = '\0';
+                env_strs[i] = xtee_new_XmString(combined_str);
+                free(combined_str);
+        }
+        XtVaSetValues(list_w,
+                        XmNitems, env_strs,
+                        XmNitemCount, (int)program->env_data.n,
+                        NULL);
+        xtee_gui_free_XmStringTable_items(env_strs, program->env_data.n);
+        free(env_strs);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(new_env_var_ok_cb)
+{
+        NewEnvVarOkData *new_env_var_ok_data;
+        XteeGuiBasicFormDialog *dialog, *parent_dialog;
+        XteeGuiFormField *name_field, *value_field;
+        XteeProgram *program;
+        char *var_name, *var_value;
+
+        (void)w;
+        (void)call_data;
+        new_env_var_ok_data = (NewEnvVarOkData *)client_data;
+        dialog = new_env_var_ok_data->dialog;
+        parent_dialog = new_env_var_ok_data->parent_dialog;
+        name_field = XteeGuiBasicFormDialog_get_field(dialog, 0);
+        var_name = get_XteeGuiFormField_string_value(name_field);
+        if (charstring_has_spaces(var_name)) {
+                gui_print_error_dialog("Environment variable name must not "
+                                "have any spaces.", dialog->dialog_form);
+                free(var_name);
+                return;
+        }
+        value_field = XteeGuiBasicFormDialog_get_field(dialog, 1);
+        var_value = get_XteeGuiFormField_string_value(value_field);
+        if (isspace(*var_value)) {
+                gui_print_error_dialog("Environment variable value "
+                                "must not start with a space character.",
+                                dialog->dialog_form);
+                free(var_name);
+                free(var_value);
+                return;
+        } else if (*var_value == '\0') {
+                gui_print_error_dialog("Environment variable value "
+                                "is empty.", dialog->dialog_form);
+                free(var_name);
+                free(var_value);
+                return;
+        }
+
+        program = xtee_state_get_loaded_program();
+        xtee_program_add_env_var(program, var_name, var_value);
+        free(var_name);
+        free(var_value);
+        reload_program_env_vars_list(parent_dialog);
+        XtUnmanageChild(dialog->dialog_form);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(new_env_var_cancel_cb)
+{
+        XteeGuiBasicFormDialog *dialog;
+        (void)w;
+        (void)call_data;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
+        XtUnmanageChild(dialog->dialog_form);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(add_var_btn_cb)
+{
+        static XteeGuiBasicFormDialog new_var_dialog = { 0 };
+        static bool is_dialog_ready = false;
+
+        (void)w;
+        (void)call_data;
+        print_info("Opening Add variable dialog.");
+
+        if (!is_dialog_ready) {
+                static NewEnvVarOkData new_env_var_ok_data;
+                XteeGuiBasicFormDialog *parent_dialog;
+                Dimension parent_dialog_width;
+                Dimension dialog_width, dialog_height;
+
+                parent_dialog = (XteeGuiBasicFormDialog *)client_data;
+                create_XteeGuiBasicFormDialog(&new_var_dialog,
+                                parent_dialog->dialog_form,
+                                "new_env_var_dialog",
+                                "New environment variable");
+                new_env_var_ok_data.parent_dialog = parent_dialog;
+                new_env_var_ok_data.dialog = &new_var_dialog;
+                XtAddCallback(new_var_dialog.ok_btn, XmNactivateCallback,
+                                new_env_var_ok_cb,
+                                &new_env_var_ok_data);
+                XtAddCallback(new_var_dialog.cancel_btn, XmNactivateCallback,
+                                new_env_var_cancel_cb,
+                                &new_var_dialog);
+                add_label_text_form_field_to_XteeGuiBasicFormDialog(
+                                &new_var_dialog,
+                                "env_var_name_text",
+                                "Name: ",
+                                NULL, 0);
+                add_label_text_form_field_to_XteeGuiBasicFormDialog(
+                                &new_var_dialog,
+                                "env_var_value_text",
+                                "Value: ",
+                                NULL, 0);
+                XtVaGetValues(parent_dialog->dialog_form,
+                                XmNwidth, &parent_dialog_width,
+                                NULL);
+                dialog_width = parent_dialog_width - 150;
+                dialog_height = 175;
+                XtVaSetValues(new_var_dialog.dialog_form,
+                                XmNwidth, dialog_width,
+                                XmNheight, dialog_height,
+                                NULL);
+                is_dialog_ready = true;
+        }
+        reset_XteeGuiBasicFormDialog_fields(&new_var_dialog);
+        XtManageChild(new_var_dialog.dialog_form);
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(remove_var_btn_cb)
+{
+        XteeGuiBasicFormDialog *dialog;
+        const XmPushButtonCallbackStruct *cbs;
+        XteeProgram *program;
+        unsigned int *list_positions;
+        int list_positions_n;
+        Widget list_w;
+
+        (void)w;
+        print_info("Remove variable button clicked.");
+
+        cbs = (XmPushButtonCallbackStruct *)call_data;
+        dialog = (XteeGuiBasicFormDialog *)client_data;
+        list_w = dialog->fields[env_vars_field_i].data.listbuttons_form.list;
+        program = xtee_state_get_loaded_program();
+        if (cbs->reason != XmCR_ACTIVATE) {
+                return;
+        }
+        XtVaGetValues(list_w,
+                        XmNselectedPositionCount, &list_positions_n,
+                        XmNselectedPositions, &list_positions,
+                        NULL);
+        if (!list_positions_n || list_positions_n > 1) {
+                puts("lol");
+                return;
+        }
+        xtee_env_data_remove_var_from_handler(&program->env_data,
+                        *list_positions - 1);
+        reload_program_env_vars_list(dialog);
+}
+
+static void
+set_program_env_var_widgets(XteeGuiBasicFormDialog *dialog,
+                XteeGuiFormField *env_var_field)
+{
+        XteeGuiListButtonsForm *listbuttons_form;
+        Widget add_var_btn;
+        Widget remove_var_btn;
+
+        listbuttons_form = &env_var_field->data.listbuttons_form;
+        add_var_btn = listbuttons_form->buttons[add_var_btn_i];
+        remove_var_btn = listbuttons_form->buttons[remove_var_btn_i];
+        XtAddCallback(add_var_btn, XmNactivateCallback, add_var_btn_cb,
+                        dialog);
+        XtAddCallback(remove_var_btn, XmNactivateCallback, remove_var_btn_cb,
+                        dialog);
+}
+
 static void
 set_program_exe_path_field(const XteeGuiBasicFormDialog *dialog,
                 XteeProgram *program)
@@ -322,13 +549,25 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                         "Add argument",
                         "Remove argument",
                 };
+                XteeString env_var_btns_names_array[] = {
+                        XTEE_CONSTSTRING_STATIC_INIT("add_env_var_button"),
+                        XTEE_CONSTSTRING_STATIC_INIT("remove_env_var_button"),
+                };
+                XteeStringList env_var_btns_names = {
+                        env_var_btns_names_array,
+                        XTEE_ARRAY_LEN(env_var_btns_names_array)
+                };
+                char *env_var_btns_strs[] = {
+                        "Add variable",
+                        "Remove variable",
+                };
                 Arg text_args[] = {
                         { XmNmaxLength, XTEE_MAX_FILE_PATH_LEN },
                 };
                 Arg filesel_args[4];
                 XmString tmp_str;
-                XteeGuiFormField *args_field;
-                unsigned filesel_args_n = 0;
+                XteeGuiFormField *args_field, *env_vars_field;
+                unsigned int filesel_args_n = 0;
 
                 tmp_str = xtee_new_XmString("Program file selection");
                 XtSetArg(filesel_args[filesel_args_n],
@@ -377,6 +616,15 @@ xtee_gui_show_program_options_dialog(Widget main_win,
                                 "force_vsync_toggle",
                                 "Force VSync (for OpenGL and Vulkan wtih Mesa "
                                 "only)");
+                add_list_buttons_field_to_XteeGuiBasicFormDialog(dialog,
+                                "env_vars_form",
+                                "Environment variables: ",
+                                env_var_btns_names,
+                                env_var_btns_strs,
+                                true);
+                env_vars_field = XteeGuiBasicFormDialog_get_field(dialog,
+                                env_vars_field_i);
+                set_program_env_var_widgets(dialog, env_vars_field);
                 is_dialog_ready = true;
         }
         if (xtee_gui_get_selected_program_string(&program_str) != 0) {
@@ -394,6 +642,7 @@ xtee_gui_show_program_options_dialog(Widget main_win,
         loaded_program = xtee_state_get_loaded_program();
         set_program_exe_path_field(dialog, loaded_program);
         reload_program_cmd_line_args_list(dialog);
+        reload_program_env_vars_list(dialog);
 
         /* Set x11_display_field if set */
         if (loaded_program->is_x11_display_set) {

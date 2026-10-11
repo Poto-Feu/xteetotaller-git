@@ -25,7 +25,7 @@ extern inline bool xtee_string_to_bool(const char *s);
 
 void
 xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler,
-                const char *name, const char *value)
+                const char *restrict name, const char *restrict value)
 {
         if (!handler->n) {
                 size_t block_initial_size = 6;
@@ -60,4 +60,18 @@ xtee_env_data_free_handler(XteeEnvDataHandler *handler)
         free(handler->block);
         handler->block = NULL;
         handler->n = 0;
+}
+
+void
+xtee_env_data_remove_var_from_handler(XteeEnvDataHandler *handler,
+                size_t i)
+{
+        if (i >= handler->n) {
+                return;
+        }
+        free(handler->block[i].name);
+        free(handler->block[i].value);
+        memmove(handler->block + i, handler->block + i + 1,
+                        (handler->n - i - 1) * sizeof(XteeEnvData));
+        --handler->n;
 }

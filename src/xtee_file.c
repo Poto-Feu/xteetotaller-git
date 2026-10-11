@@ -328,6 +328,12 @@ xtee_file_copy(const char *restrict dest, const char *restrict file_path)
                 return -1;
         }
 
+        /* cppcheck > 2.22 show a wrongfeofUsage warning.
+         * This is actually safe as we check if n is zero and only write the
+         * number of bytes read.
+         * However, this function should be improved in the future to handle
+         * potential fread errors, even though they are unlikely to happen
+         * in this case. */
         while (!feof(input_f)) {
                 size_t n;
 

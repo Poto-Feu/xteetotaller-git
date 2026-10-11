@@ -78,7 +78,9 @@ xtee_string_to_bool(const char *s)
 /* Make sure that all env_data_handler members are initialized to zero when
  * calling this function for the first time. */
 void xtee_env_data_add_var_to_handler(XteeEnvDataHandler *handler,
-                const char *name, const char *value);
+                const char *restrict name, const char *restrict value);
 void xtee_env_data_free_handler(XteeEnvDataHandler *);
+void xtee_env_data_remove_var_from_handler(XteeEnvDataHandler *handler,
+                size_t i);
 
 #endif

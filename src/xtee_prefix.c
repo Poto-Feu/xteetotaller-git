@@ -808,6 +808,20 @@ write_program_config_file(XteeProgram *program,
                 }
         }
 
+        for (size_t i = 0; i < program->env_data.n; ++i) {
+                XteeConfigurationEntry env_name_entry = {
+                        "env_name", program->env_data.block[i].name
+                };
+                XteeConfigurationEntry env_value_entry = {
+                        "env_value", program->env_data.block[i].value
+                };
+                if (xtee_write_config_entry(f, env_name_entry) != 0
+                                || xtee_write_config_entry(f, env_value_entry)
+                                != 0) {
+                        return -1;
+                }
+        }
+
         return 0;
 }
 
@@ -995,12 +1009,14 @@ read_program_config_file(XteeProgram *restrict program,
         char var_value[XTEE_PREFIX_VAR_VALUE_MAX_LEN];
         XteeDate tmp_date;
         FILE *f;
+        char *previous_env_name = NULL;
         bool is_creation_year_set = false;
         bool is_creation_month_set = false;
         bool is_creation_day_set = false;
         bool is_creation_date_set = false;
         bool is_exe_path_set = false;
         bool is_x11_display_set = false;
+        bool is_previous_var_env_name = false;
         int r;
 
         if (!(f = fopen(program_config_path, "r"))) {
@@ -1016,6 +1032,9 @@ read_program_config_file(XteeProgram *restrict program,
                                         sizeof(var_name), sizeof(var_value),
                                         f))
                         == 0) {
+                bool is_current_var_env_name = false;
+                bool is_current_var_env_value = false;
+
                 if (feof(f)) {
                         break;
                 }
@@ -1111,11 +1130,38 @@ read_program_config_file(XteeProgram *restrict program,
                 } else if (xtee_strcmp_bool(var_name, "force_vsync")) {
                         program->is_force_vsync_on =
                                 xtee_string_to_bool(var_value);
+                } else if (xtee_strcmp_bool(var_name, "env_name")) {
+                        is_current_var_env_name = true;
+                        is_previous_var_env_name = true;
+                        previous_env_name = xtee_strdup_or_exit(var_value);
+                } else if (xtee_strcmp_bool(var_name, "env_value")) {
+                        if (!is_previous_var_env_name) {
+                                print_warning("env_value config variable not "
+                                                "preceded by env_name config "
+                                                "variable.");
+                                goto out_of_conditions;
+                        }
+                        is_current_var_env_value = true;
+                        xtee_program_add_env_var(program, previous_env_name,
+                                        var_value);
                 } else {
                         print_warning("Unknown var name in program "
                                         "configuration file.");
                 }
 
+out_of_conditions:
+                if (is_previous_var_env_name && !is_current_var_env_name
+                                && !is_current_var_env_value) {
+                        print_warning("env_name config entry is not followed "
+                                        "by env_value config entry. Ignoring "
+                                        "it.");
+                }
+
+                if (!is_current_var_env_name) {
+                        is_previous_var_env_name = false;
+                        free(previous_env_name);
+                        previous_env_name = NULL;
+                }
         }
         fclose(f);
 

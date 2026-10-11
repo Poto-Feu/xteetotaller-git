@@ -399,7 +399,7 @@ refresh_prefix_gui(void)
  * This is mainly for use with wine utilities such as winecfg. */
 static XteeEnvDataHandler
 xtee_gui_set_env_data_handler(const XteePrefix *prefix,
-                const XteeProgram *program, bool is_winetricks)
+                XteeProgram *program, bool is_winetricks)
 {
         char *winedlloverrides_str;
         XteeEnvDataHandler env_data_handler = { 0 };
@@ -447,13 +447,20 @@ xtee_gui_set_env_data_handler(const XteePrefix *prefix,
                 xtee_env_data_add_var_to_handler(&env_data_handler,
                                 "MESA_VK_WSI_PRESENT_MODE", "fifo");
         }
+        if (program) {
+                for (size_t i = 0; i < program->env_data.n; ++i) {
+                        xtee_env_data_add_var_to_handler(&env_data_handler,
+                                        program->env_data.block[i].name,
+                                        program->env_data.block[i].value);
+                }
+        }
         return env_data_handler;
 }
 
 static void
 run_program_common_func(void)
 {
-        XteeEnvDataHandler env_data_handler;
+        XteeEnvDataHandler env_data_handler = { 0 };
         XteeString program_str;
         char *args_regular[3];
         char **args_multiple = NULL;

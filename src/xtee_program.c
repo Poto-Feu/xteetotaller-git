@@ -43,6 +43,7 @@ xtee_free_program(XteeProgram *program)
         XteeString_free(program->id);
         XteeString_free(program->exe_path);
         XteeStringList_free(program->args_list);
+        xtee_env_data_free_handler(&program->env_data);
 
         if (program->is_x11_display_set) {
                 XteeString_free(program->x11_display_str);
@@ -62,6 +63,15 @@ xtee_program_remove_argument(XteeProgram *program, size_t i)
 {
         print_info("Removing program command line argument.");
         xtee_remove_string_in_XteeStringList(&program->args_list, i);
+}
+
+void
+xtee_program_add_env_var(XteeProgram *restrict program,
+                const char *restrict env_name,
+                const char *restrict env_value)
+{
+        xtee_env_data_add_var_to_handler(&program->env_data,
+                        env_name, env_value);
 }
 
 int

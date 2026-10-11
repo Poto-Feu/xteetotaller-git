@@ -650,7 +650,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         form_data->child_form = XtCreateWidget("child_form", xmFormWidgetClass,
                         form_data->form, NULL, 0);
         XtVaSetValues(form_data->child_form,
-                        XmNheight, 150,
+                        XmNheight, 100,
                         XmNfractionBase, 6,
                         XmNresizable, False,
                         XmNleftAttachment, XmATTACH_WIDGET,

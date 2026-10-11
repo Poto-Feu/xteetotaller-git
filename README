@@ -27,7 +27,7 @@ Features
 Planned features
 ================
 * Set dll overrides for each program
-* Set environment variables for programs and prefixes
+* Set environment variables for prefixes
 * Set niceness value for each program
 * In-program help system
 
