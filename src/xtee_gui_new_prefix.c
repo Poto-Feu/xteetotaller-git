@@ -48,7 +48,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_cancel_cb)
         (void)w;
         (void)call_data;
         xtee_gui_reset_message_area_string_CALL;
-        XtUnmanageChild((Widget)client_data);
+        unmanage_XteeGuiBasicFormDialog((XteeGuiBasicFormDialog *)client_data);
 }
 
 static
@@ -375,7 +375,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         xtee_gui_update_display();
         print_info("Running wineboot -i");
         if (fork_exec_wineboot_init(loaded_prefix) != 0) {
-                XtUnmanageChild(dialog->dialog_form);
+                unmanage_XteeGuiBasicFormDialog(dialog);
                 gui_print_error_log_and_dialog("Cannot initialize Wine prefix "
                                 "with wineboot.",
                                 xtee_gui_get_main_win());
@@ -385,7 +385,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         }
         if (loaded_prefix->isolate_home) {
                 if (fork_exec_isolate_home(loaded_prefix) != 0) {
-                        XtUnmanageChild(dialog->dialog_form);
+                        unmanage_XteeGuiBasicFormDialog(dialog);
                         gui_print_error_log_and_dialog("Cannot run winetricks "
                                         "isolate_home.",
                                         xtee_gui_get_main_win());
@@ -395,7 +395,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                 }
         }
         hide_new_prefix_working_dialog();
-        XtUnmanageChild(dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(dialog);
         return;
 
 dir_status_error_rtrn:
@@ -409,7 +409,7 @@ create_new_prefix_error:
         return;
 load_prefix_error:
         hide_new_prefix_working_dialog();
-        XtUnmanageChild(dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(dialog);
         return;
 }
 
@@ -491,7 +491,7 @@ xtee_gui_show_new_prefix_dialog(XteeGuiBasicFormDialog *dialog)
                                 (XtPointer)dialog);
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 new_prefix_dialog_cancel_cb,
-                                (XtPointer)dialog->dialog_form);
+                                (XtPointer)dialog);
                 create_new_prefix_arch_radiobox(dialog);
                 create_new_prefix_wine_version_dropdownlist(dialog);
                 is_dialog_ready = true;

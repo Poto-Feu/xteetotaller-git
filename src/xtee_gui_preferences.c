@@ -33,7 +33,7 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_ok_cb)
 
         (void)w;
         (void)call_data;
-        prefs_dialog = (XteeGuiBasicFormDialog *)client_data;;
+        prefs_dialog = (XteeGuiBasicFormDialog *)client_data;
         show_hidden_files_field = prefs_dialog->fields
                 + show_hidden_files_field_i;
         show_hidden_files_bool = !!(XmToggleButtonGadgetGetState(
@@ -42,7 +42,7 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_ok_cb)
         xtee_config_set_entry_value_and_write("gui.show_hidden_files",
                         show_hidden_files_str);
         xtee_gui_set_message_area_string("Configuration modified and saved.");
-        XtUnmanageChild(prefs_dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(prefs_dialog);
 }
 
 static
@@ -54,7 +54,7 @@ XTEE_XT_CALLBACK_FUNC(prefs_dialog_cancel_cb)
         (void)call_data;
         dialog = (XteeGuiBasicFormDialog *)client_data;
         xtee_gui_reset_message_area_string_CALL;
-        XtUnmanageChild(dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(dialog);
 }
 
 void

@@ -112,7 +112,7 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_ok_cb)
                                 dialog->dialog_form);
         } else {
                 xtee_gui_set_message_area_string("Program data saved.");
-                XtUnmanageChild(dialog->dialog_form);
+                unmanage_XteeGuiBasicFormDialog(dialog);
         }
 }
 
@@ -124,7 +124,7 @@ XTEE_XT_CALLBACK_FUNC(program_options_dialog_cancel_cb)
         (void)call_data;
         dialog = (XteeGuiBasicFormDialog *)client_data;
         xtee_gui_reset_message_area_string_CALL;
-        XtUnmanageChild(dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(dialog);
 }
 
 static void
@@ -404,7 +404,7 @@ XTEE_XT_CALLBACK_FUNC(new_env_var_ok_cb)
         free(var_name);
         free(var_value);
         reload_program_env_vars_list(parent_dialog);
-        XtUnmanageChild(dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(dialog);
 }
 
 static
@@ -414,7 +414,7 @@ XTEE_XT_CALLBACK_FUNC(new_env_var_cancel_cb)
         (void)w;
         (void)call_data;
         dialog = (XteeGuiBasicFormDialog *)client_data;
-        XtUnmanageChild(dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(dialog);
 }
 
 static

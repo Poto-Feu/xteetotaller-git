@@ -189,4 +189,10 @@ manage_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog)
         XtManageChild(dialog->dialog_form);
 }
 
+inline void
+unmanage_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog)
+{
+        XtUnmanageChild(dialog->dialog_form);
+}
+
 #endif

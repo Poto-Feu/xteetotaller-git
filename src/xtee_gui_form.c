@@ -35,6 +35,8 @@ extern inline void reset_XteeGuiBasicFormDialog_fields(
                 XteeGuiBasicFormDialog *dialog);
 extern inline void manage_XteeGuiBasicFormDialog(
                 XteeGuiBasicFormDialog *dialog);
+extern inline void unmanage_XteeGuiBasicFormDialog(
+                XteeGuiBasicFormDialog *dialog);
 
 static const int field_widget_margin = 10;
 

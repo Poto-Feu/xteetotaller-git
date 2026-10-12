@@ -75,3 +75,5 @@ xtee_env_data_remove_var_from_handler(XteeEnvDataHandler *handler,
                         (handler->n - i - 1) * sizeof(XteeEnvData));
         --handler->n;
 }
+
+extern inline void xtee_env_data_init_handler(XteeEnvDataHandler *handler);

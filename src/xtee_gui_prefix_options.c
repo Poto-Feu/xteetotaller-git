@@ -75,13 +75,13 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_ok_cb)
         loaded_prefix->wine_version.s = new_wine_version_str;
         loaded_prefix->wine_version.n = strlen(new_wine_version_str);
         if (xtee_prefix_save_config(loaded_prefix) != 0) {
-                XtUnmanageChild(dialog->dialog_form);
+                unmanage_XteeGuiBasicFormDialog(dialog);
                 gui_print_error_log_and_dialog("Cannot save prefix config.",
                                 main_win);
                 return;
         }
 
-        XtUnmanageChild(dialog->dialog_form);
+        unmanage_XteeGuiBasicFormDialog(dialog);
         if (xtee_gui_load_prefix(loaded_prefix->id.s, main_win) == 0) {
                 xtee_gui_set_message_area_string(
                                 "Prefix configuration updated and reloaded.");
@@ -94,7 +94,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_options_dialog_cancel_cb)
         (void)w;
         (void)call_data;
         xtee_gui_reset_message_area_string_CALL;
-        XtUnmanageChild((Widget)client_data);
+        unmanage_XteeGuiBasicFormDialog((XteeGuiBasicFormDialog *)client_data);
 }
 
 static void
@@ -435,7 +435,7 @@ xtee_gui_show_prefix_options_dialog(Widget main_win,
                                 dialog);
                 XtAddCallback(dialog->cancel_btn, XmNactivateCallback,
                                 prefix_options_dialog_cancel_cb,
-                                (XtPointer)dialog->dialog_form);
+                                (XtPointer)dialog);
                 add_string_and_button_field_to_XteeGuiBasicFormDialog(dialog,
                                 "wine_version_form", "Wine version: ",
                                 "wine_version_string_label",

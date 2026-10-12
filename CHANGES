@@ -1,12 +1,17 @@
-2026-10-10
-* Copy environment variable name and value in XteeEnvData struct
-* Add comment in xtee_file_copy about feof usage
-* Check if user-defined program environment variable name has = character
-* Replace some XtManageChild calls with manage_XteeGuiBasicFormDialog
-* Do not read or create program files starting with dots
+2026-10-12
+* Fix CHANGES incorrect dates
+* Replace some XtUnmanageChild calls with unmanage_XteeGuiBasicFormDialog
+* Fix program creation crash linked to uninitialized XteeEnvDataHandler
 
 2026-10-11
 * Allow the user to define environment variables per program
+* Check if user-defined program environment variable name has = character
+* Replace some XtManageChild calls with manage_XteeGuiBasicFormDialog
+* Do not read or create program files starting with dots
+* Add comment in xtee_file_copy about feof usage
+
+2026-10-10
+* Copy environment variable name and value in XteeEnvData struct
 
 2026-10-05
 * Implement Force VSync for Mesa feature in Program options

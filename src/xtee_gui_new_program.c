@@ -122,7 +122,7 @@ XTEE_XT_CALLBACK_FUNC(new_program_ok_cb)
                 default:
                         xtee_gui_set_message_area_string(
                                         "New program created.");
-                        XtUnmanageChild(dialog_w);
+                        unmanage_XteeGuiBasicFormDialog(dialog);
         }
 
         if (xtee_prefix_reload_programs_list(current_prefix) != 0) {
@@ -139,7 +139,7 @@ XTEE_XT_CALLBACK_FUNC(new_program_cancel_cb)
         (void)w;
         (void)call_data;
         xtee_gui_reset_message_area_string_CALL;
-        XtUnmanageChild((Widget)client_data);
+        unmanage_XteeGuiBasicFormDialog((XteeGuiBasicFormDialog *)client_data);
 }
 
 void
@@ -185,7 +185,7 @@ xtee_gui_new_program_show_dialog(XteeGuiBasicFormDialog *new_program_dialog)
                 XtAddCallback(new_program_dialog->cancel_btn,
                                 XmNactivateCallback,
                                 new_program_cancel_cb,
-                                new_program_dialog->dialog_form);
+                                new_program_dialog);
                 is_dialog_ready = true;
         } else {
                 reset_XteeGuiBasicFormDialog_fields(new_program_dialog);
