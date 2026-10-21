@@ -430,14 +430,14 @@ XTEE_XT_CALLBACK_FUNC(add_var_btn_cb)
         if (!is_dialog_ready) {
                 static NewEnvVarOkData new_env_var_ok_data;
                 XteeGuiBasicFormDialog *parent_dialog;
-                Dimension parent_dialog_width;
-                Dimension dialog_width, dialog_height;
 
                 parent_dialog = (XteeGuiBasicFormDialog *)client_data;
-                create_XteeGuiBasicFormDialog(&new_var_dialog,
+                create_XteeGuiBasicFormDialog_2(&new_var_dialog,
                                 parent_dialog->dialog_form,
                                 "new_env_var_dialog",
-                                "New environment variable");
+                                "New environment variable",
+                                XTEE_GUI_BASICFORMDIALOG_DEFAULT_WIDTH - 175,
+                                XTEE_GUI_BASICFORMDIALOG_DEFAULT_HEIGHT - 300);
                 new_env_var_ok_data.parent_dialog = parent_dialog;
                 new_env_var_ok_data.dialog = &new_var_dialog;
                 XtAddCallback(new_var_dialog.ok_btn, XmNactivateCallback,
@@ -456,15 +456,6 @@ XTEE_XT_CALLBACK_FUNC(add_var_btn_cb)
                                 "env_var_value_text",
                                 "Value: ",
                                 NULL, 0);
-                XtVaGetValues(parent_dialog->dialog_form,
-                                XmNwidth, &parent_dialog_width,
-                                NULL);
-                dialog_width = parent_dialog_width - 150;
-                dialog_height = 175;
-                XtVaSetValues(new_var_dialog.dialog_form,
-                                XmNwidth, dialog_width,
-                                XmNheight, dialog_height,
-                                NULL);
                 is_dialog_ready = true;
         }
         reset_XteeGuiBasicFormDialog_fields(&new_var_dialog);

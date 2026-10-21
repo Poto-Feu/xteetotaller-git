@@ -21,6 +21,7 @@
 #include "xtee_gui.h"
 
 #include <Xm/ComboBox.h>
+#include <Xm/DialogS.h>
 #include <Xm/FileSB.h>
 #include <Xm/Form.h>
 #include <Xm/Label.h>
@@ -28,6 +29,7 @@
 #include <Xm/List.h>
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
+#include <Xm/ScrolledW.h>
 #include <Xm/TextF.h>
 #include <Xm/ToggleBG.h>
 
@@ -298,19 +300,61 @@ void
 create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog, Widget parent,
                 char *name, char *title)
 {
-        XmString dialog_title = xtee_new_XmString(title);
-        Arg args[] = {
-                { XmNdialogTitle, (XtArgVal)dialog_title },
+        create_XteeGuiBasicFormDialog_2(dialog, parent, name, title,
+                        XTEE_GUI_BASICFORMDIALOG_DEFAULT_WIDTH,
+                        XTEE_GUI_BASICFORMDIALOG_DEFAULT_HEIGHT);
+}
+
+void
+create_XteeGuiBasicFormDialog_2(XteeGuiBasicFormDialog *dialog, Widget parent,
+                char *name, char *title, Dimension width, Dimension height)
+{
+        Arg shell_args[] = {
+                { XmNtitle, (XtArgVal)title },
+                { XmNmaxWidth, width + 10 },
+                { XmNminWidth, width + 10 },
+        };
+        Arg parent_form_args[] = {
                 { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
-                { XmNwidth, XTEE_GUI_BASICFORMDIALOG_WIDTH },
-                { XmNheight, XTEE_GUI_BASICFORMDIALOG_HEIGHT },
+                { XmNwidth, width + 15 },
+                { XmNheight, height + 10 },
                 { XmNautoUnmanage, False },
         };
+        Arg scroll_win_args[] = {
+                { XmNscrollingPolicy, XmAUTOMATIC },
+                { XmNscrollBarDisplayPolicy, XmAS_NEEDED },
+                { XmNleftAttachment, XmATTACH_FORM },
+                { XmNrightAttachment, XmATTACH_FORM },
+                { XmNtopAttachment, XmATTACH_FORM },
+                { XmNbottomOffset, 50 },
+                { XmNbottomAttachment, XmATTACH_FORM },
+        };
+        Arg dialog_form_args[] = {
+                { XmNwidth, width },
+                { XmNautoUnmanage, False },
+        };
+        Widget hor_scrollbar;
 
-        dialog->dialog_form = XmCreateFormDialog(parent, name, args,
-                        XtNumber(args));
-        XmStringFree(dialog_title);
-        add_ok_cancel_buttons_to_form_dialog(dialog->dialog_form,
+        dialog->shell = XmCreateDialogShell(parent, name, shell_args,
+                        XtNumber(shell_args));
+        dialog->parent_form = XmCreateForm(dialog->shell,
+                        "dialog_form", parent_form_args,
+                        XtNumber(parent_form_args));
+        dialog->scroll_window = XmCreateScrolledWindow(dialog->parent_form,
+                        "dialog_scrolled_window", scroll_win_args,
+                        XtNumber(scroll_win_args));
+        /* Hide horizontal scrollbar */
+        XtVaGetValues(dialog->scroll_window,
+                        XmNhorizontalScrollBar, &hor_scrollbar,
+                        NULL);
+        XtUnmanageChild(hor_scrollbar);
+
+        dialog->dialog_form = XmCreateForm(dialog->scroll_window,
+                        "dialog_form", dialog_form_args,
+                        XtNumber(dialog_form_args));
+        XmScrolledWindowSetAreas(dialog->scroll_window, NULL, NULL,
+                        dialog->dialog_form);
+        add_ok_cancel_buttons_to_form_dialog(dialog->parent_form,
                         &dialog->ok_cancel_column,
                         &dialog->ok_btn,
                         &dialog->cancel_btn);
@@ -654,7 +698,7 @@ add_list_buttons_field_to_XteeGuiBasicFormDialog(
         form_data->child_form = XtCreateWidget("child_form", xmFormWidgetClass,
                         form_data->form, NULL, 0);
         XtVaSetValues(form_data->child_form,
-                        XmNheight, 100,
+                        XmNheight, 150,
                         XmNfractionBase, 6,
                         XmNresizable, False,
                         XmNleftAttachment, XmATTACH_WIDGET,

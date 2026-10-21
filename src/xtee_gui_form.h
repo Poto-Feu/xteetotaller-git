@@ -103,6 +103,9 @@ typedef struct XteeGuiFormField {
 } XteeGuiFormField;
 
 typedef struct XteeGuiBasicFormDialog {
+        Widget shell;
+        Widget parent_form;
+        Widget scroll_window;
         Widget dialog_form;
         Widget ok_btn;
         Widget cancel_btn;
@@ -119,6 +122,9 @@ void reset_XteeGuiFormField(XteeGuiFormField *field);
 
 void create_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog,
                 Widget parent, char *name, char *title);
+void create_XteeGuiBasicFormDialog_2(XteeGuiBasicFormDialog *dialog,
+                Widget parent, char *name, char *title, Dimension width,
+                Dimension height);
 void free_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog);
 
 /* The pointers returned by these functions may be invalid after another
@@ -187,12 +193,14 @@ inline void
 manage_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog)
 {
         XtManageChild(dialog->dialog_form);
+        XtManageChild(dialog->scroll_window);
+        XtManageChild(dialog->parent_form);
 }
 
 inline void
 unmanage_XteeGuiBasicFormDialog(XteeGuiBasicFormDialog *dialog)
 {
-        XtUnmanageChild(dialog->dialog_form);
+        XtUnmanageChild(dialog->parent_form);
 }
 
 #endif

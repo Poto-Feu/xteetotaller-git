@@ -1,3 +1,11 @@
+2026-10-21
+* Allow creation of XteeGuiBasicFormDialog with custom width and height
+
+2026-10-13
+* Make XteeGuiBasicFormDialog window vertically scrollable
+* Separate OK and Cancel buttons columns from dialog form
+* Fix memory leak when loading program data
+
 2026-10-12
 * Fix CHANGES incorrect dates
 * Replace some XtUnmanageChild calls with unmanage_XteeGuiBasicFormDialog

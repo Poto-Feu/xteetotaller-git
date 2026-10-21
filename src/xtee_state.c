@@ -60,6 +60,10 @@ xtee_state_set_loaded_program(const char *program_id)
         info_strs[2] = "\" program.";
         info_strs[3] = NULL;
         print_info_strs(info_strs);
+        if (loaded_program) {
+                xtee_free_program(loaded_program);
+        }
+        free(loaded_program);
         loaded_program = xtee_prefix_get_program_data(&loaded_prefix,
                         program_id, &status);
         if (!loaded_program) {
