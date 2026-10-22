@@ -10,6 +10,8 @@ Using this program on a big-endian CPU may cause issues.
 Third-party libraries licenses are present in the licenses subdirectory.
 Building and installation information are available in the INSTALL file.
 
+Winetricks must be installed on the system where xteetotaller is used.
+
 Features
 ========
 * Lightweight GUI created with Motif
@@ -63,7 +65,7 @@ prefixes directories when xteetotaller is closed.
 Since xteetotaller is not a critical part of the operating system and does not
 use the network interfaces in any way, this should not cause an issue with
 almost all users.
-* The only places where wine, winetricks executable path are searched are
+* The only places where wine and winetricks executable path are searched are
 /usr/bin and /usr/local/bin.
 However, almost no user will encounter any problem as system-wide installation
 of programs should not be in other locations.

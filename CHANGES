@@ -1,3 +1,6 @@
+2026-10-22
+* Make winetricks a required runtime dependency
+
 2026-10-21
 * Allow creation of XteeGuiBasicFormDialog with custom width and height
 

@@ -1313,12 +1313,6 @@ xtee_gui_run_winetricks(void)
         const XteePrefix *loaded_prefix;
         int r;
 
-        if (!xtee_system_is_winetricks_installed) {
-                gui_print_error_log_and_dialog("Winetricks is not installed.",
-                                main_gui_data.main_win);
-                return;
-        }
-
         loaded_prefix = xtee_state_get_loaded_prefix();
         set_and_show_main_working_dialog("Running winetricks",
                         "Running winetricks");
@@ -1809,6 +1803,15 @@ show_system_wine_not_installed_dialog(void)
         XtManageChild(dialog);
 }
 
+static
+XTEE_XT_CALLBACK_FUNC(winetricks_error_dialog_unmap_cb)
+{
+        (void)w;
+        (void)client_data;
+        (void)call_data;
+        exit(0);
+}
+
 void
 xtee_gui_run(void)
 {
@@ -1824,10 +1827,26 @@ xtee_gui_run(void)
         }
 
         if(!xtee_system_is_winetricks_installed) {
-                gui_print_error_log_and_dialog(
-                                "winetricks is not installed.\n"
-                                "Some essential features will not work.",
-                                main_gui_data.main_win);
+                static Widget winetricks_error_dialog;
+                XmString dialog_title = xtee_new_XmString(
+                                "Winetricks not installed");
+                XmString dialog_msg = xtee_new_XmString(
+                                "Winetricks must be installed to use "
+                                "XTeetotaller.");
+                Arg dialog_args[] = {
+                        { XmNdialogTitle, (XtArgVal)dialog_title },
+                        { XmNmessageString, (XtArgVal)dialog_msg },
+                        { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+                };
+                winetricks_error_dialog = XmCreateErrorDialog(
+                                main_gui_data.main_win,
+                                "winetricks_error_dialog",
+                                dialog_args, XtNumber(dialog_args));
+                xtee_gui_hide_dialog_cancel_button(winetricks_error_dialog);
+                xtee_gui_disable_dialog_help_button(winetricks_error_dialog);
+                XtAddCallback(winetricks_error_dialog, XmNunmapCallback,
+                                winetricks_error_dialog_unmap_cb, NULL);
+                XtManageChild(winetricks_error_dialog);
         }
 
         XtAppMainLoop(main_gui_data.app_context);

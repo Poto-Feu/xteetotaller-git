@@ -202,12 +202,6 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                                 dialog->dialog_form);
                 free(prefix_id_str);
                 return;
-        } else if (isolate_home && !xtee_system_is_winetricks_installed) {
-                gui_print_error_log_and_dialog("Isolate home option "
-                                "only available with winetricks installed.",
-                                dialog->dialog_form);
-                free(prefix_id_str);
-                return;
         }
 
         prefix_arch_str = arch_choices_str[arch_choice_i - 1];
