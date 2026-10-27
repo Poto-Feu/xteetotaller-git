@@ -1319,7 +1319,7 @@ xtee_gui_run_winetricks(void)
         env_data_handler = xtee_gui_set_env_data_handler(loaded_prefix,
                         NULL, true);
 
-        r = xtee_gui_fork_exec((char *)xtee_system_winetricks_path.s, NULL, 0,
+        r = xtee_gui_fork_exec(xtee_system_winetricks_path.s, NULL, 0,
                                 env_data_handler.block,
                                 env_data_handler.n);
         xtee_env_data_free_handler(&env_data_handler);

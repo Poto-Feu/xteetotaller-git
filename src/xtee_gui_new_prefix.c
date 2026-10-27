@@ -122,7 +122,7 @@ fork_exec_isolate_home(XteePrefix *prefix)
         env_data[2].name = "WINEPREFIX";
         env_data[2].value = prefix->wineprefix_dir.s;
 
-        return xtee_gui_fork_exec((char *)xtee_system_winetricks_path.s,
+        return xtee_gui_fork_exec(xtee_system_winetricks_path.s,
                         args, XTEE_ARRAY_LEN(args), env_data,
                         XTEE_ARRAY_LEN(env_data));
 }

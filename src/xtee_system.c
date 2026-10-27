@@ -38,7 +38,7 @@ XteeConstString xtee_system_wine_lib_path = { 0 };
 XteeConstString xtee_system_wineboot_path = { 0 };
 XteeConstString xtee_system_winecfg_path = { 0 };
 XteeConstString xtee_system_wineserver_path = { 0 };
-XteeConstString xtee_system_winetricks_path = { 0 };
+XteeString xtee_system_winetricks_path = { 0 };
 
 static bool xtee_system_is_wine_lib_present = false;
 static bool xtee_system_is_prefix_usr_local = false;
@@ -146,9 +146,9 @@ set_winetricks_path(void)
 
                 if (stat(winetricks_paths[i], &buf) == 0
                                 && S_ISREG(buf.st_mode)) {
-                        xtee_system_winetricks_path.s = winetricks_paths[i];
-                        xtee_system_winetricks_path.n = strlen(
-                                        winetricks_paths[i]);
+                        xtee_system_winetricks_path =
+                                XteeString_create_from_charstring(
+                                                winetricks_paths[i]);
                         xtee_system_is_winetricks_installed = true;
                 }
         }

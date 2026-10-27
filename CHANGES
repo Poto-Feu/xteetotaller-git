@@ -1,3 +1,6 @@
+2026-10-27
+* Use XteeString for winetricks path
+
 2026-10-22
 * Make winetricks a required runtime dependency
 

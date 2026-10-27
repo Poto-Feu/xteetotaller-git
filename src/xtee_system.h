@@ -28,7 +28,7 @@ extern XteeConstString xtee_system_wine_lib_path;
 extern XteeConstString xtee_system_wineboot_path;
 extern XteeConstString xtee_system_winecfg_path;
 extern XteeConstString xtee_system_wineserver_path;
-extern XteeConstString xtee_system_winetricks_path;
+extern XteeString xtee_system_winetricks_path;
 
 void xtee_system_init(void);
 bool xtee_system_is_amd64(void);
