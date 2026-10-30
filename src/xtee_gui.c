@@ -1735,6 +1735,8 @@ xtee_gui_init(int *argc, char *argv[])
         XtVaSetValues(main_gui_data.toplevel,
                         XmNwidth, XTEE_GUI_START_WIDTH,
                         XmNheight, XTEE_GUI_START_HEIGHT,
+                        XmNminWidth, XTEE_GUI_START_WIDTH - 50,
+                        XmNminHeight, XTEE_GUI_START_HEIGHT - 80,
                         XmNx, x_pos,
                         XmNy, y_pos,
                         NULL);

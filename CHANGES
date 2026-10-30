@@ -1,5 +1,6 @@
 2026-10-30
 * Find winetricks in PATH environment variable
+* Set minimum top level shell width and height values
 
 2026-10-27
 * Use XteeString for winetricks path
