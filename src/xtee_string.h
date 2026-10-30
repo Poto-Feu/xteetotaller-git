@@ -153,4 +153,11 @@ charstring_has_equal_sign(const char *s)
         return false;
 }
 
+inline char *
+xtee_string_merge_char_strings(const char *s1, const char *s2)
+{
+        const char *strs_block[3] = { s1, s2, NULL };
+        return xtee_string_merge_char_strings_block(strs_block);
+}
+
 #endif

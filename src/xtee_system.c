@@ -22,6 +22,7 @@
 
 #include <sys/stat.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #if INTPTR_MAX == INT64_MAX
 #define XTEE_SYSTEM_AMD64
@@ -132,30 +133,70 @@ set_wineserver_path(void)
         }
 }
 
+static bool
+is_winetricks_executable(const char *s)
+{
+        return access(s, X_OK) == 0;
+}
+
+/* TOCTOU race condition here!
+ * This is not an essential system utility so this is fine for xteetotaller.
+ * Returned value must be freed if not NULL. */
+static char *
+get_winetricks_path(void)
+{
+        char *paths, *path_string, *path_separator;
+
+        paths = xtee_strdup_or_exit(getenv("PATH"));
+        path_string = paths;
+        path_separator = NULL;
+        do {
+                char *full_path = NULL;
+
+                path_separator = strchr(path_string, ':');
+                if (path_separator) {
+                        path_separator[0] = '\0';
+                }
+                full_path = xtee_string_merge_char_strings(path_string,
+                                "/winetricks");
+                if (is_winetricks_executable(full_path)) {
+                        const char *log_strs[3] = {
+                                "Found winetricks at ",
+                                full_path,
+                                NULL,
+                        };
+                        free(paths);
+                        print_info_strs(log_strs);
+                        return full_path;
+                } else {
+                        const char *log_strs[3] = {
+                                full_path,
+                                " is not executable or does not exist.",
+                                NULL,
+                        };
+
+                        print_info_strs(log_strs);
+                }
+                free(full_path);
+                full_path = NULL;
+                path_string = path_separator + 1;
+        } while (path_separator != NULL);
+
+        free(paths);
+        return NULL;
+}
+
 static void
 set_winetricks_path(void)
 {
-        const char *winetricks_paths[] = {
-                "/usr/bin/winetricks",
-                "/usr/local/bin/winetricks",
-        };
+        char *path;
 
-        for (size_t i = 0; i < XTEE_ARRAY_LEN(winetricks_paths)
-                        && !xtee_system_is_winetricks_installed; ++i) {
-                struct stat buf;
-
-                if (stat(winetricks_paths[i], &buf) == 0
-                                && S_ISREG(buf.st_mode)) {
-                        xtee_system_winetricks_path =
-                                XteeString_create_from_charstring(
-                                                winetricks_paths[i]);
-                        xtee_system_is_winetricks_installed = true;
-                }
+        if (!(path = get_winetricks_path())) {
+                return;
         }
-
-        if (!xtee_system_is_winetricks_installed) {
-                print_warning("Winetricks not installed on system.");
-        }
+        xtee_system_winetricks_path = XteeString_create_from_charstring(path);
+        free(path);
+        xtee_system_is_winetricks_installed = true;
 }
 
 void

@@ -31,6 +31,9 @@ extern inline XteeString XteeString_duplicate(const XteeString str);
 extern inline void init_XteeStringList(XteeStringList *list);
 extern inline bool charstring_has_equal_sign(const char *s);
 
+extern inline char * xtee_string_merge_char_strings(const char *s1,
+                const char *s2);
+
 XteeString
 move_string_to_XteeString(char *s)
 {
