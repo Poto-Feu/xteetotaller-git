@@ -30,9 +30,13 @@ For reference, this is the setup which I used to compile xteetotaller:
 - autoconf 2.69
 - automake 1.16.2
 - Mesa 25.0.7 from the testng repository
-- bmake 20260714 (port of the NetBSD make tool)
+- bmake 20260912 (port of the NetBSD make tool)
 - AMD Ryzen 5 2600X with MSI B450M PRO-VDH MAX motherboard
 - XFX AMD RX 570 4GB
+
+The built program was also tested on the following window managers:
+- WindowMaker 0.95.9 from slackware64 repository
+- emwm (Enhanced Motif Window Manager) 2.1 from slackbuilds.org
 
 bmake is used to check if the Makefile generated with the autoconf configure
 script does not use GNU Make extensions

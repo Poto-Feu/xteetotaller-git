@@ -1,3 +1,6 @@
+2026-10-31
+* Update tested build configurations list and add tested window managers list
+
 2026-10-30
 * Find winetricks in PATH environment variable
 * Set minimum top level shell width and height values
