@@ -147,9 +147,6 @@ reload_program_cmd_line_args_list(XteeGuiBasicFormDialog *dialog)
         XmListDeselectAllItems(args_field->list);
         xtee_gui_free_XmStringTable_items(args_strs, program->args_list.n);
         free(args_strs);
-        /* As all items are deselected, disable "Remove argument" button. */
-        XteeGuiListButtonsForm_button_set_sensitive(args_field,
-                        remove_arg_btn_i, False);
 }
 
 static
@@ -264,8 +261,15 @@ XTEE_XT_CALLBACK_FUNC(remove_arg_btn_cb)
                         XmNselectedPositionCount, &list_positions_n,
                         XmNselectedPositions, &list_positions,
                         NULL);
-        if (list_positions_n > 1) {
-                fatal_error("Multiple selections in args list.");
+        if (!list_positions_n) {
+                gui_print_error_dialog("No program argument selected",
+                                dialog->parent_form);
+                return;
+        } else if (list_positions_n > 1) {
+                gui_print_error_dialog("Args list must have only one item "
+                                "selected",
+                                dialog->parent_form);
+                return;
         }
         program = xtee_state_get_loaded_program();
         xtee_program_remove_argument(program, list_positions[0] - 1);
@@ -287,9 +291,6 @@ set_program_args_widgets(XteeGuiBasicFormDialog *dialog,
                         dialog);
         XtAddCallback(remove_arg_btn, XmNactivateCallback, remove_arg_btn_cb,
                         dialog);
-        /* Disable "Remove argument" button as nothing is selected at first. */
-        XteeGuiListButtonsForm_button_set_sensitive(listbuttons_form,
-                        remove_arg_btn_i, False);
 }
 
 typedef struct NewEnvVarOkData {
@@ -486,8 +487,11 @@ XTEE_XT_CALLBACK_FUNC(remove_var_btn_cb)
                         XmNselectedPositionCount, &list_positions_n,
                         XmNselectedPositions, &list_positions,
                         NULL);
-        if (!list_positions_n || list_positions_n > 1) {
-                puts("lol");
+        if (!list_positions_n) {
+                gui_print_error_dialog("No environment variable selected",
+                                dialog->parent_form);
+                return;
+        } else if (list_positions_n > 1) {
                 return;
         }
         xtee_env_data_remove_var_from_handler(&program->env_data,

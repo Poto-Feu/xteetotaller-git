@@ -1,3 +1,7 @@
+2026-11-01
+* Remove test message in xtee_gui_program_options.c
+* Never disable Remove argument button to simplify dialog handling
+
 2026-10-31
 * Update tested build configurations list and add tested window managers list
 
