@@ -75,8 +75,8 @@ set_wine_lib_directory(void)
 
                 current_path = lib_paths[i];
                 if (stat(current_path, &buf) == 0 && S_ISDIR(buf.st_mode)) {
-                        xtee_system_wine_lib_path.s = *lib_paths;
-                        xtee_system_wine_lib_path.n = strlen(*lib_paths);
+                        xtee_system_wine_lib_path.s = current_path;
+                        xtee_system_wine_lib_path.n = strlen(current_path);
                         xtee_system_is_wine_lib_present = true;
                 }
         }

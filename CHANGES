@@ -3,6 +3,7 @@
 * Fix "bit" typos in code and README
 * Fix bit typos again
 * Remove All rights reserved mention in README
+* Fix incorrect system wine library path
 
 2026-11-02
 * Remove leftover text in README
