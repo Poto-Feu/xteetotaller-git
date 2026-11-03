@@ -212,7 +212,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
         } else if (arch_enum_val != XTEE_PREFIX_ARCH_WIN32
                         && !xtee_system_is_amd64()) {
                 gui_print_error_log_and_dialog("win64 and wow64 prefixes can "
-                                "not be created on 32-bits systems.",
+                                "not be created on 32 bit systems.",
                                 dialog->dialog_form);
                 free(prefix_id_str);
                 return;
@@ -246,7 +246,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_ok_cb)
                 if (wine_version_data->arch == XTEE_WINE_VERSION_ARCH_X86) {
                         gui_print_error_log_and_dialog("Selected Wine version "
                                         "is x86. "
-                                        "You can only use 32-bits programs "
+                                        "You can only use 32 bit programs "
                                         "and prefixes with this version.",
                                         dialog->dialog_form);
                         free(wine_version_charstr);

@@ -922,7 +922,7 @@ xtee_gui_load_prefix(const char *prefix_id, Widget parent)
                         return -1;
                 case XTEE_LOAD_PREFIX_WINE_ARCH_SYSTEM_NOMATCH:
                         gui_print_error_log_and_dialog("Prefix architecture "
-                                        "is not compatible with 32-bits "
+                                        "is not compatible with 32 bit "
                                         "systems.",
                                         parent);
                         return -1;
@@ -1104,9 +1104,8 @@ XTEE_XT_CALLBACK_FUNC(edit_menu_cb)
 }
 
 #define ABOUT_DIALOG_TEXT_CONTENT \
-"XTeetotaller, Alpha version.\n\
-A Wine prefixes and programs manager for UNIX and UNIX-like \
-operating systems.\n\
+"XTeetotaller 0.1.\n\
+A Wine prefix and program manager for UNIX-like systems.\n\
 \n\
 Copyright 2026 Adrien Saad. All Rights Reserved.\n\n"
 

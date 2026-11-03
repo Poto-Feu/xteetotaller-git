@@ -1,3 +1,15 @@
+2026-11-03
+* Add warning about pure 64 bits Wine builds in README
+* Fix "bit" typos in code and README
+* Fix bit typos again
+* Remove All rights reserved mention in README
+
+2026-11-02
+* Remove leftover text in README
+* Remove confusing text in Known Issues section of README
+* Set current version as 0.1
+* Clarify description in About dialog
+
 2026-11-01
 * Remove test message in xtee_gui_program_options.c
 * Never disable Remove argument button to simplify dialog handling

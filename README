@@ -1,11 +1,13 @@
 xteetotaller is a Wine prefix manager.
+Current version is 0.1.
+This software is still in Alpha state, use at your own risk.
 
 The only required dependencies are Motif and standard X11 libraries.
 It requires a C99-compliant compiler with some parts of the Single Unix
 Specification, Version 3 (also known as POSIX.1-2001), implemented.
 
 xteetotaller is meant to be used on an x86 CPU.
-Using this program on a big-endian CPU may cause issues.
+Using this program on any other CPU architecture may cause issues.
 
 Third-party libraries licenses are present in the licenses subdirectory.
 Building and installation information are available in the INSTALL file.
@@ -62,17 +64,10 @@ These should not be deleted or modified by an external tool while xteetotaller
 is running.
 However, it is safe to delete Wine, DXVK, program configuration files and
 prefixes directories when xteetotaller is closed.
-Since xteetotaller is not a critical part of the operating system and does not
-use the network interfaces in any way, this should not cause an issue with
-almost all users.
-However, almost no user will encounter any problem as system-wide installation
-of programs should not be in other locations.
-Moreover, these programs should not be installed in /bin or /sbin as these
-directories are meant for commands used in emergency cases before any
-filesystem is mounted.
-Some Unix-like systems - such as those embracing the misguided "/usr merge" -
-are simply symlinking these directories to /usr/bin so it will not create any
-conflict.
+* Pure 64-bit Wine versions are not supported. This means that Wine builds
+that cannot run 32-bit executables will not be detected correctly by this
+program. In practice, a pure 64-bit build is useless as many 64-bit programs
+require 32-bit components. Use Wow64 builds instead.
 
 Copyright and licensing information
 ===================================
@@ -80,4 +75,4 @@ This program is licensed under the GNU Affero General Public License 3.0 - also
 known as GNU AGPL v3.
 Please read the COPYING file for more information
 
-Copyright 2026 Adrien Saad. All Rights Reserved.
+Copyright 2026 Adrien Saad.

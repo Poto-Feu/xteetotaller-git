@@ -1248,7 +1248,7 @@ xtee_prefix_install_dxvk(XteePrefix *prefix,
         const char *system32_info_strs[3];
         XteeString system32_path = { 0 };
         XteeString syswow64_path = { 0 };
-        const XteeString *prefix_32bits_dlls_path;
+        const XteeString *prefix_32bit_dlls_path;
 
         system32_path = XteeString_merge_XteeConstString_charstring(
                         XteeString_to_XteeConstString(prefix->wineprefix_dir),
@@ -1260,7 +1260,7 @@ xtee_prefix_install_dxvk(XteePrefix *prefix,
         xtee_gui_update_display();
 
         if (prefix->arch == XTEE_PREFIX_ARCH_WIN32) {
-                prefix_32bits_dlls_path = &system32_path;
+                prefix_32bit_dlls_path = &system32_path;
         } else {
                 const char *syswow64_info_strs[3];
 
@@ -1272,7 +1272,7 @@ xtee_prefix_install_dxvk(XteePrefix *prefix,
                 syswow64_info_strs[1] = syswow64_path.s;
                 syswow64_info_strs[2] = NULL;
                 print_info_strs(syswow64_info_strs);
-                prefix_32bits_dlls_path = &syswow64_path;
+                prefix_32bit_dlls_path = &syswow64_path;
         }
 
         for (size_t i = 0; i < dxvk_data->x32_dll_strs.n; ++i) {
@@ -1287,7 +1287,7 @@ xtee_prefix_install_dxvk(XteePrefix *prefix,
                                         dxvk_data->x32_dll_strs.data[i]));
                 dest_dll_path = XteeString_merge_XteeConstStrings(
                                 XteeString_to_XteeConstString(
-                                        *prefix_32bits_dlls_path),
+                                        *prefix_32bit_dlls_path),
                                 XteeString_to_XteeConstString(
                                         dxvk_data->x32_dll_strs.data[i]));
                 dll_copying_info_strs[0] = "Copying ";
@@ -1351,7 +1351,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
         XteeString syswow64_path = { 0 };
         XteeString wine_x32_lib_path = { 0 };
         XteeString wine_x64_lib_path = { 0 };
-        const XteeString *prefix_32bits_dlls_path;
+        const XteeString *prefix_32bit_dlls_path;
         const XteeWineVersionData *wine_version;
 
         wine_version = xtee_wine_get_version_data(prefix->wine_version.s);
@@ -1370,7 +1370,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
                         "i386-windows/");
 
         if (prefix->arch == XTEE_PREFIX_ARCH_WIN32) {
-                prefix_32bits_dlls_path = &system32_path;
+                prefix_32bit_dlls_path = &system32_path;
         } else {
                 const char *syswow64_info_strs[3];
 
@@ -1382,7 +1382,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
                 syswow64_info_strs[1] = syswow64_path.s;
                 syswow64_info_strs[2] = NULL;
                 print_info_strs(syswow64_info_strs);
-                prefix_32bits_dlls_path = &syswow64_path;
+                prefix_32bit_dlls_path = &syswow64_path;
                 wine_x64_lib_path =
                         XteeString_merge_XteeConstString_charstring(
                                 XteeString_to_XteeConstString(
@@ -1402,7 +1402,7 @@ xtee_prefix_remove_dxvk(XteePrefix *prefix)
                                         prefix->dxvk_x32_dlls.data[i]));
                 dest_dll_path = XteeString_merge_XteeConstStrings(
                                 XteeString_to_XteeConstString(
-                                        *prefix_32bits_dlls_path),
+                                        *prefix_32bit_dlls_path),
                                 XteeString_to_XteeConstString(
                                         prefix->dxvk_x32_dlls.data[i]));
                 dll_copying_info_strs[0] = "Copying ";
