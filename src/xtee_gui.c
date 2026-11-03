@@ -1072,6 +1072,7 @@ XTEE_XT_CALLBACK_FUNC(file_menu_cb)
         (void)w;
         (void)call_data;
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
@@ -1094,6 +1095,7 @@ XTEE_XT_CALLBACK_FUNC(edit_menu_cb)
         (void)w;
         (void)call_data;
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
@@ -1246,6 +1248,7 @@ XTEE_XT_CALLBACK_FUNC(prefix_menu_cb)
 
         (void)w;
         (void)call_data;
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
@@ -1419,6 +1422,7 @@ XTEE_XT_CALLBACK_FUNC(wine_menu_cb)
 
         (void)w;
         (void)call_data;
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         item_i = (int)client_data;
 #pragma GCC diagnostic pop
@@ -1443,6 +1447,7 @@ XTEE_XT_CALLBACK_FUNC(help_menu_cb)
         (void)w;
         (void)call_data;
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         item_i = (int)client_data;
 #pragma GCC diagnostic pop

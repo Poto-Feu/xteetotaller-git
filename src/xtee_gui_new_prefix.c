@@ -66,6 +66,7 @@ XTEE_XT_CALLBACK_FUNC(new_prefix_dialog_arch_radiobox_cb)
         arch_choice_i = &xtee_new_prefix_arch_choice_i;
 
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
         *arch_choice_i = (unsigned int)client_data;
 #pragma GCC diagnostic pop

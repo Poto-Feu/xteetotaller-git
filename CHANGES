@@ -4,6 +4,8 @@
 * Fix bit typos again
 * Remove All rights reserved mention in README
 * Fix incorrect system wine library path
+* Add FreeBSD testing VM specifications
+* Fix missing diagnostic push pragma macros
 
 2026-11-02
 * Remove leftover text in README

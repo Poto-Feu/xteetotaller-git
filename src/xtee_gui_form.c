@@ -830,6 +830,7 @@ XteeGuiRadioBoxForm_add_callback(XteeGuiRadioBoxForm *radiobox_form,
 {
         for (unsigned int i = 0; i < (unsigned int)radiobox_form->choices_n;
                         ++i) {
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
                 XtAddCallback(radiobox_form->choices_w[i],
                                 XmNvalueChangedCallback, cb_func,

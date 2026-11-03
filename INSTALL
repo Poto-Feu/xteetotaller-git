@@ -38,6 +38,17 @@ The built program was also tested on the following window managers:
 - WindowMaker 0.95.9 from slackware64 repository
 - emwm (Enhanced Motif Window Manager) 2.1 from slackbuilds.org
 
+It was also tested on a FreeBSD QEMU VM with the following specifications:
+- FreeBSD 15.1-RELEASE with UEFI
+- qemu 10.2.4 from slackbuilds.org
+- pc machine type
+- virtio-vga-gl display device with virtio-gpu-qemu-kmod
+- Xorg 21.1.25 with xf86-video-scfb
+- emwm 2.1
+- build with stock clang with modified CFLAGS and LDFLAGS to search /usr/local
+- hardware acceleration and non-system installations of wine versions could not
+be tested
+
 bmake is used to check if the Makefile generated with the autoconf configure
 script does not use GNU Make extensions
 
