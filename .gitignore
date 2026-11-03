@@ -93,3 +93,4 @@ RCS
 #Custom
 compile_commands.json
 build/
+build-aux/
