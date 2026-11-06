@@ -2,6 +2,7 @@
 * Add Quick start section in README
 * Add date for FreeBSD testing
 * Add AUTHORS file
+* 0.1 release
 
 2026-11-04
 * Move pure 64-bit Wine warning near the beginning of README

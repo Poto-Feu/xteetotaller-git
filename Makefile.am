@@ -55,6 +55,7 @@ dist_doc_DATA = README \
                 CHANGES \
                 COPYING \
                 INSTALL \
+                NEWS \
                 licenses/COPYING.Motif \
                 licenses/COPYING.libXt \
                 licenses/COPYING.libX11
