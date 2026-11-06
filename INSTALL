@@ -38,7 +38,8 @@ The built program was also tested on the following window managers:
 - WindowMaker 0.95.9 from slackware64 repository
 - emwm (Enhanced Motif Window Manager) 2.1 from slackbuilds.org
 
-It was also tested on a FreeBSD QEMU VM with the following specifications:
+It was also tested on a FreeBSD QEMU VM on 2026-11-03 with the following
+specifications:
 - FreeBSD 15.1-RELEASE with UEFI
 - qemu 10.2.4 from slackbuilds.org
 - pc machine type
@@ -69,8 +70,8 @@ To see the available flags for the configure script, simply type
 `./configure --help`.
 An useful environment variable is CFLAGS as it can be set to enable or disable
 flags related to warnings or optimization.
-The `--prefix` option can be set to change the installation root directory
-location of the program. Its default value is `/usr/local`.
+The `--prefix` option can be set to change the root directory location of the
+program. Its default value is `/usr/local`.
 
 Makefile
 ========

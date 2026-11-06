@@ -51,6 +51,7 @@ xteetotaller_SOURCES =  src/xteetotaller.c \
                         src/xtee_wine.c \
                         src/xtee_wine.h
 dist_doc_DATA = README \
+                AUTHORS \
                 CHANGES \
                 COPYING \
                 INSTALL \

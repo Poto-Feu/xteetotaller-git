@@ -14,6 +14,11 @@ Building and installation information are available in the INSTALL file.
 
 Winetricks must be installed on the system where xteetotaller is used.
 
+WARNING: Pure 64-bit Wine versions are not supported. This means that Wine
+builds that cannot run 32-bit executables will not be detected correctly by
+this program. In practice, a pure 64-bit build is useless as many 64-bit
+programs require 32-bit components. Use Wow64 builds instead.
+
 Features
 ========
 * Lightweight GUI created with Motif
@@ -35,6 +40,71 @@ Planned features
 * Set niceness value for each program
 * In-program help system
 
+Quick start
+===========
+xteetotaller stores its data in the path specified by the $XTEE_DATA_DIR
+environment variable or if the former is undefined in the $HOME/.xteetotaller
+directory, as most program made for UNIX-like do.
+Please note that xteetotaller will not create a subdirectory in the path
+specified by $XTEE_DATA_DIR.
+For instance, if you want to put xteetotaller data in $HOME/.local/share,
+you should create a subdirectory and set $XTEE_DATA_DIR to
+"$HOME/.local/share/xteetotaller".
+
+Here is an overview of the xteetotaller data directory:
+1. A config file simply named "config"
+2. A prefixes directory holding internal xteetotaller data for user-created
+prefixes
+2.1 One subdirectory for each created prefix
+3. A components directory for user-installed Wine and DXVK versions
+3.1 A dxvk subdirectory to store DXVK versions
+3.2 A wine subdirectory to store Wine versions
+
+There are two ways of using Wine with xteetotaller:
+* Either use the Wine version installed on the system. It should be located in
+/usr/bin or /usr/local/bin.
+* Install a wine build in $XTEE_DATA_DIR/components/wine
+
+One place where GNU/Linux users can find pre-built Wine versions are in the
+repository maintained by Kron4ek at the following address:
+https://github.com/Kron4ek/Wine-Builds (available in the Releases section).
+After downloading an archive of the Wine version, simply put the decompressed
+directory in $XTEE_DATA_DIR/components/wine.
+Multiple Wine builds can co-exist in $XTEE_DATA_DIR/components/wine as they
+should all be in their own subdirectory.
+
+DXVK build are available in various forms:
+* The upstream repository is located at https://github.com/doitsujin/dxvk
+* Builds for GPU or older versions supporting only Vulkan 1.1 or 1.2 are
+available at https://github.com/pythonlover02/dxvk-Sarek
+
+Downloads are available for both repository in the Releases section.
+Similarly to Wine builds, the uncompressed directories should be placed in
+$XTEE_DATA_DIR/components/dxvk.
+
+To create a prefix, an empty directory where Wine prefix files will be stored
+must be created.
+When this is done, run xteetotaller and click on File -> New prefix.
+A dialog will be opened where you can set the prefix parameters.
+Select the created empty directory as the prefix directory and select a Wine
+version on the drop down list.
+The selected Wine prefix architecture must be compatible with the selected Wine
+version.
+If everything is fine, the Wine prefix will be initialized.
+After that, both the Prefix and Wine menu will be made available.
+You can configure the prefix by clicking on Prefix -> Options.
+
+There are two ways of running a program:
+* Create a program entry in the prefix by clicking on Prefix -> New Program.
+This is useful for programs which will be frequently used.
+* Run a program by clicking on Prefix -> Run executable in prefix. This is
+useful for programs which will be rarely executed such as installers.
+
+DXVK can be installed in the prefix by clicking in Prefix -> Options.
+
+The rest of the interface is self-explanatory and you should be able to easily
+configure prefixes and programs entries.
+
 Known issues
 ============
 * It is not possible to copy and paste with Ctrl+C and Ctrl+V yet.
@@ -42,6 +112,11 @@ However, it is possible to copy and paste with middle click like all X11
 programs do.
 IBM Common User Access keyboard shortcuts for Cut/Copy/Paste such as Shift+Ins
 are also supported.
+* Prefixes cannot be deleted with xteetotaller.
+They can however be deleted by removing the appropriate directory in
+$XTEE_DATA_DIR/prefixes.
+The directory used for prefixes files can also be safely deleted after doing
+this operation.
 * Some parts of the program could have their number of memory allocations
 reduced.
 A lot of allocations are made in a naive way, where blocks are resized by one
@@ -51,7 +126,7 @@ This is unnoticeable for the user in most cases, but must still be addressed.
 * Labels with UTF-8 characters may not be displayed correctly.
 However, this isssue should not be present on TextField widgets.
 * Some fonts are hardcoded and cannot be modified with Xt resources.
-* Some errors may result in crash or are ignored silently.
+* Some errors may result in a crash or are ignored silently.
 The former is mostly caused by a configuration file writing error.
 This should not happen unless the file system is corrupted or has not enough
 free space, or the files have incorrect permissions.
@@ -64,10 +139,6 @@ These should not be deleted or modified by an external tool while xteetotaller
 is running.
 However, it is safe to delete Wine, DXVK, program configuration files and
 prefixes directories when xteetotaller is closed.
-* Pure 64-bit Wine versions are not supported. This means that Wine builds
-that cannot run 32-bit executables will not be detected correctly by this
-program. In practice, a pure 64-bit build is useless as many 64-bit programs
-require 32-bit components. Use Wow64 builds instead.
 
 Copyright and licensing information
 ===================================
