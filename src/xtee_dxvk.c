@@ -104,6 +104,7 @@ xtee_dxvk_init(void)
         }
 
         if (!files_list.n) {
+                XteeStringList_free(files_list);
                 print_info("No wine component installed.");
                 goto direct_rtrn;
         }

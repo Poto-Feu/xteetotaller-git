@@ -50,9 +50,6 @@ specified by $XTEE_DATA_DIR.
 For instance, if you want to put xteetotaller data in $HOME/.local/share,
 you should create a subdirectory and set $XTEE_DATA_DIR to
 "$HOME/.local/share/xteetotaller".
-While you might see an error about subdirectories that cannot be read on first
-launch, this is not an issue as they will be created just after these errors
-are issued.
 
 Here is an overview of the xteetotaller data directory:
 1. A config file simply named "config"

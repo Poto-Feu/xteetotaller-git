@@ -121,15 +121,14 @@ main(int argc, char *argv[])
         int status = EXIT_FAILURE;
 
         set_log_level();
-        xtee_system_init();
-        xtee_wine_init();
-        xtee_dxvk_init();
         xtee_dir_path = get_xteetotaller_dir_path();
-
         if (create_xteetotaller_dirs(xtee_dir_path) != 0) {
                 goto err_exit;
         }
 
+        xtee_system_init();
+        xtee_wine_init();
+        xtee_dxvk_init();
         if (xtee_config_init(xtee_dir_path) != 0) {
                 return EXIT_FAILURE;
         }

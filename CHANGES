@@ -1,3 +1,6 @@
+2026-11-07
+* Fix directories errors on first launch
+
 2026-11-06
 * Add Quick start section in README
 * Add date for FreeBSD testing
