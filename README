@@ -1,5 +1,5 @@
 xteetotaller is a Wine prefix manager.
-Current version is 0.1.
+Current version is 0.2.
 This software is still in Alpha state, use at your own risk.
 
 The only required dependencies are Motif and standard X11 libraries.
@@ -50,6 +50,8 @@ specified by $XTEE_DATA_DIR.
 For instance, if you want to put xteetotaller data in $HOME/.local/share,
 you should create a subdirectory and set $XTEE_DATA_DIR to
 "$HOME/.local/share/xteetotaller".
+On first launch, the directory structure of the xteetotaller data directory
+will be created.
 
 Here is an overview of the xteetotaller data directory:
 1. A config file simply named "config"

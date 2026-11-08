@@ -1,5 +1,9 @@
+2026-11-08
+* Add note about directory creation on first launch
+
 2026-11-07
 * Fix directories errors on first launch
+* Set next version as 0.2
 
 2026-11-06
 * Add Quick start section in README

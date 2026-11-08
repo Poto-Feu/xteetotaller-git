@@ -1106,7 +1106,7 @@ XTEE_XT_CALLBACK_FUNC(edit_menu_cb)
 }
 
 #define ABOUT_DIALOG_TEXT_CONTENT \
-"XTeetotaller 0.1.\n\
+"XTeetotaller 0.2.\n\
 A Wine prefix and program manager for UNIX-like systems.\n\
 \n\
 Copyright 2026 Adrien Saad. All Rights Reserved.\n\n"
