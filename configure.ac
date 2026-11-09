@@ -1,4 +1,4 @@
-AC_INIT([xteetotaller],[0.1])
+AC_INIT([xteetotaller],[0.2])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE
 AC_CONFIG_FILES([Makefile])

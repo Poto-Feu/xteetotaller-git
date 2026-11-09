@@ -108,7 +108,7 @@ xtee_dxvk_init(void)
                 print_info("No wine component installed.");
                 goto direct_rtrn;
         }
-        /* See comment inx tee_wine_add_installed, except there are no
+        /* See comment in xtee_wine_add_installed, except there are no
          * system installation of dxvk. */
         dxvk_versions_data.block = realloc_or_exit(dxvk_versions_data.block,
                         files_list.n * sizeof(XteeDxvkVersionData));

@@ -1,5 +1,9 @@
+2026-11-09
+* Fix typo in xtee_dxvk_init comment
+
 2026-11-08
 * Add note about directory creation on first launch
+* Set configure.ac version as 0.2
 
 2026-11-07
 * Fix directories errors on first launch
