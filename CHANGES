@@ -1,6 +1,7 @@
 2026-11-10
 * Clean up XteeGuiBasicFormDialog attach values
 * Implement program info dialog
+* 0.2 release
 
 2026-11-09
 * Fix typo in xtee_dxvk_init comment
