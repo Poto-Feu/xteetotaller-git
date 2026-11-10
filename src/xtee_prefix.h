@@ -138,7 +138,7 @@ char *xtee_prefix_get_WINEDLLOVERRIDES_env_value(const XteePrefix *prefix);
 int xtee_prefix_save_program(XteePrefix *prefix, XteeProgram *program);
 
 /* The returned pointer is dynamically allocated.
- * Don't forget to call free when you don't need it anymore! */
+ * Don't forget to call xtee_free_program and free on the pointer! */
 XteeProgram *xtee_prefix_get_program_data(const XteePrefix *prefix,
                 const char *program_id,
                 enum XteeGetProgramDataStatus *status);

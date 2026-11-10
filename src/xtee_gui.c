@@ -66,6 +66,7 @@ typedef struct XteeWorkAreaStruct {
         Widget programs_list;
         Widget programs_buttons;
         Widget start_program_btn;
+        Widget program_info_btn;
         Widget program_options_btn;
         Widget remove_program_btn;
         Widget prefix_frame;
@@ -108,6 +109,8 @@ static struct XteeGuiMainData main_gui_data = { 0 };
 static XteePushButtonData programs_btns_data[] = {
         { "start_program_btn", "Start program",
                 &main_gui_data.work_area_struct.start_program_btn },
+        { "program_info_btn", "Program info",
+                &main_gui_data.work_area_struct.program_info_btn },
         { "program_options_btn", "Program options",
                 &main_gui_data.work_area_struct.program_options_btn },
         { "remove_program_btn", "Remove program",
@@ -115,8 +118,9 @@ static XteePushButtonData programs_btns_data[] = {
 };
 
 static const int start_program_btn_i = 0;
-static const int program_options_btn_i = 1;
-static const int remove_program_btn_i = 2;
+static const int program_info_btn_i = 1;
+static const int program_options_btn_i = 2;
+static const int remove_program_btn_i = 3;
 
 static Widget main_working_dialog = NULL;
 
@@ -564,6 +568,75 @@ XTEE_XT_CALLBACK_FUNC(start_program_btn_cb)
 }
 
 static
+XTEE_XT_CALLBACK_FUNC(program_info_dialog_unmap_cb)
+{
+        (void)call_data;
+        (void)client_data;
+        XtDestroyWidget(w);
+}
+
+static Widget
+create_program_info_dialog(const XteeProgram *program)
+{
+        const char *strs_block[] = {
+                "Id: ", program->id.s, "\n",
+                "Date created: ", program->creation_date.year,
+                "-", program->creation_date.month,
+                "-", program->creation_date.day, "\n",
+                "Path: ", program->exe_path.s,
+                NULL
+        };
+        Arg args[] = {
+                { XmNnoResize, True },
+                { XmNresizePolicy, XmRESIZE_NONE },
+                { XmNdefaultButton, XmDIALOG_OK_BUTTON },
+                { XmNdialogStyle, XmDIALOG_PRIMARY_APPLICATION_MODAL },
+        };
+        char *source_str;
+        Widget dialog;
+
+        source_str = xtee_string_merge_char_strings_block(strs_block);
+        dialog = XmCreateInformationDialog(main_gui_data.main_win,
+                        "program_info_dialog", args, XtNumber(args));
+        xtee_gui_hide_dialog_cancel_button(dialog);
+        xtee_gui_disable_dialog_help_button(dialog);
+        XtAddCallback(dialog, XmNunmapCallback, program_info_dialog_unmap_cb,
+                        NULL);
+        xtee_gui_set_dialog_title_message(dialog, "Program information",
+                        source_str);
+        free(source_str);
+
+        return dialog;
+}
+
+static
+XTEE_XT_CALLBACK_FUNC(program_info_btn_cb)
+{
+        static Widget dialog;
+        XteeString program_str;
+        XteeProgram *program_data;
+        const XteePrefix *loaded_prefix;
+        enum XteeGetProgramDataStatus status;
+
+        (void)w;
+        (void)call_data;
+        (void)client_data;
+        if (xtee_gui_get_selected_program_string(&program_str) != 0) {
+                return;
+        }
+        loaded_prefix = xtee_state_get_loaded_prefix();
+        program_data = xtee_prefix_get_program_data(loaded_prefix,
+                        program_str.s, &status);
+        if (!program_data) {
+                return;
+        }
+        dialog = create_program_info_dialog(program_data);
+        XtManageChild(dialog);
+        xtee_free_program(program_data);
+        free(program_data);
+}
+
+static
 XTEE_XT_CALLBACK_FUNC(program_options_btn_cb)
 {
         (void)w;
@@ -774,6 +847,9 @@ create_gui_programs_frame(XteeWorkAreaStruct *wa_struct, Widget parent)
         }
         XtAddCallback(*programs_btns_data[start_program_btn_i].w,
                         XmNactivateCallback, start_program_btn_cb,
+                        NULL);
+        XtAddCallback(*programs_btns_data[program_info_btn_i].w,
+                        XmNactivateCallback, program_info_btn_cb,
                         NULL);
         XtAddCallback(*programs_btns_data[program_options_btn_i].w,
                         XmNactivateCallback, program_options_btn_cb,

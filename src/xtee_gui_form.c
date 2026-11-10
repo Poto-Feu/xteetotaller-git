@@ -326,8 +326,6 @@ create_XteeGuiBasicFormDialog_2(XteeGuiBasicFormDialog *dialog, Widget parent,
                 { XmNleftAttachment, XmATTACH_FORM },
                 { XmNrightAttachment, XmATTACH_FORM },
                 { XmNtopAttachment, XmATTACH_FORM },
-                { XmNbottomOffset, 50 },
-                { XmNbottomAttachment, XmATTACH_FORM },
         };
         Arg dialog_form_args[] = {
                 { XmNwidth, width },
@@ -340,9 +338,18 @@ create_XteeGuiBasicFormDialog_2(XteeGuiBasicFormDialog *dialog, Widget parent,
         dialog->parent_form = XmCreateForm(dialog->shell,
                         "dialog_form", parent_form_args,
                         XtNumber(parent_form_args));
+        add_ok_cancel_buttons_to_form_dialog(dialog->parent_form,
+                        &dialog->ok_cancel_column,
+                        &dialog->ok_btn,
+                        &dialog->cancel_btn);
         dialog->scroll_window = XmCreateScrolledWindow(dialog->parent_form,
                         "dialog_scrolled_window", scroll_win_args,
                         XtNumber(scroll_win_args));
+        XtVaSetValues(dialog->scroll_window,
+                        XmNbottomAttachment, XmATTACH_WIDGET,
+                        XmNbottomWidget, dialog->ok_cancel_column,
+                        XmNbottomOffset, 12,
+                        NULL);
         /* Hide horizontal scrollbar */
         XtVaGetValues(dialog->scroll_window,
                         XmNhorizontalScrollBar, &hor_scrollbar,
@@ -354,10 +361,6 @@ create_XteeGuiBasicFormDialog_2(XteeGuiBasicFormDialog *dialog, Widget parent,
                         XtNumber(dialog_form_args));
         XmScrolledWindowSetAreas(dialog->scroll_window, NULL, NULL,
                         dialog->dialog_form);
-        add_ok_cancel_buttons_to_form_dialog(dialog->parent_form,
-                        &dialog->ok_cancel_column,
-                        &dialog->ok_btn,
-                        &dialog->cancel_btn);
         XtVaSetValues(dialog->dialog_form,
                         XmNdefaultButton, dialog->ok_btn,
                         XmNcancelButton, dialog->cancel_btn,
@@ -455,16 +458,15 @@ grow_dialog_fields_block_if_needed(XteeGuiBasicFormDialog *dialog)
                 dialog->fields = malloc_or_exit(
                                 start_capacity * sizeof(XteeGuiFormField));
                 dialog->capacity = start_capacity;
+                dialog->fields_n = 0;
+                return;
         }
 
         if (dialog->fields_n == dialog->capacity) {
-                dialog->fields = realloc_or_exit(dialog->fields,
-                                dialog->capacity * 2 * sizeof(
-                                        XteeGuiFormField));
                 dialog->capacity *= 2;
+                dialog->fields = realloc_or_exit(dialog->fields,
+                                dialog->capacity * sizeof(XteeGuiFormField));
         }
-        dialog->fields = realloc_or_exit(dialog->fields,
-                        (dialog->fields_n + 1) * sizeof(XteeGuiFormField));
 }
 
 void

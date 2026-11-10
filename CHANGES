@@ -1,5 +1,10 @@
+2026-11-10
+* Clean up XteeGuiBasicFormDialog attach values
+* Implement program info dialog
+
 2026-11-09
 * Fix typo in xtee_dxvk_init comment
+* Remove useless reallocation in grow_dialog_fields_block_if_needed
 
 2026-11-08
 * Add note about directory creation on first launch
