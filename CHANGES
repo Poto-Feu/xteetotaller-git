@@ -1,3 +1,6 @@
+2026-11-13
+* Add title to Change Wine version and Install DXVK dialogs
+
 2026-11-10
 * Clean up XteeGuiBasicFormDialog attach values
 * Implement program info dialog
